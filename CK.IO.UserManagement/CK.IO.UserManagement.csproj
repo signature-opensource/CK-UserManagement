@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CK.IO.Globalization" Version="0.1.4" />
-      <PackageReference Include="CK.IO.UserProfile.Workspace" Version="15.1.1" />
+      <PackageReference Include="CK.IO.Globalization" Version="0.1.5--ci.1" />
+      <PackageReference Include="CK.IO.UserProfile.Workspace" Version="15.1.2--ci.1" />
       <!-- Base Archive/Restore commands extended locally with the workspace/admin context. -->
-      <PackageReference Include="CK.IO.User.BinnedUser" Version="0.0.0" />
+      <PackageReference Include="CK.IO.User.BinnedUser" Version="0.0.1--ci.1" />
     </ItemGroup>
 
     <ItemGroup>
