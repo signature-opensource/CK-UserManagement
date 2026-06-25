@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Data access for the command handlers. -->
+        <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.1" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
+
+        <!-- Soft-delete / recycle-bin for users (BinDate, sUserArchive/sUserRestore, vUser transform). -->
+        <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.0" />
+
+        <!-- Standard CK.DB building blocks used by the handlers. -->
+        <PackageReference Include="CK.DB.Workspace" Version="15.1.1" />
+        <PackageReference Include="CK.DB.Zone" Version="28.0.2" />
+        <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.2" />
+        <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.2" />
+        <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.4.3--ci.3" />
+        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.2" />
+        <PackageReference Include="CK.DB.UserInvitation" Version="0.4.6" />
+        <PackageReference Include="CK.DB.Globalization" Version="0.1.4" />
+
+
+        <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
+             Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
+        <PackageReference Include="CK.Mailer.MailKit" Version="12.0.1" />
+        <PackageReference Include="CK.Template.Fluid" Version="0.0.0" />
+        <PackageReference Include="CK.AppIdentity.Abstractions" Version="0.14.1" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.sql" />
+        <EmbeddedResource Include="**\*.tql" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\CK.IO.UserManagement\CK.IO.UserManagement.csproj" />
+        <ProjectReference Include="..\CK.Mail.SharedLayout\CK.Mail.SharedLayout.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Res/** is auto-embedded by CK.EmbeddedResources.Abstractions (buildTransitive .props/.targets).
+         No explicit EmbeddedResource entry needed. -->
+
+    <ItemGroup>
+        <PackageReference Include="CK.AppIdentity.Abstractions" Version="0.14.1" />
+        <PackageReference Include="CK.Template.Fluid" Version="0.0.0" />
+    </ItemGroup>
+
+</Project>

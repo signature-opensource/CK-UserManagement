@@ -1,0 +1,19 @@
+-- SetupConfig: {}
+--
+-- Adds a @WorkspaceId parameter (default 0) to CK.sUserArchive and, when a workspace is specified,
+-- drives the security check from the caller's grant level on that workspace: SafeAdministrator (112)
+-- or above is required. @WorkspaceId = 0 keeps the default platform route (Administrators group).
+create transformer on CK.sUserArchive
+as
+begin
+    add parameter @WorkspaceId int = 0;
+
+    inject "
+    if @WorkspaceId <> 0
+    begin
+        if CK.fUserWorkspaceGrantLevel( @ActorId, @WorkspaceId ) >= 112
+            set @CanContinue = 1;
+        else
+            set @CanContinue = 0;
+    end" into "ArchiveSecurityCheck";
+end

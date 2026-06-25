@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CK.IO.Globalization" Version="0.1.4" />
+      <PackageReference Include="CK.IO.UserProfile.Workspace" Version="15.1.1" />
+      <!-- Base Archive/Restore commands extended locally with the workspace/admin context. -->
+      <PackageReference Include="CK.IO.User.BinnedUser" Version="0.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CK.IO.Admin\CK.IO.Admin.csproj" />
+    </ItemGroup>
+
+</Project>

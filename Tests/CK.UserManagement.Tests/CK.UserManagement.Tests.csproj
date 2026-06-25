@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Cris + auth markers required to build the command model of CK.UserManagement
+         (commands implement ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
+    <PackageReference Include="CK.Cris.Auth" Version="0.43.1" />
+    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.2" />
+
+    <!-- Standard CK.DB building blocks the handlers/services/queries depend on. -->
+    <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.2" />
+    <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.2" />
+    <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.4.3--ci.3" />
+    <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.0" />
+    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.2" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="0.4.6" />
+    <PackageReference Include="CK.DB.Workspace" Version="15.1.1" />
+    <PackageReference Include="CK.DB.Zone" Version="28.0.2" />
+    <PackageReference Include="CK.DB.Globalization" Version="0.1.4" />
+
+    <!-- Data access + transactions. -->
+    <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.1" />
+    <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
+
+    <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
+    <PackageReference Include="CK.Cris.Engine" Version="0.43.1" />
+    <PackageReference Include="CK.Template.Fluid.Engine" Version="0.0.0" />
+
+    <!-- Test harness. -->
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="33.0.2" />
+    <PackageReference Include="CK.Testing.Nunit" Version="15.0.1" />
+    <PackageReference Include="CK.Testing.SqlServerEngine" Version="33.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CK.UserManagement\CK.UserManagement.csproj" />
+  </ItemGroup>
+</Project>

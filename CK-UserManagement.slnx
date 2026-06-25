@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="nuget.config" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/CK.UserManagement.Tests/CK.UserManagement.Tests.csproj" />
+  </Folder>
+  <Project Path="CK.IO.Admin/CK.IO.Admin.csproj" />
+  <Project Path="CK.IO.UserManagement/CK.IO.UserManagement.csproj" />
+  <Project Path="CK.Mail.SharedLayout/CK.Mail.SharedLayout.csproj" />
+  <Project Path="CK.UserManagement/CK.UserManagement.csproj" />
+</Solution>

@@ -1,0 +1,33 @@
+{
+    // Root ("en") translation set for CK.UserManagement back-end messages.
+    // Keys are the resName arguments passed to the UserMessage helpers from the
+    // command handlers, services and validators of this package.
+
+    // AdminCommandValidator
+    "Admin.InvalidActor": "Invalid actor.",
+    "Admin.InvalidWorkSpace": "Invalid workspace.",
+    "Admin.NotAuthorized": "Admin authority required.",
+
+    // UserManagementCommandHandler (archive / restore)
+    "BinnedUser.NoUserId": "No user identifier provided.",
+    "BinnedUser.UsersArchived": "{0} user(s) successfully archived.",
+    "BinnedUser.ArchiveFailed": "An error occurred while archiving users.",
+    "BinnedUser.UsersRestored": "{0} user(s) successfully restored.",
+    "BinnedUser.RestoreFailed": "An error occurred while restoring users.",
+
+    // UserMessageExtensions (generic answers)
+    "CrisError.ExceptionCaught": "An error occured.",
+    "CrisError.InvalidActorId": "Please logout and relog-in, we were unable to identify you.",
+    "CrisError.ArgumentError": "Invalid arguments.",
+
+    // CommandHandler / Service success answers
+    "CrisSuccess.InvitationCreated": "Invitation successfully created.",
+    "CrisSuccess.InvitationsResend": "Invitations were successfully sent.",
+    "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited.",
+
+    // Invitation / registration flow
+    "User.InvitationAlreadyExists": "An invitation already exists for this e-mail address.",
+    "User.InvitationValidated": "Your invitation has been validated. Please complete your registration.",
+    "User.InvitationError": "Your invitation is no longer valid. Please contact your administrator.",
+    "User.RegistrationCompleted": "Registration successful. You can now log-in with your credentials."
+}

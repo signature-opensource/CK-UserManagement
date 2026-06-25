@@ -1,0 +1,31 @@
+{
+    // French translation set for CK.UserManagement back-end messages.
+
+    // AdminCommandValidator
+    "Admin.InvalidActor": "Acteur invalide.",
+    "Admin.InvalidWorkSpace": "Espace de travail invalide.",
+    "Admin.NotAuthorized": "Autorité d'administrateur requise.",
+
+    // UserManagementCommandHandler (archive / restore)
+    "BinnedUser.NoUserId": "Aucun identifiant d'utilisateur fourni.",
+    "BinnedUser.UsersArchived": "{0} utilisateur(s) archivé(s) avec succès.",
+    "BinnedUser.ArchiveFailed": "Une erreur est survenue lors de l'archivage des utilisateurs.",
+    "BinnedUser.UsersRestored": "{0} utilisateur(s) restauré(s) avec succès.",
+    "BinnedUser.RestoreFailed": "Une erreur est survenue lors de la restauration des utilisateurs.",
+
+    // UserMessageExtensions (generic answers)
+    "CrisError.ExceptionCaught": "Une erreur est survenue.",
+    "CrisError.InvalidActorId": "Veuillez vous déconnecter puis vous reconnecter, nous n'avons pas pu vous identifier.",
+    "CrisError.ArgumentError": "Arguments invalides.",
+
+    // CommandHandler / Service success answers
+    "CrisSuccess.InvitationCreated": "Invitation créée avec succès.",
+    "CrisSuccess.InvitationsResend": "Les invitations ont été envoyées avec succès.",
+    "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès.",
+
+    // Invitation / registration flow
+    "User.InvitationAlreadyExists": "Une invitation existe déjà pour cette adresse e-mail.",
+    "User.InvitationValidated": "Votre invitation a été validée. Veuillez compléter votre inscription.",
+    "User.InvitationError": "Votre invitation n'est plus valide. Veuillez contacter votre administrateur.",
+    "User.RegistrationCompleted": "Inscription réussie. Vous pouvez désormais vous connecter avec vos identifiants."
+}
