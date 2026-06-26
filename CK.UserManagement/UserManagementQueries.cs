@@ -166,7 +166,7 @@ public class UserManagementQueries : IAutoService
             {
                 p.Email = i.UserTargetAddress;
                 p.Active = i.IsActive;
-                p.CultureName = culture?.Name ?? "fr";
+                p.ExtendedCultureId = i.CultureId;
                 p.NativeName = culture?.NativeName ?? "Français";
                 p.ExpirationDateUtc = i.ExpirationDateUtc;
             } );

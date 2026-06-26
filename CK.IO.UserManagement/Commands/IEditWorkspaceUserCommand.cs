@@ -10,7 +10,7 @@ public interface IEditWorkspaceUserCommand : ICommand<SimpleUserMessage>, IComma
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string UserName { get; set; }
-    public string CultureName { get; set; }
+    public int ExtendedCultureId { get; set; }
     public List<int> Groups { get; set; }
     public string? Password { get; set; }
 }

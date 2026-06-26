@@ -40,9 +40,10 @@ public class UserManagementMailer : IUserManagementMailer
         _frontUrl = _frontUrlResolver.ResolveFrontUrl();
     }
 
-    public async Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, string cultureName )
+    public async Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId )
     {
-        var culture = NormalizedCultureInfo.EnsureNormalizedCultureInfo( string.IsNullOrEmpty( cultureName ) ? "fr" : cultureName );
+        var culture = ExtendedCultureInfo.All.FindExtendedCultureInfo( extendedCultureId )?.PrimaryCulture
+                      ?? NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" );
         var model = _pocoDir.Create<IUserInvitationModel>( m =>
         {
             m.FrontUrl = _frontUrl;

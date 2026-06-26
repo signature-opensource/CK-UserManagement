@@ -33,7 +33,7 @@ public class RegistrationTests : UserManagementTestBase
             c.ActorId = Env.AdminUserId;
             c.CurrentWorkspaceId = Env.WorkspaceId;
             c.Email = email;
-            c.CultureName = "fr";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
         await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service );
@@ -56,7 +56,7 @@ public class RegistrationTests : UserManagementTestBase
             c.Email = email;
             c.FirstName = "New";
             c.LastName = "User";
-            c.CultureName = "fr";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Password = "Password123!";
             c.Token = token;
         } );

@@ -155,7 +155,7 @@ public class UserManagementCommandHandler : IScopedAutoService
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.CultureName, cmd.Groups );
+                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.ExtendedCultureId, cmd.Groups );
                     transaction.Commit();
                     return message;
                 }
@@ -183,7 +183,7 @@ public class UserManagementCommandHandler : IScopedAutoService
                 {
                     foreach( var inv in cmd.Invitations )
                     {
-                        await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.CultureName );
+                        await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.ExtendedCultureId );
                     }
                     transaction.Commit();
                 }
@@ -298,12 +298,10 @@ public class UserManagementCommandHandler : IScopedAutoService
                     await userTable.UserNameSetAsync( ctx, actorId, cmd.UserId, cmd.UserName );
                     await namedUserTable.SetNamesAsync( ctx, actorId, cmd.UserId, cmd.FirstName, cmd.LastName );
 
-                    if( !string.IsNullOrWhiteSpace( cmd.CultureName ) )
+                    if( cmd.ExtendedCultureId > 0 )
                     {
-                        var xlcid = NormalizedCultureInfo.EnsureNormalizedCultureInfo( cmd.CultureName ).Id;
-                        await preferredCulturePackage.SetExtendedCultureAsync( ctx, actorId, cmd.UserId, xlcid );
-                        await preferredCulturePackage.SetPreferredCultureNameAsync( ctx, actorId, cmd.UserId, cmd.CultureName );
-                        ctx.Monitor.Info( $"User's culture successfully set. (CultureName: {cmd.CultureName}, XLCID: {xlcid})" );
+                        await preferredCulturePackage.SetExtendedCultureAsync( ctx, actorId, cmd.UserId, cmd.ExtendedCultureId );
+                        ctx.Monitor.Info( $"User's culture successfully set. (XLCID: {cmd.ExtendedCultureId})" );
                     }
 
                     if( !string.IsNullOrWhiteSpace( cmd.Password ) )
@@ -378,7 +376,7 @@ public class UserManagementCommandHandler : IScopedAutoService
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Email, cmd.Token, cmd.Password, cmd.CultureName );
+                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Email, cmd.Token, cmd.Password, cmd.ExtendedCultureId );
                     transaction.Commit();
                 }
                 return _currentCulture.InfoMessage( "Registration successful. You can now log-in with your credentials.", "User.RegistrationCompleted" );

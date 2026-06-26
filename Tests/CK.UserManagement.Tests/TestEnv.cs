@@ -57,6 +57,9 @@ public sealed class TestEnv
     /// <summary>A fresh, unique e-mail (invitations are keyed by a platform-unique target address).</summary>
     public static string NewEmail() => $"um-{Guid.NewGuid():N}@test.local";
 
+    /// <summary>The extended culture identifier for French, used as the default culture in tests.</summary>
+    public static int FrenchExtendedCultureId => NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ).Id;
+
     /// <summary>Creates a brand new member user inside the test workspace and returns its id.</summary>
     public async Task<int> CreateWorkspaceMemberAsync( ISqlCallContext ctx, string? name = null )
         => await WorkspacePackage.CreateUserAsync( ctx, 1, name ?? $"UMUser-{Guid.NewGuid():N}".Substring( 0, 24 ), WorkspaceId );

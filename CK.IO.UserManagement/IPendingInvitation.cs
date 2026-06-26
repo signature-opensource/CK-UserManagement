@@ -5,7 +5,7 @@ public interface IPendingInvitation : IPoco
 {
     public string Email { get; set; }
     public bool Active { get; set; }
-    public string CultureName { get; set; }
+    public int ExtendedCultureId { get; set; }
     public string NativeName { get; set; }
     public DateTime ExpirationDateUtc { get; set; }
 }

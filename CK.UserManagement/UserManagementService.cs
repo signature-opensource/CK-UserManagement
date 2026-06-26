@@ -76,7 +76,7 @@ public class UserManagementService : IAutoService
     /// exists the invitation is left untouched and an error message is returned (use
     /// <see cref="ResendInvitationAsync"/> to re-activate it instead).
     /// </summary>
-    public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, string cultureName, IReadOnlyList<int> groups )
+    public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, int extendedCultureId, IReadOnlyList<int> groups )
     {
         var existing = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( existing is not null )
@@ -85,20 +85,19 @@ public class UserManagementService : IAutoService
             return _currentCulture.ErrorMessage( "An invitation already exists for this e-mail address.", "User.InvitationAlreadyExists" );
         }
 
-        var cultureId = NormalizedCultureInfo.EnsureNormalizedCultureInfo( cultureName ).Id;
         var create = _pocoDir.Create<ICreateUserInvitationCommand>( c =>
         {
             c.ActorId = actorId;
             c.UserTargetAddress = email;
             c.ExpirationDateUtc = DateTime.UtcNow.AddDays( 3 );
             c.IsActive = true;
-            c.CultureId = cultureId;
+            c.CultureId = extendedCultureId;
             foreach( var g in groups.Where( g => g > 0 ) ) c.GroupIdentifiers.Add( g );
         } );
         var invitation = await _invitationPackage.CreateUserInvitationAsync( ctx, create );
 
         ctx.Monitor.Info( $"Invitation created. (Email: {email}, WorkspaceId: {workspaceId}, InvitationId: {invitation.InvitationId})" );
-        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, cultureName );
+        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId );
 
         return _currentCulture.InfoMessage( "Invitation successfully created.", "CrisSuccess.InvitationCreated" );
     }
@@ -106,7 +105,7 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Re-activates a pending invitation (extends its expiration) and resends the e-mail.
     /// </summary>
-    public async Task ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, string cultureName )
+    public async Task ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, int extendedCultureId )
     {
         var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( invitation is null )
@@ -129,7 +128,7 @@ public class UserManagementService : IAutoService
         } ) );
 
         ctx.Monitor.Info( $"Invitation re-activated. (Email: {email})" );
-        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, cultureName );
+        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId );
     }
 
     /// <summary>
@@ -155,25 +154,21 @@ public class UserManagementService : IAutoService
                                                  string email,
                                                  string token,
                                                  string password,
-                                                 string cultureName )
+                                                 int extendedCultureId )
     {
         var invitation = await CheckInvitationAsync( ctx, token );
 
-        var userId = await _userPackage.CreateUserAsync( ctx, SystemActorId, email, cultureName );
+        var userId = await _userPackage.CreateUserAsync( ctx, SystemActorId, email, extendedCultureId );
         if( userId <= 0 )
         {
             ctx.Monitor.Warn( $"User already exists. (UserName: {email})" );
             throw new ArgumentException( "User.InvitationError" );
         }
-        ctx.Monitor.Info( $"User created. (UserId: {userId}, UserName: {email})" );
+        ctx.Monitor.Info( $"User created. (UserId: {userId}, UserName: {email}, XLCID: {extendedCultureId})" );
 
         await _emailTable.AddEMailAsync( ctx, SystemActorId, userId, email, isPrimary: true );
         await _namedUserTable.SetNamesAsync( ctx, SystemActorId, userId, firstName, lastName );
         await _passwordTable.CreateOrUpdatePasswordUserAsync( ctx, SystemActorId, userId, password, UCLMode.CreateOnly );
-
-        var xlcid = NormalizedCultureInfo.EnsureNormalizedCultureInfo( cultureName ).Id;
-        await _userPackage.SetExtendedCultureAsync( ctx, SystemActorId, userId, xlcid );
-        ctx.Monitor.Info( $"User's extended culture set. (UserId: {userId}, CultureName: {cultureName}, XLCID: {xlcid})" );
 
         foreach( var g in invitation.GroupIdentifiers )
         {
@@ -223,7 +218,7 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Reads the invitation secret and dispatches the invitation e-mail with the registration link.
     /// </summary>
-    async Task SendInvitationMailAsync( ISqlCallContext ctx, int invitationId, string email, string cultureName )
+    async Task SendInvitationMailAsync( ISqlCallContext ctx, int invitationId, string email, int extendedCultureId )
     {
         var secret = await _queries.GetInvitationSecretAsync( ctx, invitationId );
         if( secret is null )
@@ -231,6 +226,6 @@ public class UserManagementService : IAutoService
             ctx.Monitor.Error( $"Could not read the invitation secret. (InvitationId: {invitationId})" );
             return;
         }
-        await _mailer.SendUserInvitationAsync( ctx.Monitor, email, Encoding.UTF8.GetString( secret ), cultureName );
+        await _mailer.SendUserInvitationAsync( ctx.Monitor, email, Encoding.UTF8.GetString( secret ), extendedCultureId );
     }
 }

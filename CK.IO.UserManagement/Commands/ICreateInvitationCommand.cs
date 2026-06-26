@@ -8,5 +8,5 @@ public interface ICreateInvitationCommand : ICommand<SimpleUserMessage>, IComman
 {
     public string Email { get; set; }
     public List<int> Groups { get; set; }
-    public string CultureName { get; set; }
+    public int ExtendedCultureId { get; set; }
 }

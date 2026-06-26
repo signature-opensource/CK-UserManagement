@@ -15,7 +15,7 @@ public class InvitationTests : UserManagementTestBase
             c.ActorId = Env.AdminUserId;
             c.CurrentWorkspaceId = Env.WorkspaceId;
             c.Email = email;
-            c.CultureName = "fr";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
 
@@ -78,7 +78,7 @@ public class InvitationTests : UserManagementTestBase
             c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p =>
             {
                 p.Email = email;
-                p.CultureName = "fr";
+                p.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             } ) );
         } );
 

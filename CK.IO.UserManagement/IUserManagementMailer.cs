@@ -26,6 +26,6 @@ public interface IUserManagementMailer : IAutoService
     /// <param name="monitor">The activity monitor.</param>
     /// <param name="destination">The recipient e-mail address.</param>
     /// <param name="token">The invitation token to embed in the registration link.</param>
-    /// <param name="cultureName">The culture used to pick the template (falls back to French).</param>
-    Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, string cultureName );
+    /// <param name="extendedCultureId">The extended culture identifier used to pick the template (falls back to French).</param>
+    Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId );
 }

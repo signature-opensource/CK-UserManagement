@@ -27,7 +27,7 @@ public class WorkspaceUserTests : UserManagementTestBase
             c.UserName = $"Edited-{Guid.NewGuid():N}".Substring( 0, 20 );
             c.FirstName = "First";
             c.LastName = "Last";
-            c.CultureName = "fr";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
         ( await Edit( ctx, add ) ).Level.ShouldBe( UserMessageLevel.Info );
@@ -43,7 +43,7 @@ public class WorkspaceUserTests : UserManagementTestBase
             c.UserName = $"Edited-{Guid.NewGuid():N}".Substring( 0, 20 );
             c.FirstName = "First";
             c.LastName = "Last";
-            c.CultureName = "fr";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
         } );
         ( await Edit( ctx, remove ) ).Level.ShouldBe( UserMessageLevel.Info );
         ( await Env.Queries.GetUserWorkspaceGroupIdsAsync( ctx, Env.WorkspaceId, userId ) )

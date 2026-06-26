@@ -14,12 +14,12 @@ namespace CK.UserManagement.Tests;
 [ReplaceAutoService( typeof( UserManagementMailer ) )]
 public sealed class FakeUserManagementMailer : IUserManagementMailer
 {
-    public List<(string Destination, string Token, string CultureName)> Sent { get; } = new();
+    public List<(string Destination, string Token, int ExtendedCultureId)> Sent { get; } = new();
 
-    public Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, string cultureName )
+    public Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId )
     {
-        Sent.Add( (destination, token, cultureName) );
-        monitor.Info( $"[FakeMailer] Invitation captured. (Email: {destination}, Culture: {cultureName})" );
+        Sent.Add( (destination, token, extendedCultureId) );
+        monitor.Info( $"[FakeMailer] Invitation captured. (Email: {destination}, XLCID: {extendedCultureId})" );
         return Task.CompletedTask;
     }
 }
