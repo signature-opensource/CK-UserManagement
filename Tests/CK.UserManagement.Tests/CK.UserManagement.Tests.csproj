@@ -22,6 +22,7 @@
     <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
     <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
+     <PackageReference Include="CK.Globalization.Engine" Version="0.0.0--ci.7" />
 
     <!-- Data access + transactions. -->
     <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2--ci.1" />
