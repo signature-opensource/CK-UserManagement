@@ -1,6 +1,7 @@
 using CK.Core;
 using CK.Cris;
 using CK.DB.Actor;
+using CK.DB.Actor.ActorEMail;
 using CK.DB.User.NamedUser;
 using CK.DB.User.UserPassword;
 using CK.DB.Workspace;
@@ -343,6 +344,7 @@ public class UserManagementCommandHandler : IScopedAutoService
                                                                  UserPasswordTable userPasswordTable,
                                                                  CK.DB.Zone.GroupTable groupTable,
                                                                  CK.DB.User.PreferredCulture.Package preferredCulturePackage,
+                                                                 ActorEMailTable emailTable,
                                                                  UserManagementQueries queries )
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
@@ -355,6 +357,28 @@ public class UserManagementCommandHandler : IScopedAutoService
                 {
                     await userTable.UserNameSetAsync( ctx, actorId, cmd.UserId, cmd.UserName );
                     await namedUserTable.SetNamesAsync( ctx, actorId, cmd.UserId, cmd.FirstName, cmd.LastName );
+
+                    // Update the primary e-mail when it changed. AddEMailAsync (avoidAmbiguousEMail) returns
+                    // the actor already bound to the address: a different id means it belongs to someone else.
+                    if( !string.IsNullOrWhiteSpace( cmd.Email ) )
+                    {
+                        var currentEmail = await queries.GetPrimaryEmailAsync( ctx, cmd.UserId );
+                        if( !string.Equals( currentEmail, cmd.Email, StringComparison.OrdinalIgnoreCase ) )
+                        {
+                            var boundTo = await emailTable.AddEMailAsync( ctx, actorId, cmd.UserId, cmd.Email, isPrimary: true );
+                            if( boundTo != cmd.UserId )
+                            {
+                                ctx.Monitor.Warn( $"E-mail already used by another user. (Email: {cmd.Email}, BoundTo: {boundTo})" );
+                                return _currentCulture.ErrorMessage( "This e-mail address is already used by another user.", "User.EmailAlreadyUsed" );
+                            }
+                            // Drop the previous primary address so the user keeps a single e-mail.
+                            if( !string.IsNullOrWhiteSpace( currentEmail ) )
+                            {
+                                await emailTable.RemoveEMailAsync( ctx, actorId, cmd.UserId, currentEmail );
+                            }
+                            ctx.Monitor.Info( $"User's primary e-mail successfully updated. (UserId: {cmd.UserId})" );
+                        }
+                    }
 
                     if( cmd.ExtendedCultureId > 0 )
                     {
@@ -434,7 +458,7 @@ public class UserManagementCommandHandler : IScopedAutoService
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Email, cmd.Token, cmd.Password, cmd.ExtendedCultureId );
+                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Email, cmd.Token, cmd.Password, cmd.ExtendedCultureId, cmd.UserName );
                     transaction.Commit();
                 }
                 return _currentCulture.InfoMessage( "Registration successful. You can now log-in with your credentials.", "User.RegistrationCompleted" );

@@ -34,6 +34,7 @@ public class UserManagementQueries : IAutoService
             select distinct
                    u.UserId
                   ,u.UserName
+                  ,Email = isnull( e.EMail, '' )
                   ,u.FirstName
                   ,u.LastName
                   ,IsWorkspaceAdmin = cast( case when CK.fAclGrantLevel( u.UserId, w.AclId ) >= 112 then 1 else 0 end as bit )
@@ -42,6 +43,7 @@ public class UserManagementQueries : IAutoService
               from CK.vUser u
                   inner join CK.tActorProfile ap on ap.ActorId = u.UserId
                   inner join CK.tWorkspace w on w.WorkspaceId = @WorkspaceId
+                  left outer join CK.tActorEMail e on e.ActorId = u.UserId and e.IsPrimary = 1
               where ap.GroupId = @WorkspaceId and u.UserId > 1;
             """,
             new { WorkspaceId = workspaceId } );
@@ -50,6 +52,7 @@ public class UserManagementQueries : IAutoService
         {
             u.UserId = r.UserId;
             u.UserName = r.UserName;
+            u.Email = r.Email;
             u.FirstName = r.FirstName;
             u.LastName = r.LastName;
             u.IsWorkspaceAdmin = r.IsWorkspaceAdmin;
@@ -193,6 +196,17 @@ public class UserManagementQueries : IAutoService
     }
 
     /// <summary>
+    /// Reads the current primary e-mail of a user from <c>CK.tActorEMail</c>, or <c>null</c> when the
+    /// user has no primary e-mail.
+    /// </summary>
+    public Task<string?> GetPrimaryEmailAsync( ISqlCallContext ctx, int userId )
+    {
+        return ctx[_userTable].QuerySingleOrDefaultAsync<string?>(
+            "select EMail from CK.tActorEMail where ActorId = @UserId and IsPrimary = 1;",
+            new { UserId = userId } );
+    }
+
+    /// <summary>
     /// Reads the secret of an invitation by its id, regardless of the administrator who created it.
     /// </summary>
     public Task<byte[]?> GetInvitationSecretAsync( ISqlCallContext ctx, int invitationId )
@@ -251,6 +265,7 @@ public class UserManagementQueries : IAutoService
     {
         public int UserId { get; init; }
         public string UserName { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
         public string FirstName { get; init; } = string.Empty;
         public string LastName { get; init; } = string.Empty;
         public bool IsWorkspaceAdmin { get; init; }

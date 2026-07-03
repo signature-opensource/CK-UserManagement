@@ -13,4 +13,9 @@ public interface IEditWorkspaceUserCommand : ICommand<SimpleUserMessage>, IComma
     public int ExtendedCultureId { get; set; }
     public List<int> Groups { get; set; }
     public string? Password { get; set; }
+
+    /// <summary>
+    /// The user's primary e-mail. Updated as the primary <c>CK.tActorEMail</c> when it changes.
+    /// </summary>
+    public string Email { get; set; }
 }

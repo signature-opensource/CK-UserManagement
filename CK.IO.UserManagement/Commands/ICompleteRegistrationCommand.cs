@@ -11,4 +11,10 @@ public interface ICompleteRegistrationCommand : ICommand<SimpleUserMessage>, ICo
     public int ExtendedCultureId { get; set; }
     public string Password { get; set; }
     public string Token { get; set; }
+
+    /// <summary>
+    /// Optional user name (nickname). When not provided, the e-mail is used as the user name.
+    /// The e-mail always remains the identity check point.
+    /// </summary>
+    public string? UserName { get; set; }
 }

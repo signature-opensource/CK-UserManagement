@@ -23,6 +23,7 @@
         <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.UserInvitation" Version="0.4.7--ci.1" />
         <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
+        <PackageReference Include="CK.Globalization.StObj" Version="0.0.0--ci.7" />
 
 
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.

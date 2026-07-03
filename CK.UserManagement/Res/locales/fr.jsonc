@@ -27,5 +27,7 @@
     "User.InvitationAlreadyExists": "Une invitation existe déjà pour cette adresse e-mail.",
     "User.InvitationValidated": "Votre invitation a été validée. Veuillez compléter votre inscription.",
     "User.InvitationError": "Votre invitation n'est plus valide. Veuillez contacter votre administrateur.",
-    "User.RegistrationCompleted": "Inscription réussie. Vous pouvez désormais vous connecter avec vos identifiants."
+    "User.RegistrationCompleted": "Inscription réussie. Vous pouvez désormais vous connecter avec vos identifiants.",
+    "User.UserNameAlreadyTaken": "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre.",
+    "User.EmailAlreadyUsed": "Cette adresse e-mail est déjà utilisée par un autre utilisateur."
 }

@@ -46,6 +46,7 @@ public sealed class TestEnv
     public required GroupTable GroupTable { get; init; }
     public required NamedUserTable NamedUserTable { get; init; }
     public required UserPasswordTable UserPasswordTable { get; init; }
+    public required ActorEMailTable EmailTable { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
     public required CK.DB.User.PreferredCulture.Package PreferredCulturePackage { get; init; }
 
@@ -148,6 +149,7 @@ public sealed class TestEnv
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,
             UserPasswordTable = pwdTable,
+            EmailTable = emailTable,
             WorkspacePackage = workspacePackage,
             PreferredCulturePackage = preferredCulturePackage,
             WorkspaceId = workspaceId,

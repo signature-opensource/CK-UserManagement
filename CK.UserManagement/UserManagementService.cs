@@ -189,6 +189,11 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Completes a registration: creates the user, sets names/password, joins the invitation groups,
     /// sets the preferred workspace then destroys the invitation.
+    /// <para>
+    /// <paramref name="userName"/> is the user's nickname and is optional: when null or blank the
+    /// <paramref name="email"/> is used as the user name. The e-mail is always registered as the
+    /// primary <c>CK.tActorEMail</c> and remains the identity check point.
+    /// </para>
     /// </summary>
     public async Task CompleteRegistrationAsync( ISqlCallContext ctx,
                                                  string firstName,
@@ -196,17 +201,29 @@ public class UserManagementService : IAutoService
                                                  string email,
                                                  string token,
                                                  string password,
-                                                 int extendedCultureId )
+                                                 int extendedCultureId,
+                                                 string? userName = null )
     {
         var invitation = await CheckInvitationAsync( ctx, token );
 
-        var userId = await _userPackage.CreateUserAsync( ctx, SystemActorId, email, extendedCultureId );
+        // The user name is optional: fall back to the e-mail when no nickname is provided.
+        var nickName = string.IsNullOrWhiteSpace( userName ) ? email : userName.Trim();
+
+        // When an explicit nickname is provided, reject it early with a clear message if it is already
+        // taken (CK.sUserCreate would otherwise throw on the UK_CK_tUser_UserName unique constraint).
+        if( !string.IsNullOrWhiteSpace( userName ) && await _userTable.FindByNameAsync( ctx, nickName ) > 0 )
+        {
+            ctx.Monitor.Warn( $"User name already taken. (UserName: {nickName})" );
+            throw new ArgumentException( "User.UserNameAlreadyTaken" );
+        }
+
+        var userId = await _userPackage.CreateUserAsync( ctx, SystemActorId, nickName, extendedCultureId );
         if( userId <= 0 )
         {
-            ctx.Monitor.Warn( $"User already exists. (UserName: {email})" );
+            ctx.Monitor.Warn( $"User already exists. (UserName: {nickName})" );
             throw new ArgumentException( "User.InvitationError" );
         }
-        ctx.Monitor.Info( $"User created. (UserId: {userId}, UserName: {email}, XLCID: {extendedCultureId})" );
+        ctx.Monitor.Info( $"User created. (UserId: {userId}, UserName: {nickName}, Email: {email}, XLCID: {extendedCultureId})" );
 
         await _emailTable.AddEMailAsync( ctx, SystemActorId, userId, email, isPrimary: true );
         await _namedUserTable.SetNamesAsync( ctx, SystemActorId, userId, firstName, lastName );
