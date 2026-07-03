@@ -103,7 +103,6 @@ public class InvitationTests : UserManagementTestBase
             c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p =>
             {
                 p.Email = email;
-                p.CultureName = "fr";
             } ) );
         } );
 
@@ -128,7 +127,6 @@ public class InvitationTests : UserManagementTestBase
             c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p =>
             {
                 p.Email = email;
-                p.CultureName = "fr";
             } ) );
         } );
 
