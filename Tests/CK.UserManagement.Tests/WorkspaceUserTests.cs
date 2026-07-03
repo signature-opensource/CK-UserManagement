@@ -51,7 +51,7 @@ public class WorkspaceUserTests : UserManagementTestBase
     }
 
     Task<SimpleUserMessage> Edit( ISqlTransactionCallContext ctx, IEditWorkspaceUserCommand cmd )
-        => Env.Handler.EditWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable, Env.UserPasswordTable,
+        => Env.Handler.EditWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable,
                                                Env.GroupTable, Env.PreferredCulturePackage, Env.EmailTable, Env.Queries );
 
     [Test]

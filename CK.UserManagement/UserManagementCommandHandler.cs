@@ -3,7 +3,6 @@ using CK.Cris;
 using CK.DB.Actor;
 using CK.DB.Actor.ActorEMail;
 using CK.DB.User.NamedUser;
-using CK.DB.User.UserPassword;
 using CK.DB.Workspace;
 using CK.DB.Zone;
 using CK.IO.UserManagement;
@@ -341,7 +340,6 @@ public class UserManagementCommandHandler : IScopedAutoService
                                                                  IEditWorkspaceUserCommand cmd,
                                                                  UserTable userTable,
                                                                  NamedUserTable namedUserTable,
-                                                                 UserPasswordTable userPasswordTable,
                                                                  CK.DB.Zone.GroupTable groupTable,
                                                                  CK.DB.User.PreferredCulture.Package preferredCulturePackage,
                                                                  ActorEMailTable emailTable,
@@ -384,12 +382,6 @@ public class UserManagementCommandHandler : IScopedAutoService
                     {
                         await preferredCulturePackage.SetExtendedCultureAsync( ctx, actorId, cmd.UserId, cmd.ExtendedCultureId );
                         ctx.Monitor.Info( $"User's culture successfully set. (XLCID: {cmd.ExtendedCultureId})" );
-                    }
-
-                    if( !string.IsNullOrWhiteSpace( cmd.Password ) )
-                    {
-                        await userPasswordTable.SetPasswordAsync( ctx, actorId, cmd.UserId, cmd.Password );
-                        ctx.Monitor.Info( "User's password successfully set." );
                     }
 
                     var currentGroups = await queries.GetUserWorkspaceGroupIdsAsync( ctx, workspaceId, cmd.UserId );
