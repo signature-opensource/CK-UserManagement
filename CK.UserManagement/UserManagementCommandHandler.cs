@@ -198,6 +198,64 @@ public class UserManagementCommandHandler : IScopedAutoService
     }
 
     [CommandHandler]
+    public async Task<SimpleUserMessage> DeactivateInvitationsAsync( ISqlTransactionCallContext ctx,
+                                                                     IDeactivateInvitationsCommand cmd,
+                                                                     UserTable userTable,
+                                                                     UserManagementService service )
+    {
+        var actorId = cmd.ActorId.GetValueOrDefault();
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IDeactivateInvitationsCommand )} command. (ActorId: {actorId}, Count: {cmd.Invitations.Count})" ) )
+        {
+            try
+            {
+                using( var transaction = ctx[userTable].BeginTransaction() )
+                {
+                    foreach( var inv in cmd.Invitations )
+                    {
+                        await service.DeactivateInvitationAsync( ctx, actorId, inv.Email );
+                    }
+                    transaction.Commit();
+                }
+                return _currentCulture.InfoMessage( "Invitations were successfully deactivated.", "CrisSuccess.InvitationsDeactivated" );
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return _currentCulture.CreateGenericError();
+            }
+        }
+    }
+
+    [CommandHandler]
+    public async Task<SimpleUserMessage> DestroyInvitationsAsync( ISqlTransactionCallContext ctx,
+                                                                  IDestroyInvitationsCommand cmd,
+                                                                  UserTable userTable,
+                                                                  UserManagementService service )
+    {
+        var actorId = cmd.ActorId.GetValueOrDefault();
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IDestroyInvitationsCommand )} command. (ActorId: {actorId}, Count: {cmd.Invitations.Count})" ) )
+        {
+            try
+            {
+                using( var transaction = ctx[userTable].BeginTransaction() )
+                {
+                    foreach( var inv in cmd.Invitations )
+                    {
+                        await service.DestroyInvitationByEmailAsync( ctx, inv.Email );
+                    }
+                    transaction.Commit();
+                }
+                return _currentCulture.InfoMessage( "Invitations were successfully deleted.", "CrisSuccess.InvitationsDeleted" );
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return _currentCulture.CreateGenericError();
+            }
+        }
+    }
+
+    [CommandHandler]
     public async Task<ICrisBasicCommandResult> ArchiveUsersAsync( ISqlTransactionCallContext ctx,
                                                                   UserMessageCollector collector,
                                                                   IArchiveUsersAdminCommand cmd,

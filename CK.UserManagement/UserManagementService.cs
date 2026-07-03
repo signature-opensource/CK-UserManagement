@@ -132,6 +132,48 @@ public class UserManagementService : IAutoService
     }
 
     /// <summary>
+    /// Deactivates a pending invitation: sets it inactive so its registration link is no longer
+    /// accepted by <see cref="CheckInvitationAsync"/>. The invitation record is kept (it remains
+    /// listed and can be re-activated through <see cref="ResendInvitationAsync"/>).
+    /// </summary>
+    public async Task DeactivateInvitationAsync( ISqlCallContext ctx, int actorId, string email )
+    {
+        var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
+        if( invitation is null )
+        {
+            ctx.Monitor.Warn( $"No pending invitation to deactivate. (Email: {email})" );
+            return;
+        }
+
+        await _invitationPackage.SetUserInvitationIsActiveAsync( ctx, _pocoDir.Create<ISetUserInvitationIsActiveCommand>( c =>
+        {
+            c.ActorId = actorId;
+            c.InvitationId = invitation.InvitationId;
+            c.IsActive = false;
+        } ) );
+
+        ctx.Monitor.Info( $"Invitation deactivated. (Email: {email})" );
+    }
+
+    /// <summary>
+    /// Completely destroys a pending invitation identified by its target e-mail. The deletion is
+    /// performed on behalf of the invitation's original creator because <c>CK.sUserInvitationDestroy</c>
+    /// only allows the creator to delete it.
+    /// </summary>
+    public async Task DestroyInvitationByEmailAsync( ISqlCallContext ctx, string email )
+    {
+        var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
+        if( invitation is null )
+        {
+            ctx.Monitor.Warn( $"No pending invitation to destroy. (Email: {email})" );
+            return;
+        }
+
+        await DestroyInvitationAsync( ctx, invitation.CreatedById, invitation.InvitationId );
+        ctx.Monitor.Info( $"Invitation destroyed. (Email: {email})" );
+    }
+
+    /// <summary>
     /// Validates an invitation secret and returns the pending user (e-mail + default culture).
     /// </summary>
     public async Task<IPendingUser> ValidateInvitationAsync( ISqlCallContext ctx, string token )

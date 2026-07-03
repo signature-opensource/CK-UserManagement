@@ -87,4 +87,54 @@ public class InvitationTests : UserManagementTestBase
         result.Level.ShouldBe( UserMessageLevel.Info );
         Env.Mailer.Sent.Count( s => s.Destination == email ).ShouldBeGreaterThan( before );
     }
+
+    [Test]
+    public async Task deactivating_an_invitation_marks_it_inactive_Async()
+    {
+        var email = TestEnv.NewEmail();
+        using var ctx = new SqlTransactionCallContext();
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        ( await Env.Queries.GetInvitationByEmailAsync( ctx, email ) )!.IsActive.ShouldBeTrue();
+
+        var deactivate = Env.PocoDirectory.Create<IDeactivateInvitationsCommand>( c =>
+        {
+            c.ActorId = Env.AdminUserId;
+            c.CurrentWorkspaceId = Env.WorkspaceId;
+            c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p =>
+            {
+                p.Email = email;
+                p.CultureName = "fr";
+            } ) );
+        } );
+
+        var result = await Env.Handler.DeactivateInvitationsAsync( ctx, deactivate, Env.UserTable, Env.Service );
+
+        result.Level.ShouldBe( UserMessageLevel.Info );
+        ( await Env.Queries.GetInvitationByEmailAsync( ctx, email ) )!.IsActive.ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task destroying_an_invitation_removes_it_Async()
+    {
+        var email = TestEnv.NewEmail();
+        using var ctx = new SqlTransactionCallContext();
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        ( await Env.Queries.GetInvitationByEmailAsync( ctx, email ) ).ShouldNotBeNull();
+
+        var destroy = Env.PocoDirectory.Create<IDestroyInvitationsCommand>( c =>
+        {
+            c.ActorId = Env.AdminUserId;
+            c.CurrentWorkspaceId = Env.WorkspaceId;
+            c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p =>
+            {
+                p.Email = email;
+                p.CultureName = "fr";
+            } ) );
+        } );
+
+        var result = await Env.Handler.DestroyInvitationsAsync( ctx, destroy, Env.UserTable, Env.Service );
+
+        result.Level.ShouldBe( UserMessageLevel.Info );
+        ( await Env.Queries.GetInvitationByEmailAsync( ctx, email ) ).ShouldBeNull();
+    }
 }
