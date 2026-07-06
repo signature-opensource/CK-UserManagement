@@ -54,15 +54,4 @@ public class QueriesTests : UserManagementTestBase
 
         data.WorkspaceGroups.ShouldContain( g => g.GroupId == Env.WorkspaceGroupId );
     }
-
-    [Test]
-    public async Task invitation_data_query_exposes_the_workspace_groups_Async()
-    {
-        using var ctx = new SqlTransactionCallContext();
-        var query = Env.PocoDirectory.Create<IGetWorkspaceInvitationDataQCommand>( c => c.CurrentWorkspaceId = Env.WorkspaceId );
-
-        var data = await Env.Handler.GetWorkspaceInvitationDataAsync( ctx, query, Env.Queries );
-
-        data.Groups.ShouldContain( g => g.GroupId == Env.WorkspaceGroupId );
-    }
 }

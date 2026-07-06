@@ -5,10 +5,10 @@ using CK.SqlServer;
 using NUnit.Framework;
 using Shouldly;
 
-namespace CK.UserManagement.Tests;
+namespace CK.UserManagement.UserInvitation.Tests;
 
 [TestFixture]
-public class RegistrationTests : UserManagementTestBase
+public class RegistrationTests : UserInvitationTestBase
 {
     [Test]
     public async Task validating_an_invalid_token_returns_an_error_message_Async()
@@ -38,9 +38,9 @@ public class RegistrationTests : UserManagementTestBase
         } );
         await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service );
 
-        var invitation = await Env.Queries.GetInvitationByEmailAsync( ctx, email );
+        var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
         invitation.ShouldNotBeNull();
-        var secret = await Env.Queries.GetInvitationSecretAsync( ctx, invitation!.InvitationId );
+        var secret = await Env.InvitationQueries.GetInvitationSecretAsync( ctx, invitation!.InvitationId );
         secret.ShouldNotBeNull();
         var token = Encoding.UTF8.GetString( secret! );
 
@@ -63,7 +63,7 @@ public class RegistrationTests : UserManagementTestBase
         var completeResult = await Env.Handler.CompleteRegistrationAsync( ctx, complete, Env.UserTable, Env.Service );
 
         completeResult.Level.ShouldBe( UserMessageLevel.Info );
-        ( await Env.Queries.GetInvitationByEmailAsync( ctx, email ) ).ShouldBeNull();
+        ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) ).ShouldBeNull();
         ( await Env.UserTable.FindByNameAsync( ctx, email ) ).ShouldBeGreaterThan( 0 );
     }
 
@@ -133,8 +133,8 @@ public class RegistrationTests : UserManagementTestBase
         } );
         await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service );
 
-        var invitation = await Env.Queries.GetInvitationByEmailAsync( ctx, email );
-        var secret = await Env.Queries.GetInvitationSecretAsync( ctx, invitation!.InvitationId );
+        var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
+        var secret = await Env.InvitationQueries.GetInvitationSecretAsync( ctx, invitation!.InvitationId );
         return (email, Encoding.UTF8.GetString( secret! ));
     }
 

@@ -14,8 +14,9 @@ namespace CK.UserManagement.Tests;
 [TestFixture]
 public class AuthorizationTests : UserManagementTestBase
 {
-    IArchiveUsersAdminCommand Command( int actorId, int workspaceId )
-        => Env.PocoDirectory.Create<IArchiveUsersAdminCommand>( c =>
+    // Any ICommandWorkspaceAdmin works; only the actor/workspace carried by the command matter.
+    IEditWorkspaceUserCommand Command( int actorId, int workspaceId )
+        => Env.PocoDirectory.Create<IEditWorkspaceUserCommand>( c =>
         {
             c.ActorId = actorId;
             c.CurrentWorkspaceId = workspaceId;

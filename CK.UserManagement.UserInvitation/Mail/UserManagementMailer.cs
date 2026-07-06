@@ -5,7 +5,7 @@ using CK.Mail.SharedLayout;
 using CK.Mailer;
 using CK.Template.Fluid;
 
-namespace CK.UserManagement.Mail;
+namespace CK.UserManagement.UserInvitation.Mail;
 
 /// <summary>
 /// Default <see cref="IUserManagementMailer"/>: renders the <c>UserInvitation</c> Fluid templates

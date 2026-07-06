@@ -1,8 +1,8 @@
 using CK.Core;
 using CK.IO.UserManagement;
-using CK.UserManagement.Mail;
+using CK.UserManagement.UserInvitation.Mail;
 
-namespace CK.UserManagement.Tests;
+namespace CK.UserManagement.UserInvitation.Tests;
 
 /// <summary>
 /// Test double that replaces <see cref="UserManagementMailer"/> so the user-management tests run

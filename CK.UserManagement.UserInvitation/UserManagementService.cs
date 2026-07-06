@@ -8,8 +8,9 @@ using CK.DB.Zone;
 using CK.IO.UserInvitation;
 using CK.IO.UserManagement;
 using CK.SqlServer;
+using CK.UserManagement;
 
-namespace CK.UserManagement;
+namespace CK.UserManagement.UserInvitation;
 
 /// <summary>
 /// Business logic for workspace invitations and user registration, built on the standard CK.DB
@@ -39,7 +40,7 @@ public class UserManagementService : IAutoService
     readonly GroupTable _groupTable;
     readonly UserTable _userTable;
     readonly CK.DB.Workspace.Package _workspacePackage;
-    readonly UserManagementQueries _queries;
+    readonly UserInvitationQueries _queries;
     readonly IUserManagementMailer _mailer;
 
     public UserManagementService( PocoDirectory pocoDir,
@@ -52,7 +53,7 @@ public class UserManagementService : IAutoService
                                   GroupTable groupTable,
                                   UserTable userTable,
                                   CK.DB.Workspace.Package workspacePackage,
-                                  UserManagementQueries queries,
+                                  UserInvitationQueries queries,
                                   IUserManagementMailer mailer )
     {
         _pocoDir = pocoDir;

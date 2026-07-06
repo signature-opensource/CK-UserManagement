@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <!-- Assembly renamed, but the contract namespace is kept as CK.IO.UserManagement so the
+             generated TypeScript (ck-gen) lands under CK/IO/UserManagement and the Angular imports
+             are unaffected. -->
+        <RootNamespace>CK.IO.UserManagement</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CK.IO.Globalization" Version="0.1.5--ci.1" />
+        <PackageReference Include="CK.IO.UserProfile.Workspace" Version="15.1.2--ci.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CK.IO.Admin\CK.IO.Admin.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,6 +1,6 @@
 using CK.Template.Fluid;
 
-namespace CK.UserManagement.Mail;
+namespace CK.UserManagement.UserInvitation.Mail;
 
 /// <summary>
 /// Declares <c>CK.UserManagement</c> as a contributor of Fluid templates: its

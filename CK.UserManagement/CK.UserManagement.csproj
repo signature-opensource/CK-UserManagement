@@ -11,7 +11,9 @@
         <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2--ci.1" />
         <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
 
-        <!-- Soft-delete / recycle-bin for users (BinDate, sUserArchive/sUserRestore, vUser transform). -->
+        <!-- Soft-delete / recycle-bin for users: kept for the read model only. The workspace-user list
+             (IWorkspaceUser.BinDate) reads the BinDate column added by BinnedUser's vUser transform.
+             The archive/restore write feature lives in CK.UserManagement.BinnedUser. -->
         <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
 
         <!-- Standard CK.DB building blocks used by the handlers. -->
@@ -21,28 +23,18 @@
         <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
         <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
-        <PackageReference Include="CK.DB.UserInvitation" Version="0.4.7--ci.1" />
         <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
         <PackageReference Include="CK.Globalization.StObj" Version="0.0.0--ci.7" />
-
-
-        <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
-             Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
-        <PackageReference Include="CK.Mailer.MailKit" Version="12.0.2--ci.1" />
-        <PackageReference Include="CK.Template.Fluid" Version="0.0.1--ci.1" />
-        <PackageReference Include="CK.AppIdentity.Abstractions" Version="0.14.1" />
     </ItemGroup>
 
 
     <ItemGroup>
         <EmbeddedResource Include="**\*.sql" />
-        <EmbeddedResource Include="**\*.tql" />
     </ItemGroup>
 
 
     <ItemGroup>
         <ProjectReference Include="..\CK.IO.UserManagement\CK.IO.UserManagement.csproj" />
-        <ProjectReference Include="..\CK.Mail.SharedLayout\CK.Mail.SharedLayout.csproj" />
     </ItemGroup>
 
 </Project>

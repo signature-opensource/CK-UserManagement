@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CK.UserManagement.Mail;
+namespace CK.UserManagement.UserInvitation.Mail;
 public class DefaultResolver : IFrontUrlResolver
 {
     // Used when no CK-AppIdentity:Local:FrontUrl is configured (e.g. dev without explicit config).

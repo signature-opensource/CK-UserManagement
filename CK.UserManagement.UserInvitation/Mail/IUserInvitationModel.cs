@@ -1,7 +1,7 @@
 using CK.Core;
 using CK.Template.Fluid;
 
-namespace CK.UserManagement.Mail;
+namespace CK.UserManagement.UserInvitation.Mail;
 
 /// <summary>
 /// Data model for the user-invitation e-mail, bound to
