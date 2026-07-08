@@ -25,6 +25,47 @@ public class UserInvitationQueries : IAutoService
     }
 
     /// <summary>
+    /// E-mail-aware workspace-user listing: the core columns plus the primary e-mail
+    /// (<c>CK.tActorEMail</c>, <c>IsPrimary = 1</c>). Builds the merged Poco through its UserInvitation
+    /// extension so the <c>Email</c> property is set.
+    /// </summary>
+    public async Task<IReadOnlyList<IWorkspaceUser>> GetWorkspaceUsersWithEmailAsync( ISqlCallContext ctx, int workspaceId )
+    {
+        // Dapper materializes the UserInvitation extension Poco directly (abstract type map);
+        // the Email column maps to its Email property.
+        var users = await ctx[_userTable].QueryAsync<CK.IO.UserManagement.UserInvitation.IWorkspaceUser>(
+            """
+            select distinct
+                   u.UserId
+                  ,u.UserName
+                  ,Email = isnull( e.EMail, '' )
+                  ,u.FirstName
+                  ,u.LastName
+                  ,IsWorkspaceAdmin = cast( case when CK.fAclGrantLevel( u.UserId, w.AclId ) >= 112 then 1 else 0 end as bit )
+                  ,u.ExtendedCultureId
+              from CK.vUser u
+                  inner join CK.tActorProfile ap on ap.ActorId = u.UserId
+                  inner join CK.tWorkspace w on w.WorkspaceId = @WorkspaceId
+                  left outer join CK.tActorEMail e on e.ActorId = u.UserId and e.IsPrimary = 1
+              where ap.GroupId = @WorkspaceId and u.UserId > 1;
+            """,
+            new { WorkspaceId = workspaceId } );
+
+        return users.Cast<IWorkspaceUser>().ToList();
+    }
+
+    /// <summary>
+    /// Reads the current primary e-mail of a user from <c>CK.tActorEMail</c>, or <c>null</c> when the
+    /// user has no primary e-mail.
+    /// </summary>
+    public Task<string?> GetPrimaryEmailAsync( ISqlCallContext ctx, int userId )
+    {
+        return ctx[_userTable].QuerySingleOrDefaultAsync<string?>(
+            "select EMail from CK.tActorEMail where ActorId = @UserId and IsPrimary = 1;",
+            new { UserId = userId } );
+    }
+
+    /// <summary>
     /// Pending (non-expired) invitations read directly from <c>CK.tUserInvitation</c>, regardless of
     /// the administrator who created them. When <paramref name="workspaceId"/> is provided, only
     /// invitations whose groups belong to that workspace zone are returned; otherwise every pending
@@ -181,4 +222,5 @@ public class UserInvitationQueries : IAutoService
         public string Name { get; init; } = string.Empty;
         public string NativeName { get; init; } = string.Empty;
     }
+
 }

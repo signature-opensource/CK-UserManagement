@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,13 +12,11 @@
     <PackageReference Include="CK.Cris.Auth" Version="0.43.2--ci.1" />
     <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.1" />
 
-    <!-- Standard CK.DB building blocks the handlers/queries depend on. -->
+    <!-- Standard CK.DB building blocks the handlers/queries depend on. Core is e-mail/archive-agnostic:
+         no CK.DB.Actor.ActorEMail nor CK.DB.User.BinnedUser here. -->
     <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
-    <!-- Kept: the workspace-user read model (IWorkspaceUser.BinDate) needs BinnedUser's vUser transform. -->
-    <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
-    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
     <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
@@ -40,5 +38,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CK.UserManagement\CK.UserManagement.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="%24StObjGen\" />
   </ItemGroup>
 </Project>

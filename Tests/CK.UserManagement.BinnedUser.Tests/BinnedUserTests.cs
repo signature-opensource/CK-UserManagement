@@ -25,8 +25,7 @@ public class BinnedUserTests : BinnedUserTestBase
         await Env.Handler.ArchiveUsersAsync( ctx, archiveCollector, archive, Env.BinnedUserPackage );
         archiveCollector.ErrorCount.ShouldBe( 0 );
 
-        var archived = await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId );
-        archived.Single( u => u.UserId == userId ).BinDate.ShouldNotBeNull();
+        ( await BinDateOfAsync( ctx, userId ) ).ShouldNotBeNull();
 
         var restoreCollector = new UserMessageCollector( Env.CurrentCulture );
         var restore = Env.PocoDirectory.Create<IRestoreUsersAdminCommand>( c =>
@@ -38,8 +37,15 @@ public class BinnedUserTests : BinnedUserTestBase
         await Env.Handler.RestoreUsersAsync( ctx, restoreCollector, restore, Env.BinnedUserPackage );
         restoreCollector.ErrorCount.ShouldBe( 0 );
 
-        var restored = await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId );
-        restored.Single( u => u.UserId == userId ).BinDate.ShouldBeNull();
+        ( await BinDateOfAsync( ctx, userId ) ).ShouldBeNull();
+    }
+
+    // Reads BinDate through the BinDate-aware workspace-user listing provided by the BinnedUser handler.
+    async Task<DateTime?> BinDateOfAsync( ISqlCallContext ctx, int userId )
+    {
+        var query = Env.PocoDirectory.Create<IGetWorkspaceUsersQCommand>( c => c.CurrentWorkspaceId = Env.WorkspaceId );
+        var users = await Env.Handler.GetWorkspaceUsersAsync( ctx, query, Env.BinnedUserQueries );
+        return ((CK.IO.UserManagement.BinnedUser.IWorkspaceUser)users.Single( u => u.UserId == userId )).BinDate;
     }
 
     [Test]

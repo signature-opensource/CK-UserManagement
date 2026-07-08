@@ -15,8 +15,5 @@
     "CrisError.ArgumentError": "Invalid arguments.",
 
     // CommandHandler success answers
-    "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited.",
-
-    // Workspace user edit
-    "User.EmailAlreadyUsed": "This e-mail address is already used by another user."
+    "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited."
 }

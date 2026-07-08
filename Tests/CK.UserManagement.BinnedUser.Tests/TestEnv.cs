@@ -24,7 +24,7 @@ public sealed class TestEnv
     public required PocoDirectory PocoDirectory { get; init; }
 
     public required BinnedUserCommandHandler Handler { get; init; }
-    public required UserManagementQueries Queries { get; init; }
+    public required BinnedUserQueries BinnedUserQueries { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
 
     public required UserTable UserTable { get; init; }
@@ -77,7 +77,7 @@ public sealed class TestEnv
         var aclTable = map.StObjs.Obtain<AclTable>()!;
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
-        var queries = new UserManagementQueries( pocoDir, userTable );
+        var binnedUserQueries = new BinnedUserQueries( binnedUserPackage );
         var handler = new BinnedUserCommandHandler();
 
         int workspaceId, adminId, memberId, groupId;
@@ -103,7 +103,7 @@ public sealed class TestEnv
             Map = map,
             PocoDirectory = pocoDir,
             Handler = handler,
-            Queries = queries,
+            BinnedUserQueries = binnedUserQueries,
             CurrentCulture = currentCulture,
             UserTable = userTable,
             BinnedUserPackage = binnedUserPackage,

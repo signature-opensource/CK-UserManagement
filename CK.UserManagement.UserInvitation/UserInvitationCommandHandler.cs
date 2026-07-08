@@ -1,5 +1,8 @@
 using CK.Core;
 using CK.Cris;
+using CK.DB.Actor.ActorEMail;
+using CK.DB.User.NamedUser;
+using CK.DB.Zone;
 using CK.IO.UserManagement;
 using CK.SqlServer;
 using CK.UserManagement;
@@ -7,13 +10,17 @@ using CK.UserManagement;
 namespace CK.UserManagement.UserInvitation;
 
 /// <summary>
-/// Handlers for the invitation and (anonymous) registration commands. Business logic only (admin
-/// authority is enforced by the command validators), structured monitor logging, defensive try/catch
-/// and translatable <see cref="UserMessage"/> answers. Data access goes through
-/// <see cref="UserInvitationQueries"/> and <see cref="UserManagementService"/>; the shared workspace
-/// groups query is served by the core <see cref="UserManagementQueries"/>.
+/// Single command handler for the UserInvitation package. Handles the invitation / (anonymous)
+/// registration commands, and provides the e-mail-aware versions of the workspace-user list and edit
+/// commands (superseding the core UserName-only handlers). Business logic only (admin authority is
+/// enforced by the command validators), structured monitor logging, defensive try/catch and
+/// translatable <see cref="UserMessage"/> answers. Data access goes through
+/// <see cref="UserInvitationQueries"/> and <see cref="UserManagementService"/>; shared workspace-group
+/// reads use the core <see cref="UserManagementQueries"/>.
 /// </summary>
-public class UserInvitationCommandHandler : IScopedAutoService
+public class UserInvitationCommandHandler : IAutoService,
+                                            ICommandHandler<IGetWorkspaceUsersQCommand>,
+                                            ICommandHandler<IEditWorkspaceUserCommand>
 {
     readonly CurrentCultureInfo _currentCulture;
 
@@ -257,6 +264,116 @@ public class UserInvitationCommandHandler : IScopedAutoService
             {
                 ctx.Monitor.Error( e );
                 return _currentCulture.ErrorMessage( "Your invitation is no longer valid. Please contact your administrator.", e.Message );
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return _currentCulture.CreateGenericError();
+            }
+        }
+    }
+    #endregion
+
+    #region Workspace-user list & edit (e-mail-aware, supersede the core handlers)
+    /// <summary>
+    /// E-mail-aware workspace-user listing: same result as the core handler plus the primary e-mail.
+    /// Supersedes <c>CK.UserManagement.UserManagementCommandHandler.GetWorkspaceUsersAsync</c>.
+    /// </summary>
+    [CommandHandler]
+    public async Task<List<IWorkspaceUser>> GetWorkspaceUsersAsync( ISqlCallContext ctx,
+                                                                    IGetWorkspaceUsersQCommand query,
+                                                                    UserInvitationQueries queries )
+    {
+        var workspaceId = query.CurrentWorkspaceId.GetValueOrDefault();
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IGetWorkspaceUsersQCommand )} query (with e-mail). (WorkspaceId: {workspaceId})" ) )
+        {
+            try
+            {
+                var users = await queries.GetWorkspaceUsersWithEmailAsync( ctx, workspaceId );
+                return users.ToList();
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return new();
+            }
+        }
+    }
+
+    /// <summary>
+    /// E-mail-aware workspace-user edit: edits UserName/names/culture/groups (like the core handler)
+    /// and, in addition, updates the primary e-mail. Supersedes the core edit handler.
+    /// </summary>
+    [CommandHandler]
+    public async Task<SimpleUserMessage> EditWorkspaceUserAsync( ISqlTransactionCallContext ctx,
+                                                                 CK.IO.UserManagement.UserInvitation.IEditWorkspaceUserCommand cmd,
+                                                                 UserTable userTable,
+                                                                 NamedUserTable namedUserTable,
+                                                                 CK.DB.Zone.GroupTable groupTable,
+                                                                 CK.DB.User.PreferredCulture.Package preferredCulturePackage,
+                                                                 ActorEMailTable emailTable,
+                                                                 UserManagementQueries coreQueries,
+                                                                 UserInvitationQueries queries )
+    {
+        var actorId = cmd.ActorId.GetValueOrDefault();
+        var workspaceId = cmd.CurrentWorkspaceId.GetValueOrDefault();
+        // The e-mail lives on the UserInvitation extension of the command (the closing type).
+        var email = cmd.Email;
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IEditWorkspaceUserCommand )} command (with e-mail). (ActorId: {actorId}, UserId: {cmd.UserId})" ) )
+        {
+            try
+            {
+                using( var transaction = ctx[userTable].BeginTransaction() )
+                {
+                    await userTable.UserNameSetAsync( ctx, actorId, cmd.UserId, cmd.UserName );
+                    await namedUserTable.SetNamesAsync( ctx, actorId, cmd.UserId, cmd.FirstName, cmd.LastName );
+
+                    // Update the primary e-mail when it changed. AddEMailAsync (avoidAmbiguousEMail) returns
+                    // the actor already bound to the address: a different id means it belongs to someone else.
+                    if( !string.IsNullOrWhiteSpace( email ) )
+                    {
+                        var currentEmail = await queries.GetPrimaryEmailAsync( ctx, cmd.UserId );
+                        if( !string.Equals( currentEmail, email, StringComparison.OrdinalIgnoreCase ) )
+                        {
+                            var boundTo = await emailTable.AddEMailAsync( ctx, actorId, cmd.UserId, email, isPrimary: true );
+                            if( boundTo != cmd.UserId )
+                            {
+                                ctx.Monitor.Warn( $"E-mail already used by another user. (Email: {email}, BoundTo: {boundTo})" );
+                                return _currentCulture.ErrorMessage( "This e-mail address is already used by another user.", "User.EmailAlreadyUsed" );
+                            }
+                            // Drop the previous primary address so the user keeps a single e-mail.
+                            if( !string.IsNullOrWhiteSpace( currentEmail ) )
+                            {
+                                await emailTable.RemoveEMailAsync( ctx, actorId, cmd.UserId, currentEmail );
+                            }
+                            ctx.Monitor.Info( $"User's primary e-mail successfully updated. (UserId: {cmd.UserId})" );
+                        }
+                    }
+
+                    if( cmd.ExtendedCultureId > 0 )
+                    {
+                        await preferredCulturePackage.SetExtendedCultureAsync( ctx, actorId, cmd.UserId, cmd.ExtendedCultureId );
+                        ctx.Monitor.Info( $"User's culture successfully set. (XLCID: {cmd.ExtendedCultureId})" );
+                    }
+
+                    var currentGroups = await coreQueries.GetUserWorkspaceGroupIdsAsync( ctx, workspaceId, cmd.UserId );
+                    foreach( var g in currentGroups )
+                    {
+                        if( !cmd.Groups.Contains( g ) )
+                        {
+                            await groupTable.RemoveUserAsync( ctx, actorId, g, cmd.UserId );
+                            ctx.Monitor.Info( $"User removed from group. (UserId: {cmd.UserId}, GroupId: {g})" );
+                        }
+                    }
+                    foreach( var g in cmd.Groups )
+                    {
+                        await groupTable.AddUserAsync( ctx, actorId, g, cmd.UserId, autoAddUserInZone: true );
+                        ctx.Monitor.Info( $"User added to group. (UserId: {cmd.UserId}, GroupId: {g})" );
+                    }
+
+                    transaction.Commit();
+                    return _currentCulture.InfoMessage( "Workspace user successfully edited.", "CrisSuccess.WorkspaceUserEdited" );
+                }
             }
             catch( Exception e )
             {

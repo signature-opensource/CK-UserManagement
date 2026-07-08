@@ -11,18 +11,14 @@
         <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2--ci.1" />
         <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
 
-        <!-- Soft-delete / recycle-bin for users: kept for the read model only. The workspace-user list
-             (IWorkspaceUser.BinDate) reads the BinDate column added by BinnedUser's vUser transform.
-             The archive/restore write feature lives in CK.UserManagement.BinnedUser. -->
-        <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
-
-        <!-- Standard CK.DB building blocks used by the handlers. -->
+        <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
+             no CK.DB.Actor.ActorEMail nor CK.DB.User.BinnedUser here (added by the UserInvitation /
+             BinnedUser packages). -->
         <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
         <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
-        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
         <PackageReference Include="CK.Globalization.StObj" Version="0.0.0--ci.7" />
     </ItemGroup>

@@ -14,5 +14,6 @@
     "User.InvitationValidated": "Your invitation has been validated. Please complete your registration.",
     "User.InvitationError": "Your invitation is no longer valid. Please contact your administrator.",
     "User.RegistrationCompleted": "Registration successful. You can now log-in with your credentials.",
-    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one."
+    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one.",
+    "User.EmailAlreadyUsed": "This e-mail address is already used by another user."
 }

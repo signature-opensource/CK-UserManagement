@@ -15,7 +15,9 @@
         <PackageReference Include="CK.DB.UserInvitation" Version="0.4.7--ci.1" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />
-        <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.1" />
+        <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
+             validated CK.tActorEMail as login identifier (brings CK.DB.User.UserPassword transitively). -->
+        <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="28.0.3--ci.5" />
         <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />

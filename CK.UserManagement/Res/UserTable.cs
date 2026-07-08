@@ -7,12 +7,9 @@ namespace CK.UserManagement;
 [Versions( "1.0.0" )]
 public abstract class UserTable : DB.Actor.UserTable
 {
-    // Depends on BinnedUser to order the setup: the workspace-user read model (IWorkspaceUser.BinDate,
-    // read by UserManagementQueries.GetWorkspaceUsersAsync from CK.vUser) needs BinnedUser's vUser
-    // transform to have added the BinDate column. The archive/restore write feature itself lives in
-    // CK.UserManagement.BinnedUser.
-    void StObjConstruct( DB.Acl.Package aclPackage,
-                         CK.DB.User.BinnedUser.Package binnedUserPackage )
+    // Acl orders the setup for fIsUserPlatformAdmin (uses CK.fAclGrantLevel). The core is
+    // e-mail/archive-agnostic: no dependency on ActorEMail or BinnedUser here.
+    void StObjConstruct( DB.Acl.Package aclPackage )
     { }
 
 

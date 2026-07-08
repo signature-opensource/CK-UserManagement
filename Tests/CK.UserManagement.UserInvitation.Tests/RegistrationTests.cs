@@ -90,9 +90,9 @@ public class RegistrationTests : UserInvitationTestBase
         ( await Env.UserTable.FindByNameAsync( ctx, userName ) ).ShouldBeGreaterThan( 0 );
         ( await Env.UserTable.FindByNameAsync( ctx, email ) ).ShouldBe( 0 );
 
-        // The query surfaces the real user name AND the primary e-mail.
-        var users = await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId );
-        var created = users.Single( u => u.UserName == userName );
+        // The e-mail-aware query (UserInvitation) surfaces the real user name AND the primary e-mail.
+        var users = await Env.InvitationQueries.GetWorkspaceUsersWithEmailAsync( ctx, Env.WorkspaceId );
+        var created = (CK.IO.UserManagement.UserInvitation.IWorkspaceUser)users.Single( u => u.UserName == userName );
         created.Email.ShouldBe( email );
     }
 

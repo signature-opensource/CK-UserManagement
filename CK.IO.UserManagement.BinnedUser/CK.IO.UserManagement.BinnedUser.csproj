@@ -17,6 +17,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CK.IO.Admin\CK.IO.Admin.csproj" />
+        <!-- Extends the core workspace-user / platform-user contracts with BinDate. -->
+        <ProjectReference Include="..\CK.IO.UserManagement\CK.IO.UserManagement.csproj" />
     </ItemGroup>
 
 </Project>

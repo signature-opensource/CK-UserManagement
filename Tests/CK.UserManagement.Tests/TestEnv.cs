@@ -1,6 +1,5 @@
 using CK.Core;
 using CK.DB.Acl;
-using CK.DB.Actor.ActorEMail;
 using CK.DB.User.NamedUser;
 using CK.DB.Zone;
 using CK.SqlServer;
@@ -42,7 +41,6 @@ public sealed class TestEnv
     public required UserTable UserTable { get; init; }
     public required GroupTable GroupTable { get; init; }
     public required NamedUserTable NamedUserTable { get; init; }
-    public required ActorEMailTable EmailTable { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
     public required CK.DB.User.PreferredCulture.Package PreferredCulturePackage { get; init; }
 
@@ -73,8 +71,6 @@ public sealed class TestEnv
             "CK.DB.User.UserPassword",
             "CK.DB.User.NamedUser",
             "CK.DB.User.PreferredCulture",
-            "CK.DB.User.BinnedUser",
-            "CK.DB.Actor.ActorEMail",
             "CK.DB.Workspace",
             "CK.DB.Zone",
             "CK.DB.Globalization",
@@ -89,14 +85,13 @@ public sealed class TestEnv
         var userTable = map.StObjs.Obtain<UserTable>()!;
         var groupTable = map.StObjs.Obtain<GroupTable>()!;
         var namedUserTable = map.StObjs.Obtain<NamedUserTable>()!;
-        var emailTable = map.StObjs.Obtain<ActorEMailTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
         var preferredCulturePackage = map.StObjs.Obtain<CK.DB.User.PreferredCulture.Package>()!;
         var aclTable = map.StObjs.Obtain<AclTable>()!;
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
-        var queries = new UserManagementQueries( pocoDir, userTable );
+        var queries = new UserManagementQueries( userTable );
         var handler = new UserManagementCommandHandler( currentCulture );
         var validator = new AdminCommandValidator( userTable, workspaceTable, currentCulture );
 
@@ -132,7 +127,6 @@ public sealed class TestEnv
             UserTable = userTable,
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,
-            EmailTable = emailTable,
             WorkspacePackage = workspacePackage,
             PreferredCulturePackage = preferredCulturePackage,
             WorkspaceId = workspaceId,

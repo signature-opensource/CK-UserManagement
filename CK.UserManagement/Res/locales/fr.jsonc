@@ -14,8 +14,5 @@
     "CrisError.ArgumentError": "Arguments invalides.",
 
     // CommandHandler success answers
-    "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès.",
-
-    // Workspace user edit
-    "User.EmailAlreadyUsed": "Cette adresse e-mail est déjà utilisée par un autre utilisateur."
+    "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès."
 }

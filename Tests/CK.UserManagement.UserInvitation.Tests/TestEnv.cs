@@ -36,7 +36,11 @@ public sealed class TestEnv
     public required FakeUserManagementMailer Mailer { get; init; }
 
     public required UserTable UserTable { get; init; }
+    public required NamedUserTable NamedUserTable { get; init; }
+    public required GroupTable GroupTable { get; init; }
+    public required ActorEMailTable EmailTable { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
+    public required CK.DB.User.PreferredCulture.Package PreferredCulturePackage { get; init; }
 
     public required int WorkspaceId { get; init; }
     public required int AdminUserId { get; init; }
@@ -63,6 +67,7 @@ public sealed class TestEnv
             "CK.Cris.Auth",
             "CK.DB.AspNet.Auth",
             "CK.DB.User.UserPassword",
+            "CK.DB.User.UserPassword.EMailLogin",
             "CK.DB.User.NamedUser",
             "CK.DB.User.PreferredCulture",
             "CK.DB.User.BinnedUser",
@@ -96,7 +101,7 @@ public sealed class TestEnv
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
         var mailer = new FakeUserManagementMailer();
-        var coreQueries = new UserManagementQueries( pocoDir, userTable );
+        var coreQueries = new UserManagementQueries( userTable );
         var invitationQueries = new UserInvitationQueries( pocoDir, userTable );
         var service = new UserManagementService( pocoDir, currentCulture, invitationPackage, preferredCulturePackage,
                                                  emailTable, namedUserTable, pwdTable, groupTable, userTable,
@@ -132,7 +137,11 @@ public sealed class TestEnv
             CurrentCulture = currentCulture,
             Mailer = mailer,
             UserTable = userTable,
+            NamedUserTable = namedUserTable,
+            GroupTable = groupTable,
+            EmailTable = emailTable,
             WorkspacePackage = workspacePackage,
+            PreferredCulturePackage = preferredCulturePackage,
             WorkspaceId = workspaceId,
             AdminUserId = adminId,
             MemberUserId = memberId,

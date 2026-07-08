@@ -28,6 +28,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CK.IO.UserManagement.BinnedUser\CK.IO.UserManagement.BinnedUser.csproj" />
+        <!-- For the core workspace-user contract (IWorkspaceUser / IGetWorkspaceUsersQCommand) that the
+             BinDate-aware list handler supersedes. No tUser specialization → no StObj conflict. -->
+        <ProjectReference Include="..\CK.UserManagement\CK.UserManagement.csproj" />
     </ItemGroup>
 
 </Project>
