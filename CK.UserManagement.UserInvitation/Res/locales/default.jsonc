@@ -1,0 +1,19 @@
+{
+    // Root ("en") translation set for the invitation / registration back-end messages.
+    // Keys are the resName arguments passed to the UserMessage helpers from the invitation command
+    // handlers and UserManagementService.
+
+    // CommandHandler / Service success answers
+    "CrisSuccess.InvitationCreated": "Invitation successfully created.",
+    "CrisSuccess.InvitationsResend": "Invitations were successfully sent.",
+    "CrisSuccess.InvitationsDeactivated": "Invitations were successfully deactivated.",
+    "CrisSuccess.InvitationsDeleted": "Invitations were successfully deleted.",
+
+    // Invitation / registration flow
+    "User.InvitationAlreadyExists": "An invitation already exists for this e-mail address.",
+    "User.InvitationValidated": "Your invitation has been validated. Please complete your registration.",
+    "User.InvitationError": "Your invitation is no longer valid. Please contact your administrator.",
+    "User.RegistrationCompleted": "Registration successful. You can now log-in with your credentials.",
+    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one.",
+    "User.EmailAlreadyUsed": "This e-mail address is already used by another user."
+}

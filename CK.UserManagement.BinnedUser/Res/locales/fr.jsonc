@@ -1,0 +1,9 @@
+{
+    // French translation set for the BinnedUser (archive / restore) back-end messages.
+
+    "BinnedUser.NoUserId": "Aucun identifiant d'utilisateur fourni.",
+    "BinnedUser.UsersArchived": "{0} utilisateur(s) archivé(s) avec succès.",
+    "BinnedUser.ArchiveFailed": "Une erreur est survenue lors de l'archivage des utilisateurs.",
+    "BinnedUser.UsersRestored": "{0} utilisateur(s) restauré(s) avec succès.",
+    "BinnedUser.RestoreFailed": "Une erreur est survenue lors de la restauration des utilisateurs."
+}

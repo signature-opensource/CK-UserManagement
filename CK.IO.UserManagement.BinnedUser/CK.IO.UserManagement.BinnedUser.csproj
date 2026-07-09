@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <!-- Assembly renamed, but the contract namespace is kept as CK.IO.UserManagement so the
+             generated TypeScript (ck-gen) lands under CK/IO/UserManagement and the Angular imports
+             are unaffected. -->
+        <RootNamespace>CK.IO.UserManagement</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Base Archive/Restore commands extended locally with the workspace/admin context. -->
+        <PackageReference Include="CK.IO.User.BinnedUser" Version="0.0.1--ci.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CK.IO.Admin\CK.IO.Admin.csproj" />
+        <!-- Extends the core workspace-user / platform-user contracts with BinDate. -->
+        <ProjectReference Include="..\CK.IO.UserManagement\CK.IO.UserManagement.csproj" />
+    </ItemGroup>
+
+</Project>

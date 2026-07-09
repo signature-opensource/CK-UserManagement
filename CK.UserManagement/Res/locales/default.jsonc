@@ -1,35 +1,24 @@
 {
     // Root ("en") translation set for CK.UserManagement back-end messages.
     // Keys are the resName arguments passed to the UserMessage helpers from the
-    // command handlers, services and validators of this package.
+    // command handlers and validators of this package. Invitation and archive/restore
+    // messages live in CK.UserManagement.UserInvitation and CK.UserManagement.BinnedUser.
 
     // AdminCommandValidator
     "Admin.InvalidActor": "Invalid actor.",
     "Admin.InvalidWorkSpace": "Invalid workspace.",
     "Admin.NotAuthorized": "Admin authority required.",
 
-    // UserManagementCommandHandler (archive / restore)
-    "BinnedUser.NoUserId": "No user identifier provided.",
-    "BinnedUser.UsersArchived": "{0} user(s) successfully archived.",
-    "BinnedUser.ArchiveFailed": "An error occurred while archiving users.",
-    "BinnedUser.UsersRestored": "{0} user(s) successfully restored.",
-    "BinnedUser.RestoreFailed": "An error occurred while restoring users.",
-
     // UserMessageExtensions (generic answers)
     "CrisError.ExceptionCaught": "An error occured.",
     "CrisError.InvalidActorId": "Please logout and relog-in, we were unable to identify you.",
     "CrisError.ArgumentError": "Invalid arguments.",
 
-    // CommandHandler / Service success answers
-    "CrisSuccess.InvitationCreated": "Invitation successfully created.",
-    "CrisSuccess.InvitationsResend": "Invitations were successfully sent.",
+    // CommandHandler success answers
     "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited.",
+    "CrisSuccess.WorkspaceUserCreated": "User successfully created.",
 
-    // Invitation / registration flow
-    "User.InvitationAlreadyExists": "An invitation already exists for this e-mail address.",
-    "User.InvitationValidated": "Your invitation has been validated. Please complete your registration.",
-    "User.InvitationError": "Your invitation is no longer valid. Please contact your administrator.",
-    "User.RegistrationCompleted": "Registration successful. You can now log-in with your credentials.",
-    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one.",
-    "User.EmailAlreadyUsed": "This e-mail address is already used by another user."
+    // Workspace user creation
+    "User.UserNameRequired": "A user name is required.",
+    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one."
 }

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Data access for the command handler. -->
+        <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2--ci.1" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
+
+        <!-- Soft-delete / recycle-bin for users (sUserArchive/sUserRestore, transformed here). -->
+        <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
+
+        <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
+        <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
+
+        <!-- Back-end localized messages. -->
+        <PackageReference Include="CK.DB.Globalization" Version="0.1.5--ci.1" />
+        <PackageReference Include="CK.Globalization.StObj" Version="0.0.0--ci.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.tql" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CK.IO.UserManagement.BinnedUser\CK.IO.UserManagement.BinnedUser.csproj" />
+        <!-- For the core workspace-user contract (IWorkspaceUser / IGetWorkspaceUsersQCommand) that the
+             BinDate-aware list handler supersedes. No tUser specialization → no StObj conflict. -->
+        <ProjectReference Include="..\CK.UserManagement\CK.UserManagement.csproj" />
+    </ItemGroup>
+
+</Project>
