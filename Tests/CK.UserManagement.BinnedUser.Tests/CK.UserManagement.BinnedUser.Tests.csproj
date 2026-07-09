@@ -10,10 +10,10 @@
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
     <PackageReference Include="CK.Cris.Auth" Version="0.43.2--ci.1" />
-    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.1" />
+    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.5" />
 
     <!-- Standard CK.DB building blocks needed to build the workspace/user setup + read model. -->
-    <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.1" />
+    <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.5" />
     <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
     <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />

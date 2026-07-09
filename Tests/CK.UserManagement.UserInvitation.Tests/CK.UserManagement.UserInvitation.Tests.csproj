@@ -10,7 +10,7 @@
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
     <PackageReference Include="CK.Cris.Auth" Version="0.43.2--ci.1" />
-    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.1" />
+    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.5" />
 
     <!-- Standard CK.DB building blocks the invitation service/queries depend on. -->
     <!-- Email-based login (specializes UserPasswordTable); brings CK.DB.User.UserPassword transitively. -->
