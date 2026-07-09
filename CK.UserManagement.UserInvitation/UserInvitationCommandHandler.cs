@@ -10,16 +10,16 @@ using CK.UserManagement;
 namespace CK.UserManagement.UserInvitation;
 
 /// <summary>
-/// Single command handler for the UserInvitation package. Handles the invitation / (anonymous)
-/// registration commands, and provides the e-mail-aware versions of the workspace-user list and edit
-/// commands (superseding the core UserName-only handlers). Business logic only (admin authority is
-/// enforced by the command validators), structured monitor logging, defensive try/catch and
-/// translatable <see cref="UserMessage"/> answers. Data access goes through
-/// <see cref="UserInvitationQueries"/> and <see cref="UserManagementService"/>; shared workspace-group
-/// reads use the core <see cref="UserManagementQueries"/>.
+/// Command handler for the UserInvitation package. Handles the invitation / (anonymous) registration
+/// commands, and provides the e-mail-aware version of the workspace-user edit command (superseding the
+/// core UserName-only handler). Business logic only (admin authority is enforced by the command
+/// validators), structured monitor logging, defensive try/catch and translatable
+/// <see cref="UserMessage"/> answers. Data access goes through <see cref="UserInvitationQueries"/> and
+/// <see cref="UserManagementService"/>; shared workspace-group reads use the core
+/// <see cref="UserManagementQueries"/>. The e-mail-aware workspace-user listing lives in its own
+/// <see cref="UserInvitationWorkspaceUsersHandler"/> so it can be superseded independently.
 /// </summary>
 public class UserInvitationCommandHandler : IAutoService,
-                                            ICommandHandler<IGetWorkspaceUsersQCommand>,
                                             ICommandHandler<IEditWorkspaceUserCommand>
 {
     readonly CurrentCultureInfo _currentCulture;
@@ -274,32 +274,7 @@ public class UserInvitationCommandHandler : IAutoService,
     }
     #endregion
 
-    #region Workspace-user list & edit (e-mail-aware, supersede the core handlers)
-    /// <summary>
-    /// E-mail-aware workspace-user listing: same result as the core handler plus the primary e-mail.
-    /// Supersedes <c>CK.UserManagement.UserManagementCommandHandler.GetWorkspaceUsersAsync</c>.
-    /// </summary>
-    [CommandHandler]
-    public async Task<List<IWorkspaceUser>> GetWorkspaceUsersAsync( ISqlCallContext ctx,
-                                                                    IGetWorkspaceUsersQCommand query,
-                                                                    UserInvitationQueries queries )
-    {
-        var workspaceId = query.CurrentWorkspaceId.GetValueOrDefault();
-        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IGetWorkspaceUsersQCommand )} query (with e-mail). (WorkspaceId: {workspaceId})" ) )
-        {
-            try
-            {
-                var users = await queries.GetWorkspaceUsersWithEmailAsync( ctx, workspaceId );
-                return users.ToList();
-            }
-            catch( Exception e )
-            {
-                ctx.Monitor.Error( e );
-                return new();
-            }
-        }
-    }
-
+    #region Workspace-user edit (e-mail-aware, supersedes the core handler)
     /// <summary>
     /// E-mail-aware workspace-user edit: edits UserName/names/culture/groups (like the core handler)
     /// and, in addition, updates the primary e-mail. Supersedes the core edit handler.

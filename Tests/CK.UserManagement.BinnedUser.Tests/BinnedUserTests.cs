@@ -44,7 +44,7 @@ public class BinnedUserTests : BinnedUserTestBase
     async Task<DateTime?> BinDateOfAsync( ISqlCallContext ctx, int userId )
     {
         var query = Env.PocoDirectory.Create<IGetWorkspaceUsersQCommand>( c => c.CurrentWorkspaceId = Env.WorkspaceId );
-        var users = await Env.Handler.GetWorkspaceUsersAsync( ctx, query, Env.BinnedUserQueries );
+        var users = await Env.ListHandler.GetWorkspaceUsersAsync( ctx, query, Env.BinnedUserQueries );
         return ((CK.IO.UserManagement.BinnedUser.IWorkspaceUser)users.Single( u => u.UserId == userId )).BinDate;
     }
 

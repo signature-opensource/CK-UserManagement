@@ -24,6 +24,7 @@ public sealed class TestEnv
     public required PocoDirectory PocoDirectory { get; init; }
 
     public required BinnedUserCommandHandler Handler { get; init; }
+    public required BinnedWorkspaceUsersHandler ListHandler { get; init; }
     public required BinnedUserQueries BinnedUserQueries { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
 
@@ -79,6 +80,7 @@ public sealed class TestEnv
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
         var binnedUserQueries = new BinnedUserQueries( binnedUserPackage );
         var handler = new BinnedUserCommandHandler();
+        var listHandler = new BinnedWorkspaceUsersHandler();
 
         int workspaceId, adminId, memberId, groupId;
         var suffix = Guid.NewGuid().ToString( "N" ).Substring( 0, 8 );
@@ -103,6 +105,7 @@ public sealed class TestEnv
             Map = map,
             PocoDirectory = pocoDir,
             Handler = handler,
+            ListHandler = listHandler,
             BinnedUserQueries = binnedUserQueries,
             CurrentCulture = currentCulture,
             UserTable = userTable,

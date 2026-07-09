@@ -6,14 +6,13 @@ using CK.SqlServer;
 namespace CK.UserManagement.BinnedUser;
 
 /// <summary>
-/// Single command handler for the BinnedUser package. Handles the workspace-scoped archive/restore
-/// commands and provides the <c>BinDate</c>-aware version of the workspace-user list command
-/// (superseding the core UserName-only handler). Business logic only (admin authority is enforced by
-/// <c>AdminCommandValidator</c>), structured monitor logging, defensive try/catch and translatable
-/// answers.
+/// Command handler for the BinnedUser package: the workspace-scoped archive/restore commands. Business
+/// logic only (admin authority is enforced by <c>AdminCommandValidator</c>), structured monitor
+/// logging, defensive try/catch and translatable answers. The <c>BinDate</c>-aware workspace-user
+/// listing lives in its own <see cref="BinnedWorkspaceUsersHandler"/> so it can be superseded
+/// independently.
 /// </summary>
-public class BinnedUserCommandHandler : IAutoService,
-                                        ICommandHandler<IGetWorkspaceUsersQCommand>
+public class BinnedUserCommandHandler : IAutoService
 {
     [CommandHandler]
     public async Task<ICrisBasicCommandResult> ArchiveUsersAsync( ISqlTransactionCallContext ctx,
@@ -92,32 +91,6 @@ public class BinnedUserCommandHandler : IAutoService,
             }
             res.SetUserMessages( collector );
             return res;
-        }
-    }
-
-    /// <summary>
-    /// <c>BinDate</c>-aware workspace-user listing: the core columns plus the archive date (read from
-    /// <c>CK.vUser.BinDate</c>, contributed by CK.DB.User.BinnedUser's vUser transform). Supersedes
-    /// <c>CK.UserManagement.UserManagementCommandHandler.GetWorkspaceUsersAsync</c>.
-    /// </summary>
-    [CommandHandler]
-    public async Task<List<IWorkspaceUser>> GetWorkspaceUsersAsync( ISqlCallContext ctx,
-                                                                    IGetWorkspaceUsersQCommand query,
-                                                                    BinnedUserQueries queries )
-    {
-        var workspaceId = query.CurrentWorkspaceId.GetValueOrDefault();
-        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IGetWorkspaceUsersQCommand )} query (with BinDate). (WorkspaceId: {workspaceId})" ) )
-        {
-            try
-            {
-                var users = await queries.GetWorkspaceUsersWithBinDateAsync( ctx, workspaceId );
-                return users.ToList();
-            }
-            catch( Exception e )
-            {
-                ctx.Monitor.Error( e );
-                return new();
-            }
         }
     }
 }
