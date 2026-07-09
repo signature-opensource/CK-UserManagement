@@ -14,5 +14,10 @@
     "CrisError.ArgumentError": "Arguments invalides.",
 
     // CommandHandler success answers
-    "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès."
+    "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès.",
+    "CrisSuccess.WorkspaceUserCreated": "Utilisateur créé avec succès.",
+
+    // Workspace user creation
+    "User.UserNameRequired": "Un nom d'utilisateur est requis.",
+    "User.UserNameAlreadyTaken": "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre."
 }

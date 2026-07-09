@@ -126,5 +126,60 @@ public class UserManagementCommandHandler : IAutoService
             }
         }
     }
+
+    [CommandHandler]
+    public async Task<SimpleUserMessage> CreateWorkspaceUserAsync( ISqlTransactionCallContext ctx,
+                                                                   ICreateWorkspaceUserCommand cmd,
+                                                                   UserTable userTable,
+                                                                   NamedUserTable namedUserTable,
+                                                                   CK.DB.Zone.GroupTable groupTable,
+                                                                   CK.DB.User.PreferredCulture.Package preferredCulturePackage,
+                                                                   CK.DB.Workspace.Package workspacePackage )
+    {
+        var actorId = cmd.ActorId.GetValueOrDefault();
+        var workspaceId = cmd.CurrentWorkspaceId.GetValueOrDefault();
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( ICreateWorkspaceUserCommand )} command. (ActorId: {actorId}, WorkspaceId: {workspaceId}, UserName: {cmd.UserName})" ) )
+        {
+            if( string.IsNullOrWhiteSpace( cmd.UserName ) )
+            {
+                ctx.Monitor.Warn( "No user name provided." );
+                return _currentCulture.ErrorMessage( "A user name is required.", "User.UserNameRequired" );
+            }
+            try
+            {
+                using( var transaction = ctx[userTable].BeginTransaction() )
+                {
+                    // Create the user directly (UserName + culture). No e-mail, no password: the core is
+                    // agnostic and credentials are provisioned separately.
+                    var userId = await preferredCulturePackage.CreateUserAsync( ctx, actorId, cmd.UserName.Trim(), cmd.ExtendedCultureId );
+                    if( userId <= 0 )
+                    {
+                        ctx.Monitor.Warn( $"User name already taken. (UserName: {cmd.UserName})" );
+                        return _currentCulture.ErrorMessage( "This user name is already taken. Please choose another one.", "User.UserNameAlreadyTaken" );
+                    }
+
+                    await namedUserTable.SetNamesAsync( ctx, actorId, userId, cmd.FirstName, cmd.LastName );
+
+                    foreach( var g in cmd.Groups )
+                    {
+                        await groupTable.AddUserAsync( ctx, actorId, g, userId, autoAddUserInZone: true );
+                        ctx.Monitor.Info( $"User added to group. (UserId: {userId}, GroupId: {g})" );
+                    }
+
+                    // Land the new user in the workspace it was created for.
+                    await workspacePackage.SetUserPreferredWorkspaceAsync( ctx, actorId, userId, workspaceId );
+
+                    transaction.Commit();
+                    ctx.Monitor.Info( $"Workspace user created. (UserId: {userId})" );
+                    return _currentCulture.InfoMessage( "User successfully created.", "CrisSuccess.WorkspaceUserCreated" );
+                }
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return _currentCulture.CreateGenericError();
+            }
+        }
+    }
     #endregion
 }

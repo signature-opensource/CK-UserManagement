@@ -15,5 +15,10 @@
     "CrisError.ArgumentError": "Invalid arguments.",
 
     // CommandHandler success answers
-    "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited."
+    "CrisSuccess.WorkspaceUserEdited": "Workspace user successfully edited.",
+    "CrisSuccess.WorkspaceUserCreated": "User successfully created.",
+
+    // Workspace user creation
+    "User.UserNameRequired": "A user name is required.",
+    "User.UserNameAlreadyTaken": "This user name is already taken. Please choose another one."
 }
