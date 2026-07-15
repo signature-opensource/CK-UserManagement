@@ -1,6 +1,7 @@
 using CK.Core;
 using CK.DB.Acl;
 using CK.DB.User.NamedUser;
+using CK.DB.User.UserPassword;
 using CK.DB.Zone;
 using CK.SqlServer;
 using CK.Testing;
@@ -41,6 +42,7 @@ public sealed class TestEnv
     public required UserTable UserTable { get; init; }
     public required GroupTable GroupTable { get; init; }
     public required NamedUserTable NamedUserTable { get; init; }
+    public required UserPasswordTable UserPasswordTable { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
     public required CK.DB.User.PreferredCulture.Package PreferredCulturePackage { get; init; }
 
@@ -85,6 +87,7 @@ public sealed class TestEnv
         var userTable = map.StObjs.Obtain<UserTable>()!;
         var groupTable = map.StObjs.Obtain<GroupTable>()!;
         var namedUserTable = map.StObjs.Obtain<NamedUserTable>()!;
+        var userPasswordTable = map.StObjs.Obtain<UserPasswordTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
         var preferredCulturePackage = map.StObjs.Obtain<CK.DB.User.PreferredCulture.Package>()!;
@@ -127,6 +130,7 @@ public sealed class TestEnv
             UserTable = userTable,
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,
+            UserPasswordTable = userPasswordTable,
             WorkspacePackage = workspacePackage,
             PreferredCulturePackage = preferredCulturePackage,
             WorkspaceId = workspaceId,

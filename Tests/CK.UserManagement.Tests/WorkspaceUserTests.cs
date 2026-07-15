@@ -55,11 +55,14 @@ public class WorkspaceUserTests : UserManagementTestBase
         => Env.Handler.EditWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable,
                                                Env.GroupTable, Env.PreferredCulturePackage, Env.Queries );
 
+    const string TestPassword = "Str0ng!Pass";
+
     Task<SimpleUserMessage> Create( ISqlTransactionCallContext ctx, ICreateWorkspaceUserCommand cmd )
         => Env.Handler.CreateWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable,
-                                                 Env.GroupTable, Env.PreferredCulturePackage, Env.WorkspacePackage );
+                                                 Env.GroupTable, Env.PreferredCulturePackage,
+                                                 Env.UserPasswordTable, Env.WorkspacePackage );
 
-    ICreateWorkspaceUserCommand NewCreate( string userName )
+    ICreateWorkspaceUserCommand NewCreate( string userName, string password = TestPassword )
         => Env.PocoDirectory.Create<ICreateWorkspaceUserCommand>( c =>
         {
             c.ActorId = Env.AdminUserId;
@@ -68,11 +71,12 @@ public class WorkspaceUserTests : UserManagementTestBase
             c.FirstName = "New";
             c.LastName = "User";
             c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
+            c.Password = password;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
 
     [Test]
-    public async Task creating_a_user_directly_creates_it_and_adds_it_to_the_group_Async()
+    public async Task creating_a_user_directly_creates_it_adds_it_to_the_group_and_provisions_its_password_Async()
     {
         using var ctx = new SqlTransactionCallContext();
         var userName = $"created-{Guid.NewGuid():N}".Substring( 0, 20 );
@@ -87,6 +91,23 @@ public class WorkspaceUserTests : UserManagementTestBase
             .ShouldContain( Env.WorkspaceGroupId );
         ( await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId ) )
             .ShouldContain( u => u.UserId == userId );
+
+        // The provisioned password lets the user sign in (actualLogin: false — credential check only).
+        var login = await Env.UserPasswordTable.LoginUserAsync( ctx, userId, TestPassword, actualLogin: false );
+        login.IsSuccess.ShouldBeTrue();
+        ( await Env.UserPasswordTable.LoginUserAsync( ctx, userId, "wrong-password", actualLogin: false ) )
+            .IsSuccess.ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task creating_a_user_without_a_password_is_rejected_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var userName = $"nopwd-{Guid.NewGuid():N}".Substring( 0, 20 );
+
+        ( await Create( ctx, NewCreate( userName, password: "" ) ) ).Level.ShouldBe( UserMessageLevel.Error );
+        // The user must not have been created.
+        ( await Env.UserTable.FindByNameAsync( ctx, userName ) ).ShouldBe( 0 );
     }
 
     [Test]

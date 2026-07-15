@@ -19,5 +19,6 @@
 
     // Workspace user creation
     "User.UserNameRequired": "Un nom d'utilisateur est requis.",
+    "User.PasswordRequired": "Un mot de passe est requis.",
     "User.UserNameAlreadyTaken": "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre."
 }

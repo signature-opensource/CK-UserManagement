@@ -1,5 +1,6 @@
 using CK.Core;
 using CK.Cris;
+using CK.DB.Auth;
 using CK.DB.User.NamedUser;
 using CK.DB.Zone;
 using CK.IO.UserManagement;
@@ -134,6 +135,7 @@ public class UserManagementCommandHandler : IAutoService
                                                                    NamedUserTable namedUserTable,
                                                                    CK.DB.Zone.GroupTable groupTable,
                                                                    CK.DB.User.PreferredCulture.Package preferredCulturePackage,
+                                                                   CK.DB.User.UserPassword.UserPasswordTable passwordTable,
                                                                    CK.DB.Workspace.Package workspacePackage )
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
@@ -145,18 +147,25 @@ public class UserManagementCommandHandler : IAutoService
                 ctx.Monitor.Warn( "No user name provided." );
                 return _currentCulture.ErrorMessage( "A user name is required.", "User.UserNameRequired" );
             }
+            if( string.IsNullOrWhiteSpace( cmd.Password ) )
+            {
+                ctx.Monitor.Warn( "No password provided." );
+                return _currentCulture.ErrorMessage( "A password is required.", "User.PasswordRequired" );
+            }
             try
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    // Create the user directly (UserName + culture). No e-mail, no password: the core is
-                    // agnostic and credentials are provisioned separately.
+                    // Create the user directly (UserName + culture), then provision a basic-authentication
+                    // password so the user can sign in right away. The core stays e-mail-agnostic.
                     var userId = await preferredCulturePackage.CreateUserAsync( ctx, actorId, cmd.UserName.Trim(), cmd.ExtendedCultureId );
                     if( userId <= 0 )
                     {
                         ctx.Monitor.Warn( $"User name already taken. (UserName: {cmd.UserName})" );
                         return _currentCulture.ErrorMessage( "This user name is already taken. Please choose another one.", "User.UserNameAlreadyTaken" );
                     }
+
+                    await passwordTable.CreateOrUpdatePasswordUserAsync( ctx, actorId, userId, cmd.Password, UCLMode.CreateOnly );
 
                     await namedUserTable.SetNamesAsync( ctx, actorId, userId, cmd.FirstName, cmd.LastName );
 
