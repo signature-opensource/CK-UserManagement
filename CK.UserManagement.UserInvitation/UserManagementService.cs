@@ -227,6 +227,8 @@ public class UserManagementService : IAutoService
         ctx.Monitor.Info( $"User created. (UserId: {userId}, UserName: {nickName}, Email: {email}, XLCID: {extendedCultureId})" );
 
         await _emailTable.AddEMailAsync( ctx, SystemActorId, userId, email, isPrimary: true );
+        await _emailTable.ValidateEMailAsync( ctx, SystemActorId, userId, email );
+
         await _namedUserTable.SetNamesAsync( ctx, SystemActorId, userId, firstName, lastName );
         await _passwordTable.CreateOrUpdatePasswordUserAsync( ctx, SystemActorId, userId, password, UCLMode.CreateOnly );
 

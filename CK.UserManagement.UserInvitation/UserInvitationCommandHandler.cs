@@ -316,6 +316,8 @@ public class UserInvitationCommandHandler : IAutoService,
                                 ctx.Monitor.Warn( $"E-mail already used by another user. (Email: {email}, BoundTo: {boundTo})" );
                                 return _currentCulture.ErrorMessage( "This e-mail address is already used by another user.", "User.EmailAlreadyUsed" );
                             }
+                            await emailTable.ValidateEMailAsync( ctx, actorId, cmd.UserId, email );
+
                             // Drop the previous primary address so the user keeps a single e-mail.
                             if( !string.IsNullOrWhiteSpace( currentEmail ) )
                             {
