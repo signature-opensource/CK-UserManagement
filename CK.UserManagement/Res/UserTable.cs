@@ -8,7 +8,7 @@ namespace CK.UserManagement;
 public abstract class UserTable : DB.Actor.UserTable
 {
     // Acl orders the setup for fIsUserPlatformAdmin (uses CK.fAclGrantLevel). The core is
-    // e-mail/archive-agnostic: no dependency on ActorEMail or BinnedUser here.
+    // e-mail/ban-agnostic: no dependency on ActorEMail or UserBanned here.
     void StObjConstruct( DB.Acl.Package aclPackage )
     { }
 

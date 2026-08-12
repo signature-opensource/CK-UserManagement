@@ -70,7 +70,7 @@ public sealed class TestEnv
             "CK.DB.User.UserPassword.EMailLogin",
             "CK.DB.User.NamedUser",
             "CK.DB.User.PreferredCulture",
-            "CK.DB.User.BinnedUser",
+            "CK.DB.User.UserBanned",
             "CK.DB.Actor.ActorEMail",
             "CK.DB.UserInvitation",
             "CK.DB.Workspace",

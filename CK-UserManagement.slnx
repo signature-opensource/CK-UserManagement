@@ -4,15 +4,15 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/CK.UserManagement.Tests/CK.UserManagement.Tests.csproj" />
+    <Project Path="Tests/CK.UserManagement.UserBanned.Tests/CK.UserManagement.UserBanned.Tests.csproj" />
     <Project Path="Tests/CK.UserManagement.UserInvitation.Tests/CK.UserManagement.UserInvitation.Tests.csproj" />
-    <Project Path="Tests/CK.UserManagement.BinnedUser.Tests/CK.UserManagement.BinnedUser.Tests.csproj" />
   </Folder>
   <Project Path="CK.IO.Admin/CK.IO.Admin.csproj" />
   <Project Path="CK.IO.UserManagement/CK.IO.UserManagement.csproj" />
+  <Project Path="CK.IO.UserManagement.UserBanned/CK.IO.UserManagement.UserBanned.csproj" />
   <Project Path="CK.IO.UserManagement.UserInvitation/CK.IO.UserManagement.UserInvitation.csproj" />
-  <Project Path="CK.IO.UserManagement.BinnedUser/CK.IO.UserManagement.BinnedUser.csproj" />
   <Project Path="CK.Mail.SharedLayout/CK.Mail.SharedLayout.csproj" />
   <Project Path="CK.UserManagement/CK.UserManagement.csproj" />
-  <Project Path="CK.UserManagement.BinnedUser/CK.UserManagement.BinnedUser.csproj" />
+  <Project Path="CK.UserManagement.UserBanned/CK.UserManagement.UserBanned.csproj" />
   <Project Path="CK.UserManagement.UserInvitation/CK.UserManagement.UserInvitation.csproj" />
 </Solution>

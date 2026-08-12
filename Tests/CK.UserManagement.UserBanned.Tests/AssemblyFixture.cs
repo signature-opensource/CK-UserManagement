@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace CK.UserManagement.BinnedUser.Tests;
+namespace CK.UserManagement.UserBanned.Tests;
 
 /// <summary>
 /// Builds the shared <see cref="TestEnv"/> (CK engine + service graph + workspace/users) once for the
@@ -19,7 +19,7 @@ public class AssemblyFixture
 }
 
 /// <summary>Base class giving every fixture access to the shared <see cref="TestEnv"/>.</summary>
-public abstract class BinnedUserTestBase
+public abstract class UserBannedTestBase
 {
     protected TestEnv Env => AssemblyFixture.Env;
 }

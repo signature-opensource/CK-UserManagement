@@ -1,9 +1,9 @@
 -- SetupConfig: {}
 --
--- Adds a @WorkspaceId parameter (default 0) to CK.sUserArchive and, when a workspace is specified,
+-- Adds a @WorkspaceId parameter (default 0) to CK.sUserBannedSet and, when a workspace is specified,
 -- drives the security check from the caller's grant level on that workspace: SafeAdministrator (112)
--- or above is required. @WorkspaceId = 0 keeps the default platform route (Administrators group).
-create transformer on CK.sUserArchive
+-- or above is required. @WorkspaceId = 0 keeps the default platform route (System group).
+create transformer on CK.sUserBannedSet
 as
 begin
     add parameter @WorkspaceId int = 0;
@@ -15,5 +15,5 @@ begin
             set @CanContinue = 1;
         else
             set @CanContinue = 0;
-    end" into "ArchiveSecurityCheck";
+    end" into "BannedSecurityCheck";
 end

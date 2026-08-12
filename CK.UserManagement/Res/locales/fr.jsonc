@@ -1,7 +1,7 @@
 {
     // French translation set for CK.UserManagement back-end messages.
     // Invitation and archive/restore messages live in CK.UserManagement.UserInvitation and
-    // CK.UserManagement.BinnedUser.
+    // CK.UserManagement.UserBanned.
 
     // AdminCommandValidator
     "Admin.InvalidActor": "Acteur invalide.",

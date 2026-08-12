@@ -16,7 +16,7 @@
     <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3--ci.5" />
     <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0--ci.7" />
-    <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.1--ci.12" />
     <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3--ci.1" />
     <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
     <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
@@ -38,9 +38,9 @@
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CK.UserManagement.BinnedUser\CK.UserManagement.BinnedUser.csproj" />
+    <ProjectReference Include="..\..\CK.UserManagement.UserBanned\CK.UserManagement.UserBanned.csproj" />
     <!-- Core is referenced for the workspace-user read model (UserManagementQueries.GetWorkspaceUsersAsync
-         exposes IWorkspaceUser.BinDate) used to assert archive/restore. -->
+         exposes IWorkspaceUser.Bans) used to assert ban/unban. -->
     <ProjectReference Include="..\..\CK.UserManagement\CK.UserManagement.csproj" />
   </ItemGroup>
 </Project>

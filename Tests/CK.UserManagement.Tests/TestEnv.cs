@@ -14,7 +14,7 @@ namespace CK.UserManagement.Tests;
 /// <summary>
 /// Shared engine + service graph + database fixture for the core workspace-user management tests
 /// (edit / list / admin validation). Invitation and archive/restore tests build their own engines in
-/// the CK.UserManagement.UserInvitation.Tests and CK.UserManagement.BinnedUser.Tests projects.
+/// the CK.UserManagement.UserInvitation.Tests and CK.UserManagement.UserBanned.Tests projects.
 /// <para>
 /// The CK engine is built once for the whole assembly (see <see cref="AssemblyFixture"/>). Because the
 /// handlers/services are invoked directly (not through the Cris HTTP/background pipeline) there is no

@@ -11,8 +11,8 @@
         <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2--ci.1" />
         <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
 
-        <!-- Soft-delete / recycle-bin for users (sUserArchive/sUserRestore, transformed here). -->
-        <PackageReference Include="CK.DB.User.BinnedUser" Version="0.0.1--ci.1" />
+        <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
+        <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.1--ci.12" />
 
         <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
         <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
@@ -27,9 +27,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CK.IO.UserManagement.BinnedUser\CK.IO.UserManagement.BinnedUser.csproj" />
+        <ProjectReference Include="..\CK.IO.UserManagement.UserBanned\CK.IO.UserManagement.UserBanned.csproj" />
         <!-- For the core workspace-user contract (IWorkspaceUser / IGetWorkspaceUsersQCommand) that the
-             BinDate-aware list handler supersedes. No tUser specialization → no StObj conflict. -->
+             ban-aware list handler supersedes. No tUser specialization → no StObj conflict. -->
         <ProjectReference Include="..\CK.UserManagement\CK.UserManagement.csproj" />
     </ItemGroup>
 

@@ -7,12 +7,12 @@ using Dapper;
 using static CK.Testing.MonitorTestHelper;
 using GroupTable = CK.DB.Zone.GroupTable;
 
-namespace CK.UserManagement.BinnedUser.Tests;
+namespace CK.UserManagement.UserBanned.Tests;
 
 /// <summary>
-/// Engine + service graph + database fixture for the archive/restore (BinnedUser) tests. The engine
-/// spans the core CK.UserManagement package (for the workspace-user read model exposing
-/// <c>IWorkspaceUser.BinDate</c>) plus CK.UserManagement.BinnedUser.
+/// Engine + service graph + database fixture for the ban/unban (UserBanned) tests. The engine spans the
+/// core CK.UserManagement package (for the workspace-user read model exposing
+/// <c>IWorkspaceUser.Bans</c>) plus CK.UserManagement.UserBanned.
 /// <para>
 /// A dedicated workspace is created with an admin user (ACL grant 127) and a member user. The services
 /// are constructed by hand from the real objects obtained from the <see cref="IStObjMap"/>.
@@ -23,13 +23,13 @@ public sealed class TestEnv
     public required IStObjMap Map { get; init; }
     public required PocoDirectory PocoDirectory { get; init; }
 
-    public required BinnedUserCommandHandler Handler { get; init; }
-    public required BinnedWorkspaceUsersHandler ListHandler { get; init; }
-    public required BinnedUserQueries BinnedUserQueries { get; init; }
+    public required UserBannedCommandHandler Handler { get; init; }
+    public required BannedWorkspaceUsersHandler ListHandler { get; init; }
+    public required UserBannedQueries UserBannedQueries { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
 
     public required UserTable UserTable { get; init; }
-    public required BinnedUserPackage BinnedUserPackage { get; init; }
+    public required UserBannedPackage UserBannedPackage { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
 
     public required int WorkspaceId { get; init; }
@@ -56,13 +56,13 @@ public sealed class TestEnv
             "CK.DB.User.UserPassword",
             "CK.DB.User.NamedUser",
             "CK.DB.User.PreferredCulture",
-            "CK.DB.User.BinnedUser",
+            "CK.DB.User.UserBanned",
             "CK.DB.Actor.ActorEMail",
             "CK.DB.Workspace",
             "CK.DB.Zone",
             "CK.DB.Globalization",
             "CK.UserManagement",
-            "CK.UserManagement.BinnedUser",
+            "CK.UserManagement.UserBanned",
             "CK.SqlServer.Transaction"
         ] );
 
@@ -71,16 +71,16 @@ public sealed class TestEnv
 
         var pocoDir = map.StObjs.Obtain<PocoDirectory>()!;
         var userTable = map.StObjs.Obtain<UserTable>()!;
-        var binnedUserPackage = map.StObjs.Obtain<BinnedUserPackage>()!;
+        var userBannedPackage = map.StObjs.Obtain<UserBannedPackage>()!;
         var groupTable = map.StObjs.Obtain<GroupTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
         var aclTable = map.StObjs.Obtain<AclTable>()!;
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
-        var binnedUserQueries = new BinnedUserQueries( binnedUserPackage );
-        var handler = new BinnedUserCommandHandler();
-        var listHandler = new BinnedWorkspaceUsersHandler();
+        var userBannedQueries = new UserBannedQueries( userBannedPackage, pocoDir );
+        var handler = new UserBannedCommandHandler();
+        var listHandler = new BannedWorkspaceUsersHandler();
 
         int workspaceId, adminId, memberId, groupId;
         var suffix = Guid.NewGuid().ToString( "N" ).Substring( 0, 8 );
@@ -106,10 +106,10 @@ public sealed class TestEnv
             PocoDirectory = pocoDir,
             Handler = handler,
             ListHandler = listHandler,
-            BinnedUserQueries = binnedUserQueries,
+            UserBannedQueries = userBannedQueries,
             CurrentCulture = currentCulture,
             UserTable = userTable,
-            BinnedUserPackage = binnedUserPackage,
+            UserBannedPackage = userBannedPackage,
             WorkspacePackage = workspacePackage,
             WorkspaceId = workspaceId,
             AdminUserId = adminId,

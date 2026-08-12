@@ -11,13 +11,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- Base Archive/Restore commands extended locally with the workspace/admin context. -->
-        <PackageReference Include="CK.IO.User.BinnedUser" Version="0.0.1--ci.1" />
+        <!-- Base Set/Destroy banishment commands extended locally with the workspace/admin context. -->
+        <PackageReference Include="CK.IO.User.UserBanned" Version="1.0.1--ci.12" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\CK.IO.Admin\CK.IO.Admin.csproj" />
-        <!-- Extends the core workspace-user / platform-user contracts with BinDate. -->
+        <!-- Extends the core workspace-user / platform-user contracts with the banishment list. -->
         <ProjectReference Include="..\CK.IO.UserManagement\CK.IO.UserManagement.csproj" />
     </ItemGroup>
 

@@ -12,8 +12,8 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.1" />
 
         <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
-             no CK.DB.Actor.ActorEMail nor CK.DB.User.BinnedUser here (added by the UserInvitation /
-             BinnedUser packages). -->
+             no CK.DB.Actor.ActorEMail nor CK.DB.User.UserBanned here (added by the UserInvitation /
+             UserBanned packages). -->
         <PackageReference Include="CK.DB.Workspace" Version="15.1.2--ci.1" />
         <PackageReference Include="CK.DB.Zone" Version="28.0.3--ci.1" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3--ci.1" />

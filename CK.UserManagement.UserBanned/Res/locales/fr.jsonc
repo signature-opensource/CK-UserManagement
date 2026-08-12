@@ -1,0 +1,10 @@
+{
+    // French translation set for the UserBanned (ban / unban) back-end messages.
+
+    "UserBanned.UserBanned": "Utilisateur banni avec succès.",
+    "UserBanned.SetFailed": "L'utilisateur n'a pas pu être banni.",
+    "UserBanned.BanDestroyed": "Bannissement de l'utilisateur supprimé avec succès.",
+    "UserBanned.DestroyFailed": "Le bannissement de l'utilisateur n'a pas pu être supprimé.",
+    "UserBanned.InvalidUserId": "Identifiant d'utilisateur invalide.",
+    "UserBanned.NoKeyReason": "Un motif de bannissement est requis."
+}

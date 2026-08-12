@@ -13,7 +13,7 @@ namespace CK.UserManagement;
 /// (UserName only). Business logic only (admin authority is expected to be enforced by the command
 /// validators), structured monitor logging, defensive try/catch and translatable
 /// <see cref="UserMessage"/> answers. Data access goes through <see cref="UserManagementQueries"/>.
-/// E-mail (UserInvitation) and archive/restore (BinnedUser) enrichments live in those packages, which
+/// E-mail (UserInvitation) and ban/unban (UserBanned) enrichments live in those packages, which
 /// provide their own handlers for the same commands.
 /// </summary>
 public class UserManagementCommandHandler : IAutoService

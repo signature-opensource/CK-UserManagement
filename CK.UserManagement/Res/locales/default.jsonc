@@ -2,7 +2,7 @@
     // Root ("en") translation set for CK.UserManagement back-end messages.
     // Keys are the resName arguments passed to the UserMessage helpers from the
     // command handlers and validators of this package. Invitation and archive/restore
-    // messages live in CK.UserManagement.UserInvitation and CK.UserManagement.BinnedUser.
+    // messages live in CK.UserManagement.UserInvitation and CK.UserManagement.UserBanned.
 
     // AdminCommandValidator
     "Admin.InvalidActor": "Invalid actor.",
