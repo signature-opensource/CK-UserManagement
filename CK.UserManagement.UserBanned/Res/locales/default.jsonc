@@ -2,11 +2,13 @@
     // Root ("en") translation set for the UserBanned (ban / unban) back-end messages.
     // Keys are the resName arguments passed to the UserMessage helpers from UserBannedCommandHandler.
     // They are the ones of the CK.DB.User.UserBanned package, which ships no locale file of its own.
+    // Wording is deliberately "disabled / re-enabled": the technical keys keep the ban vocabulary,
+    // the displayed messages do not.
 
-    "UserBanned.UserBanned": "User successfully banned.",
-    "UserBanned.SetFailed": "User could not be banned.",
-    "UserBanned.BanDestroyed": "User banishment successfully destroyed.",
-    "UserBanned.DestroyFailed": "User banishment could not be destroyed.",
+    "UserBanned.UserBanned": "User successfully disabled.",
+    "UserBanned.SetFailed": "User could not be disabled.",
+    "UserBanned.BanDestroyed": "User successfully re-enabled.",
+    "UserBanned.DestroyFailed": "User could not be re-enabled.",
     "UserBanned.InvalidUserId": "Invalid user identifier.",
-    "UserBanned.NoKeyReason": "A ban reason is required."
+    "UserBanned.NoKeyReason": "A deactivation reason is required."
 }

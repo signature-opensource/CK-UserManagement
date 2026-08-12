@@ -1,10 +1,12 @@
 {
     // French translation set for the UserBanned (ban / unban) back-end messages.
+    // Wording is deliberately "désactivé / réactivé": the technical keys keep the ban vocabulary,
+    // the displayed messages do not.
 
-    "UserBanned.UserBanned": "Utilisateur banni avec succès.",
-    "UserBanned.SetFailed": "L'utilisateur n'a pas pu être banni.",
-    "UserBanned.BanDestroyed": "Bannissement de l'utilisateur supprimé avec succès.",
-    "UserBanned.DestroyFailed": "Le bannissement de l'utilisateur n'a pas pu être supprimé.",
+    "UserBanned.UserBanned": "Utilisateur désactivé avec succès.",
+    "UserBanned.SetFailed": "L'utilisateur n'a pas pu être désactivé.",
+    "UserBanned.BanDestroyed": "Utilisateur réactivé avec succès.",
+    "UserBanned.DestroyFailed": "L'utilisateur n'a pas pu être réactivé.",
     "UserBanned.InvalidUserId": "Identifiant d'utilisateur invalide.",
-    "UserBanned.NoKeyReason": "Un motif de bannissement est requis."
+    "UserBanned.NoKeyReason": "Un motif de désactivation est requis."
 }

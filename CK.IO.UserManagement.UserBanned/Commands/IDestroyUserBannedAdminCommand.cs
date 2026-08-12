@@ -1,3 +1,4 @@
+using CK.Cris;
 using CK.IO.Admin;
 using CK.IO.User.UserBanned;
 
@@ -12,7 +13,12 @@ namespace CK.IO.UserManagement;
 /// handler (which only sees the base <see cref="IDestroyUserBannedCommand"/>) and forwards the workspace
 /// to <c>CK.sUserBannedDestroy</c>.
 /// </para>
+/// <para>
+/// <see cref="ICommandCurrentCulture"/> is required: the handler answers with <c>UserMessage</c> that
+/// must be resolved in the caller's language. Neither the package command nor
+/// <see cref="ICommandWorkspaceAdmin"/> carries the culture.
+/// </para>
 /// </summary>
-public interface IDestroyUserBannedAdminCommand : IDestroyUserBannedCommand, ICommandWorkspaceAdmin
+public interface IDestroyUserBannedAdminCommand : IDestroyUserBannedCommand, ICommandCurrentCulture, ICommandWorkspaceAdmin
 {
 }

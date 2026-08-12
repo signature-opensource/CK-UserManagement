@@ -35,12 +35,12 @@ public class UserBannedCommandHandler : IAutoService
             {
                 await userBannedPackage.SetUserBannedAsync( ctx, actorId, cmd.KeyReason, cmd.UserId,
                                                             cmd.BanStartDate, cmd.BanEndDate, workspaceId );
-                collector.Info( "User successfully banned.", "UserBanned.UserBanned" );
+                collector.Info( "User successfully disabled.", "UserBanned.UserBanned" );
             }
             catch( Exception e )
             {
                 ctx.Monitor.Error( e );
-                collector.Error( "User could not be banned.", "UserBanned.SetFailed" );
+                collector.Error( "User could not be disabled.", "UserBanned.SetFailed" );
             }
             res.SetUserMessages( collector );
             return res;
@@ -66,12 +66,12 @@ public class UserBannedCommandHandler : IAutoService
             try
             {
                 await userBannedPackage.DestroyUserBannedAsync( ctx, actorId, cmd.KeyReason, cmd.UserId, workspaceId );
-                collector.Info( "User banishment successfully destroyed.", "UserBanned.BanDestroyed" );
+                collector.Info( "User successfully re-enabled.", "UserBanned.BanDestroyed" );
             }
             catch( Exception e )
             {
                 ctx.Monitor.Error( e );
-                collector.Error( "User banishment could not be destroyed.", "UserBanned.DestroyFailed" );
+                collector.Error( "User could not be re-enabled.", "UserBanned.DestroyFailed" );
             }
             res.SetUserMessages( collector );
             return res;
@@ -93,7 +93,7 @@ public class UserBannedCommandHandler : IAutoService
         }
         if( string.IsNullOrWhiteSpace( keyReason ) )
         {
-            collector.Error( "A ban reason is required.", "UserBanned.NoKeyReason" );
+            collector.Error( "A deactivation reason is required.", "UserBanned.NoKeyReason" );
             valid = false;
         }
         return valid;
