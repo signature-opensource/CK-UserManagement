@@ -120,6 +120,31 @@ public class UserBannedTests : UserBannedTestBase
         ( await BansOfAsync( ctx, userId ) ).ShouldBeEmpty();
     }
 
+    // The banishment and group joins of the ban-aware listing fan out into each other: the SQL returns
+    // one row per (banishment, group) pair. Without the de-duplication guards of the projection, a user
+    // with 2 banishments and 2 groups would come back with 4 of each.
+    [Test]
+    public async Task the_ban_aware_listing_duplicates_neither_the_bans_nor_the_groups_Async()
+    {
+        var groupTable = Env.Map.StObjs.Obtain<CK.DB.Zone.GroupTable>()!;
+        using var ctx = new SqlTransactionCallContext();
+        int userId = await Env.CreateWorkspaceMemberAsync( ctx );
+
+        // Two groups: the workspace zone group itself (the mere membership) and the spare group.
+        await groupTable.AddUserAsync( ctx, 1, Env.WorkspaceGroupId, userId, autoAddUserInZone: true );
+        await BanAsync( ctx, userId, UserBannedPackage.AdminKeyReason );
+        await BanAsync( ctx, userId, "UserManagement.Tests.OtherReason" );
+
+        var query = Env.PocoDirectory.Create<IGetWorkspaceUsersQCommand>( c => c.CurrentWorkspaceId = Env.WorkspaceId );
+        var users = await Env.ListHandler.GetWorkspaceUsersAsync( ctx, query, Env.UserBannedQueries );
+        var user = (CK.IO.UserManagement.UserBanned.IWorkspaceUser)users.Single( u => u.UserId == userId );
+
+        user.Bans.Select( b => b.KeyReason )
+            .ShouldBe( [UserBannedPackage.AdminKeyReason, "UserManagement.Tests.OtherReason"], ignoreOrder: true );
+        user.Groups.Select( g => g.GroupId )
+            .ShouldBe( [Env.WorkspaceId, Env.WorkspaceGroupId], ignoreOrder: true );
+    }
+
     async Task BanAsync( ISqlCallContext ctx, int userId, string keyReason )
     {
         var collector = new UserMessageCollector( Env.CurrentCulture );

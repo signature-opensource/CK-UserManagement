@@ -17,6 +17,43 @@ public class UserManagementQueries : IAutoService
 {
     readonly UserTable _userTable;
 
+    /// <summary>
+    /// The left outer joins on the groups return one row per group of the user, across all the zones
+    /// (not only the queried workspace): the listing displays the memberships of a user outside of the
+    /// current workspace. The zone groups themselves are kept (they carry the mere membership of a
+    /// workspace); the actor's own profile row and the system group are excluded. The grouping is done
+    /// in C# by <see cref="GetWorkspaceUsersAsync"/>.
+    /// <para>
+    /// Rows are ordered by workspace, its own zone group first: a zone group is its own workspace but
+    /// <c>CK.vGroup</c> gives it a null <c>ZoneId</c> (and therefore no <c>ZoneName</c>).
+    /// </para>
+    /// </summary>
+    const string _getWorkspaceUsersSql =
+        """
+        select u.UserId
+              ,u.UserName
+              ,u.FirstName
+              ,u.LastName
+              ,IsWorkspaceAdmin = cast( case when CK.fAclGrantLevel( u.UserId, w.AclId ) >= 112 then 1 else 0 end as bit )
+              ,u.ExtendedCultureId
+              ,pg.GroupId
+              ,pg.GroupName
+              ,pg.IsZone
+              ,pg.ZoneId
+              ,ZoneName = isnull( pz.ZoneName, '' )
+          from CK.vUser u
+              inner join CK.tActorProfile ap on ap.ActorId = u.UserId
+              inner join CK.tWorkspace w on w.WorkspaceId = @WorkspaceId
+              left outer join CK.tActorProfile pap on pap.ActorId = u.UserId and pap.ActorId <> pap.GroupId
+              left outer join CK.vGroup pg on pg.GroupId = pap.GroupId and pg.GroupId > 1
+              left outer join CK.vZone pz on pz.ZoneId = pg.ZoneId
+          where ap.GroupId = @WorkspaceId and u.UserId > 1
+          order by u.UserId
+                  ,case when pg.IsZone = 1 then pg.GroupId else pg.ZoneId end
+                  ,pg.IsZone desc
+                  ,pg.GroupName;
+        """;
+
     public UserManagementQueries( UserTable userTable )
     {
         _userTable = userTable;
@@ -24,23 +61,27 @@ public class UserManagementQueries : IAutoService
 
     public async Task<IReadOnlyList<IWorkspaceUser>> GetWorkspaceUsersAsync( ISqlCallContext ctx, int workspaceId )
     {
-        var users = await ctx[_userTable].QueryAsync<IWorkspaceUser>(
-            """
-            select distinct
-                   u.UserId
-                  ,u.UserName
-                  ,u.FirstName
-                  ,u.LastName
-                  ,IsWorkspaceAdmin = cast( case when CK.fAclGrantLevel( u.UserId, w.AclId ) >= 112 then 1 else 0 end as bit )
-                  ,u.ExtendedCultureId
-              from CK.vUser u
-                  inner join CK.tActorProfile ap on ap.ActorId = u.UserId
-                  inner join CK.tWorkspace w on w.WorkspaceId = @WorkspaceId
-              where ap.GroupId = @WorkspaceId and u.UserId > 1;
-            """,
-            new { WorkspaceId = workspaceId } );
+        var byId = new Dictionary<int, IWorkspaceUser>();
+        await ctx[_userTable].QueryAsync<IWorkspaceUser, IGroupInfos, object?>(
+            _getWorkspaceUsersSql,
+            ( user, group ) =>
+            {
+                if( !byId.TryGetValue( user.UserId, out var existing ) )
+                {
+                    byId.Add( user.UserId, existing = user );
+                }
+                // Dapper hands out a null second object when all its columns are null: a user without any
+                // group (which the workspace membership makes impossible in practice).
+                if( group != null && !existing.Groups.Any( g => g.GroupId == group.GroupId ) )
+                {
+                    existing.Groups.Add( group );
+                }
+                return null;
+            },
+            new { WorkspaceId = workspaceId },
+            splitOn: "GroupId" );
 
-        return users.ToList();
+        return byId.Values.ToList();
     }
 
     public async Task<IReadOnlyList<IGroupInfos>> GetWorkspaceGroupsAsync( ISqlCallContext ctx, int workspaceId )

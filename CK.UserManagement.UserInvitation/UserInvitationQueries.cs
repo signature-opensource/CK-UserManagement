@@ -1,5 +1,6 @@
 using CK.Core;
 using CK.IO.UserManagement;
+using CK.IO.UserProfile.Workspace;
 using CK.SqlServer;
 using CK.UserManagement;
 using Dapper;
@@ -28,30 +29,63 @@ public class UserInvitationQueries : IAutoService
     /// E-mail-aware workspace-user listing: the core columns plus the primary e-mail
     /// (<c>CK.tActorEMail</c>, <c>IsPrimary = 1</c>). Builds the merged Poco through its UserInvitation
     /// extension so the <c>Email</c> property is set.
+    /// <para>
+    /// The left outer joins on the groups return one row per group of the user, across all the zones and
+    /// not only the queried workspace (the listing displays the memberships outside of the current
+    /// workspace): the grouping is done in C#. Rows are ordered by workspace, its own zone group first —
+    /// a zone group is its own workspace but <c>CK.vGroup</c> gives it a null <c>ZoneId</c>.
+    /// </para>
     /// </summary>
     public async Task<IReadOnlyList<IWorkspaceUser>> GetWorkspaceUsersWithEmailAsync( ISqlCallContext ctx, int workspaceId )
     {
         // Dapper materializes the UserInvitation extension Poco directly (abstract type map);
         // the Email column maps to its Email property.
-        var users = await ctx[_userTable].QueryAsync<CK.IO.UserManagement.UserInvitation.IWorkspaceUser>(
+        var byId = new Dictionary<int, CK.IO.UserManagement.UserInvitation.IWorkspaceUser>();
+        await ctx[_userTable].QueryAsync<CK.IO.UserManagement.UserInvitation.IWorkspaceUser, IGroupInfos, object?>(
             """
-            select distinct
-                   u.UserId
+            select u.UserId
                   ,u.UserName
                   ,Email = isnull( e.EMail, '' )
                   ,u.FirstName
                   ,u.LastName
                   ,IsWorkspaceAdmin = cast( case when CK.fAclGrantLevel( u.UserId, w.AclId ) >= 112 then 1 else 0 end as bit )
                   ,u.ExtendedCultureId
+                  ,pg.GroupId
+                  ,pg.GroupName
+                  ,pg.IsZone
+                  ,pg.ZoneId
+                  ,ZoneName = isnull( pz.ZoneName, '' )
               from CK.vUser u
                   inner join CK.tActorProfile ap on ap.ActorId = u.UserId
                   inner join CK.tWorkspace w on w.WorkspaceId = @WorkspaceId
                   left outer join CK.tActorEMail e on e.ActorId = u.UserId and e.IsPrimary = 1
-              where ap.GroupId = @WorkspaceId and u.UserId > 1;
+                  left outer join CK.tActorProfile pap on pap.ActorId = u.UserId and pap.ActorId <> pap.GroupId
+                  left outer join CK.vGroup pg on pg.GroupId = pap.GroupId and pg.GroupId > 1
+                  left outer join CK.vZone pz on pz.ZoneId = pg.ZoneId
+              where ap.GroupId = @WorkspaceId and u.UserId > 1
+              order by u.UserId
+                      ,case when pg.IsZone = 1 then pg.GroupId else pg.ZoneId end
+                      ,pg.IsZone desc
+                      ,pg.GroupName;
             """,
-            new { WorkspaceId = workspaceId } );
+            ( user, group ) =>
+            {
+                if( !byId.TryGetValue( user.UserId, out var existing ) )
+                {
+                    byId.Add( user.UserId, existing = user );
+                }
+                // Dapper hands out a null second object when all its columns are null: a user without any
+                // group (which the workspace membership makes impossible in practice).
+                if( group != null && !existing.Groups.Any( g => g.GroupId == group.GroupId ) )
+                {
+                    existing.Groups.Add( group );
+                }
+                return null;
+            },
+            new { WorkspaceId = workspaceId },
+            splitOn: "GroupId" );
 
-        return users.Cast<IWorkspaceUser>().ToList();
+        return byId.Values.Cast<IWorkspaceUser>().ToList();
     }
 
     /// <summary>

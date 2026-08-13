@@ -31,6 +31,27 @@ public class QueriesTests : UserManagementTestBase
     }
 
     [Test]
+    public async Task workspace_users_query_exposes_the_groups_of_every_workspace_Async()
+    {
+        var workspaceTable = Env.Map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
+        using var ctx = new SqlTransactionCallContext();
+
+        // A second workspace the member also belongs to: the listing exposes the memberships outside of
+        // the queried workspace (the user list prefixes those tags with the name of their workspace).
+        var suffix = Guid.NewGuid().ToString( "N" ).Substring( 0, 8 );
+        var other = await workspaceTable.CreateWorkspaceAsync( ctx, 1, $"UMOtherWS-{suffix}" );
+        await Env.GroupTable.AddUserAsync( ctx, 1, other.WorkspaceId, Env.MemberUserId, autoAddUserInZone: true );
+
+        var member = ( await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId ) )
+                        .Single( u => u.UserId == Env.MemberUserId );
+
+        // The zone groups themselves are returned: they carry the mere membership of a workspace.
+        member.Groups.ShouldContain( g => g.GroupId == Env.WorkspaceId );
+        member.Groups.ShouldContain( g => g.GroupId == other.WorkspaceId );
+        member.Groups.ShouldNotContain( g => g.GroupId == Env.MemberUserId );
+    }
+
+    [Test]
     public async Task workspace_groups_query_returns_the_spare_group_Async()
     {
         using var ctx = new SqlTransactionCallContext();
