@@ -60,7 +60,7 @@ public class WorkspaceUserTests : UserManagementTestBase
     Task<SimpleUserMessage> Create( ISqlTransactionCallContext ctx, ICreateWorkspaceUserCommand cmd )
         => Env.Handler.CreateWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable,
                                                  Env.GroupTable, Env.PreferredCulturePackage,
-                                                 Env.UserPasswordTable, Env.WorkspacePackage );
+                                                 Env.UserPasswordResetTable, Env.WorkspacePackage );
 
     ICreateWorkspaceUserCommand NewCreate( string userName, string password = TestPassword )
         => Env.PocoDirectory.Create<ICreateWorkspaceUserCommand>( c =>
@@ -97,6 +97,9 @@ public class WorkspaceUserTests : UserManagementTestBase
         login.IsSuccess.ShouldBeTrue();
         ( await Env.UserPasswordTable.LoginUserAsync( ctx, userId, "wrong-password", actualLogin: false ) )
             .IsSuccess.ShouldBeFalse();
+
+        // The provisioned password is always a temporary one: the user must choose its own.
+        ( await Env.IsTemporaryPasswordAsync( ctx, userId ) ).ShouldBeTrue();
     }
 
     [Test]
@@ -119,4 +122,64 @@ public class WorkspaceUserTests : UserManagementTestBase
         ( await Create( ctx, NewCreate( userName ) ) ).Level.ShouldBe( UserMessageLevel.Info );
         ( await Create( ctx, NewCreate( userName ) ) ).Level.ShouldBe( UserMessageLevel.Error );
     }
+
+    #region Force reset
+    Task<SimpleUserMessage> ForceReset( ISqlTransactionCallContext ctx, IForceResetUserPasswordCommand cmd )
+        => Env.Handler.ForceResetUserPasswordAsync( ctx, cmd, Env.UserPasswordResetTable );
+
+    IForceResetUserPasswordCommand NewForceReset( int userId, string password )
+        => Env.PocoDirectory.Create<IForceResetUserPasswordCommand>( c =>
+        {
+            c.ActorId = Env.AdminUserId;
+            c.CurrentWorkspaceId = Env.WorkspaceId;
+            c.UserId = userId;
+            c.Password = password;
+        } );
+
+    /// <summary>Creates a workspace user and clears its temporary state the way the user itself would.</summary>
+    async Task<int> CreateUserWithChosenPasswordAsync( ISqlTransactionCallContext ctx, string prefix, string chosenPassword )
+    {
+        var userName = $"{prefix}-{Guid.NewGuid():N}".Substring( 0, 20 );
+        ( await Create( ctx, NewCreate( userName ) ) ).Level.ShouldBe( UserMessageLevel.Info );
+        int userId = await Env.UserTable.FindByNameAsync( ctx, userName );
+        userId.ShouldBeGreaterThan( 0 );
+
+        await Env.UserPasswordResetTable.SetPasswordAsync( ctx, 1, userId, chosenPassword, isTemporary: false );
+        ( await Env.IsTemporaryPasswordAsync( ctx, userId ) ).ShouldBeFalse();
+        return userId;
+    }
+
+    [Test]
+    public async Task force_resetting_replaces_the_password_and_flags_it_as_temporary_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        const string chosen = "Ch0sen!Pass";
+        const string forced = "F0rced!Pass";
+        int userId = await CreateUserWithChosenPasswordAsync( ctx, "forced", chosen );
+
+        ( await ForceReset( ctx, NewForceReset( userId, forced ) ) ).Level.ShouldBe( UserMessageLevel.Info );
+
+        ( await Env.UserPasswordTable.LoginUserAsync( ctx, userId, chosen, actualLogin: false ) )
+            .IsSuccess.ShouldBeFalse( "The password chosen by the user is no longer valid." );
+        ( await Env.UserPasswordTable.LoginUserAsync( ctx, userId, forced, actualLogin: false ) )
+            .IsSuccess.ShouldBeTrue( "The password set by the administrator is now the valid one." );
+        ( await Env.IsTemporaryPasswordAsync( ctx, userId ) )
+            .ShouldBeTrue( "A forced reset always poses a temporary password." );
+    }
+
+    [Test]
+    public async Task force_resetting_without_a_password_is_rejected_and_leaves_the_password_untouched_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        const string chosen = "Ch0sen!Pass";
+        int userId = await CreateUserWithChosenPasswordAsync( ctx, "noforce", chosen );
+
+        ( await ForceReset( ctx, NewForceReset( userId, "" ) ) ).Level.ShouldBe( UserMessageLevel.Error );
+
+        ( await Env.UserPasswordTable.LoginUserAsync( ctx, userId, chosen, actualLogin: false ) )
+            .IsSuccess.ShouldBeTrue( "The existing password is untouched." );
+        ( await Env.IsTemporaryPasswordAsync( ctx, userId ) )
+            .ShouldBeFalse( "The temporary state is untouched." );
+    }
+    #endregion
 }

@@ -65,4 +65,37 @@ public class AuthorizationTests : UserManagementTestBase
 
         collector.ErrorCount.ShouldBeGreaterThan( 0 );
     }
+
+    // IForceResetUserPasswordCommand is workspace-admin guarded too: resetting someone else's password
+    // must never be reachable by a plain member.
+    IForceResetUserPasswordCommand ForceResetCommand( int actorId, int workspaceId )
+        => Env.PocoDirectory.Create<IForceResetUserPasswordCommand>( c =>
+        {
+            c.ActorId = actorId;
+            c.CurrentWorkspaceId = workspaceId;
+            c.UserId = Env.MemberUserId;
+            c.Password = "Str0ng!Pass";
+        } );
+
+    [Test]
+    public async Task a_workspace_admin_may_force_reset_a_password_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var collector = new UserMessageCollector( Env.CurrentCulture );
+
+        await Env.Validator.ValidateAdminCommandAsync( ctx, collector, ForceResetCommand( Env.AdminUserId, Env.WorkspaceId ) );
+
+        collector.ErrorCount.ShouldBe( 0 );
+    }
+
+    [Test]
+    public async Task a_plain_member_may_not_force_reset_a_password_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var collector = new UserMessageCollector( Env.CurrentCulture );
+
+        await Env.Validator.ValidateAdminCommandAsync( ctx, collector, ForceResetCommand( Env.MemberUserId, Env.WorkspaceId ) );
+
+        collector.ErrorCount.ShouldBeGreaterThan( 0 );
+    }
 }

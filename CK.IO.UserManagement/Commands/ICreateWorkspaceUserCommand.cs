@@ -20,6 +20,10 @@ public interface ICreateWorkspaceUserCommand : ICommand<SimpleUserMessage>, ICom
     /// <summary>
     /// Initial basic-authentication password set for the new user so it can sign in with its
     /// <see cref="UserName"/>. Required.
+    /// <para>
+    /// It is always posed as a temporary password: the user must choose its own before using the
+    /// application (exposed on its profile as <c>IsTemporaryPassword</c>).
+    /// </para>
     /// </summary>
     public string Password { get; set; }
 

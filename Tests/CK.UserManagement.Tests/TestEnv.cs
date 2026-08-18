@@ -43,6 +43,7 @@ public sealed class TestEnv
     public required GroupTable GroupTable { get; init; }
     public required NamedUserTable NamedUserTable { get; init; }
     public required UserPasswordTable UserPasswordTable { get; init; }
+    public required CK.DB.User.UserPassword.Reset.UserPasswordResetTable UserPasswordResetTable { get; init; }
     public required CK.DB.Workspace.Package WorkspacePackage { get; init; }
     public required CK.DB.User.PreferredCulture.Package PreferredCulturePackage { get; init; }
 
@@ -61,6 +62,15 @@ public sealed class TestEnv
     public async Task<int> CreateWorkspaceMemberAsync( ISqlCallContext ctx, string? name = null )
         => await WorkspacePackage.CreateUserAsync( ctx, 1, name ?? $"UMUser-{Guid.NewGuid():N}".Substring( 0, 24 ), WorkspaceId );
 
+    /// <summary>
+    /// Reads the <c>IsTemporary</c> flag of a user's password (column brought by
+    /// <c>CK.DB.User.UserPassword.Reset</c>). Throws if the user has no password registration.
+    /// </summary>
+    public Task<bool> IsTemporaryPasswordAsync( ISqlCallContext ctx, int userId )
+        => ctx[UserTable].QuerySingleAsync<bool>(
+                "select IsTemporary from CK.tUserPassword where UserId = @UserId;",
+                new { UserId = userId } );
+
     public static async Task<TestEnv> CreateAsync()
     {
         var configuration = TestHelper.CreateDefaultEngineConfiguration();
@@ -71,6 +81,7 @@ public sealed class TestEnv
             "CK.Cris.Auth",
             "CK.DB.AspNet.Auth",
             "CK.DB.User.UserPassword",
+            "CK.DB.User.UserPassword.Reset",
             "CK.DB.User.NamedUser",
             "CK.DB.User.PreferredCulture",
             "CK.DB.Workspace",
@@ -88,6 +99,7 @@ public sealed class TestEnv
         var groupTable = map.StObjs.Obtain<GroupTable>()!;
         var namedUserTable = map.StObjs.Obtain<NamedUserTable>()!;
         var userPasswordTable = map.StObjs.Obtain<UserPasswordTable>()!;
+        var userPasswordResetTable = map.StObjs.Obtain<CK.DB.User.UserPassword.Reset.UserPasswordResetTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
         var preferredCulturePackage = map.StObjs.Obtain<CK.DB.User.PreferredCulture.Package>()!;
@@ -131,6 +143,7 @@ public sealed class TestEnv
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,
             UserPasswordTable = userPasswordTable,
+            UserPasswordResetTable = userPasswordResetTable,
             WorkspacePackage = workspacePackage,
             PreferredCulturePackage = preferredCulturePackage,
             WorkspaceId = workspaceId,

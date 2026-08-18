@@ -16,6 +16,7 @@
     // CommandHandler success answers
     "CrisSuccess.WorkspaceUserEdited": "Utilisateur de l'espace de travail modifié avec succès.",
     "CrisSuccess.WorkspaceUserCreated": "Utilisateur créé avec succès.",
+    "CrisSuccess.UserPasswordReset": "Mot de passe de l'utilisateur réinitialisé avec succès.",
 
     // Workspace user creation
     "User.UserNameRequired": "Un nom d'utilisateur est requis.",

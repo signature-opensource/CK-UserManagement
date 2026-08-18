@@ -135,7 +135,7 @@ public class UserManagementCommandHandler : IAutoService
                                                                    NamedUserTable namedUserTable,
                                                                    CK.DB.Zone.GroupTable groupTable,
                                                                    CK.DB.User.PreferredCulture.Package preferredCulturePackage,
-                                                                   CK.DB.User.UserPassword.UserPasswordTable passwordTable,
+                                                                   CK.DB.User.UserPassword.Reset.UserPasswordResetTable passwordTable,
                                                                    CK.DB.Workspace.Package workspacePackage )
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
@@ -157,7 +157,8 @@ public class UserManagementCommandHandler : IAutoService
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
                     // Create the user directly (UserName + culture), then provision a basic-authentication
-                    // password so the user can sign in right away. The core stays e-mail-agnostic.
+                    // password so the user can sign in right away. The password is temporary: the user must
+                    // choose its own before using the application. The core stays e-mail-agnostic.
                     var userId = await preferredCulturePackage.CreateUserAsync( ctx, actorId, cmd.UserName.Trim(), cmd.ExtendedCultureId );
                     if( userId <= 0 )
                     {
@@ -165,7 +166,7 @@ public class UserManagementCommandHandler : IAutoService
                         return _currentCulture.ErrorMessage( "This user name is already taken. Please choose another one.", "User.UserNameAlreadyTaken" );
                     }
 
-                    await passwordTable.CreateOrUpdatePasswordUserAsync( ctx, actorId, userId, cmd.Password, UCLMode.CreateOnly );
+                    await passwordTable.CreateOrUpdatePasswordUserAsync( ctx, actorId, userId, cmd.Password, UCLMode.CreateOnly, isTemporary: true );
 
                     await namedUserTable.SetNamesAsync( ctx, actorId, userId, cmd.FirstName, cmd.LastName );
 
@@ -182,6 +183,35 @@ public class UserManagementCommandHandler : IAutoService
                     ctx.Monitor.Info( $"Workspace user created. (UserId: {userId})" );
                     return _currentCulture.InfoMessage( "User successfully created.", "CrisSuccess.WorkspaceUserCreated" );
                 }
+            }
+            catch( Exception e )
+            {
+                ctx.Monitor.Error( e );
+                return _currentCulture.CreateGenericError();
+            }
+        }
+    }
+
+    [CommandHandler]
+    public async Task<SimpleUserMessage> ForceResetUserPasswordAsync( ISqlCallContext ctx,
+                                                                      IForceResetUserPasswordCommand cmd,
+                                                                      CK.DB.User.UserPassword.Reset.UserPasswordResetTable passwordTable )
+    {
+        var actorId = cmd.ActorId.GetValueOrDefault();
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( IForceResetUserPasswordCommand )} command. (ActorId: {actorId}, UserId: {cmd.UserId})" ) )
+        {
+            if( string.IsNullOrWhiteSpace( cmd.Password ) )
+            {
+                ctx.Monitor.Warn( "No password provided." );
+                return _currentCulture.ErrorMessage( "A password is required.", "User.PasswordRequired" );
+            }
+            try
+            {
+                // Temporary: the user signs in with this password but must immediately choose its own.
+                await passwordTable.SetPasswordAsync( ctx, actorId, cmd.UserId, cmd.Password, isTemporary: true );
+
+                ctx.Monitor.Info( $"User password reset. (UserId: {cmd.UserId})" );
+                return _currentCulture.InfoMessage( "User password successfully reset.", "CrisSuccess.UserPasswordReset" );
             }
             catch( Exception e )
             {
