@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <!-- Base Set/Destroy banishment commands extended locally with the workspace/admin context. -->
-        <PackageReference Include="CK.IO.User.UserBanned" Version="1.0.1--ci.16" />
+        <PackageReference Include="CK.IO.User.UserBanned" Version="1.0.1--ci.14" />
     </ItemGroup>
 
     <ItemGroup>

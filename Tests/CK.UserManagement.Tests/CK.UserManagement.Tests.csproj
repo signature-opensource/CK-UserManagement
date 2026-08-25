@@ -10,7 +10,7 @@
     <!-- Cris + auth markers required to build the command model of CK.UserManagement
          (commands implement ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
     <PackageReference Include="CK.Cris.Auth" Version="0.43.2--ci.1" />
-    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.7" />
+    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3--ci.10" />
 
     <!-- Standard CK.DB building blocks the handlers/services/queries depend on. -->
     <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="28.0.3--ci.7" />
