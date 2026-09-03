@@ -16,7 +16,7 @@
     <PackageReference Include="CK.DB.User.UserPassword" Version="28.0.3" />
     <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3" />
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0" />
-    <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.1" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.2--ci.2" />
     <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3" />
     <PackageReference Include="CK.DB.Workspace" Version="15.1.2" />
     <PackageReference Include="CK.DB.Zone" Version="28.0.3" />
