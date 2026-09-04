@@ -9,34 +9,34 @@
   <ItemGroup>
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
-    <PackageReference Include="CK.Cris.Auth" Version="0.43.2" />
-    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.3" />
+    <PackageReference Include="CK.Cris.Auth" Version="0.43.3" />
+    <PackageReference Include="CK.DB.AspNet.Auth" Version="31.0.4" />
 
     <!-- Standard CK.DB building blocks the invitation service/queries depend on. -->
     <!-- Email-based login (specializes UserPasswordTable); brings CK.DB.User.UserPassword transitively. -->
-    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="28.0.3" />
-    <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.3" />
-    <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.0" />
-    <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.2" />
-    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.3" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="0.4.7" />
-    <PackageReference Include="CK.DB.Workspace" Version="15.1.2" />
-    <PackageReference Include="CK.DB.Zone" Version="28.0.3" />
-    <PackageReference Include="CK.DB.Globalization" Version="0.1.5" />
-    <PackageReference Include="CK.Globalization.Engine" Version="0.0.0" />
+    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="28.0.4" />
+    <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.4" />
+    <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.1" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="1.0.3" />
+    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="28.0.4" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="0.4.8" />
+    <PackageReference Include="CK.DB.Workspace" Version="15.1.3" />
+    <PackageReference Include="CK.DB.Zone" Version="28.0.4" />
+    <PackageReference Include="CK.DB.Globalization" Version="0.1.6" />
+    <PackageReference Include="CK.Globalization.Engine" Version="0.1.0" />
 
     <!-- Data access + transactions. -->
-    <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.2" />
-    <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.2" />
+    <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.3" />
+    <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.3" />
 
     <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
-    <PackageReference Include="CK.Cris.Engine" Version="0.43.2" />
-    <PackageReference Include="CK.Template.Fluid.Engine" Version="0.0.1" />
+    <PackageReference Include="CK.Cris.Engine" Version="0.43.3" />
+    <PackageReference Include="CK.Template.Fluid.Engine" Version="0.0.2" />
 
     <!-- Test harness. -->
-    <PackageReference Include="CK.DB.Tests.NUnit" Version="33.0.3" />
-    <PackageReference Include="CK.Testing.Nunit" Version="15.0.2" />
-    <PackageReference Include="CK.Testing.SqlServerEngine" Version="33.0.3" />
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="33.0.4" />
+    <PackageReference Include="CK.Testing.Nunit" Version="15.0.3" />
+    <PackageReference Include="CK.Testing.SqlServerEngine" Version="33.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
   </ItemGroup>
