@@ -8,23 +8,23 @@
 
     <ItemGroup>
         <!-- Data access for the command handlers. -->
-        <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.3" />
-        <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.3" />
+        <PackageReference Include="CK.SqlServer.Dapper" Version="15.0.4" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="12.0.4" />
 
         <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
              no CK.DB.Actor.ActorEMail nor CK.DB.User.UserBanned here (added by the UserInvitation /
              UserBanned packages). -->
-        <PackageReference Include="CK.DB.Workspace" Version="15.1.3" />
-        <PackageReference Include="CK.DB.Zone" Version="28.0.4" />
-        <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.4" />
+        <PackageReference Include="CK.DB.Workspace" Version="15.1.4" />
+        <PackageReference Include="CK.DB.Zone" Version="28.0.5" />
+        <PackageReference Include="CK.DB.User.NamedUser" Version="28.0.5" />
         <!-- Temporary passwords: adds the IsTemporary bit on CK.tUserPassword so that every password
              posed by an administrator forces the user to choose a new one. Extends the table without
              specializing it, so it stays composable with CK.DB.User.UserPassword.EMailLogin (brings
              CK.DB.User.UserPassword transitively). -->
-        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="28.0.4" />
-        <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.1" />
-        <PackageReference Include="CK.DB.Globalization" Version="0.1.6" />
-        <PackageReference Include="CK.Globalization.StObj" Version="0.1.0" />
+        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="28.0.5" />
+        <PackageReference Include="CK.DB.User.PreferredCulture" Version="0.5.2" />
+        <PackageReference Include="CK.DB.Globalization" Version="0.1.7" />
+        <PackageReference Include="CK.Globalization.StObj" Version="0.1.1" />
     </ItemGroup>
 
 
