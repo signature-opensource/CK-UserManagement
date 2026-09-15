@@ -34,8 +34,8 @@
     <PackageReference Include="CK.DB.Tests.NUnit" Version="33.0.5" />
     <PackageReference Include="CK.Testing.Nunit" Version="15.0.4" />
     <PackageReference Include="CK.Testing.SqlServerEngine" Version="33.0.5" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CK.UserManagement.UserBanned\CK.UserManagement.UserBanned.csproj" />
