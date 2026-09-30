@@ -40,7 +40,7 @@ public class QueriesTests : UserManagementTestBase
         // the queried workspace (the user list prefixes those tags with the name of their workspace).
         var suffix = Guid.NewGuid().ToString( "N" ).Substring( 0, 8 );
         var other = await workspaceTable.CreateWorkspaceAsync( ctx, 1, $"UMOtherWS-{suffix}" );
-        await Env.GroupTable.AddUserAsync( ctx, 1, other.WorkspaceId, Env.MemberUserId, autoAddUserInZone: true );
+        await Env.GroupTable.AddMemberAsync( ctx, 1, other.WorkspaceId, Env.MemberUserId, autoAddMemberInZone: true );
 
         var member = ( await Env.Queries.GetWorkspaceUsersAsync( ctx, Env.WorkspaceId ) )
                         .Single( u => u.UserId == Env.MemberUserId );

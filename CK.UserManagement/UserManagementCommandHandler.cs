@@ -106,13 +106,13 @@ public class UserManagementCommandHandler : IAutoService
                     {
                         if( !cmd.Groups.Contains( g ) )
                         {
-                            await groupTable.RemoveUserAsync( ctx, actorId, g, cmd.UserId );
+                            await groupTable.RemoveMemberAsync( ctx, actorId, g, cmd.UserId );
                             ctx.Monitor.Info( $"User removed from group. (UserId: {cmd.UserId}, GroupId: {g})" );
                         }
                     }
                     foreach( var g in cmd.Groups )
                     {
-                        await groupTable.AddUserAsync( ctx, actorId, g, cmd.UserId, autoAddUserInZone: true );
+                        await groupTable.AddMemberAsync( ctx, actorId, g, cmd.UserId, autoAddMemberInZone: true );
                         ctx.Monitor.Info( $"User added to group. (UserId: {cmd.UserId}, GroupId: {g})" );
                     }
 
@@ -172,7 +172,7 @@ public class UserManagementCommandHandler : IAutoService
 
                     foreach( var g in cmd.Groups )
                     {
-                        await groupTable.AddUserAsync( ctx, actorId, g, userId, autoAddUserInZone: true );
+                        await groupTable.AddMemberAsync( ctx, actorId, g, userId, autoAddMemberInZone: true );
                         ctx.Monitor.Info( $"User added to group. (UserId: {userId}, GroupId: {g})" );
                     }
 

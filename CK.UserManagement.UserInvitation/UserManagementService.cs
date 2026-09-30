@@ -234,7 +234,7 @@ public class UserManagementService : IAutoService
 
         foreach( var g in invitation.GroupIdentifiers )
         {
-            await _groupTable.AddUserAsync( ctx, SystemActorId, g, userId, autoAddUserInZone: true );
+            await _groupTable.AddMemberAsync( ctx, SystemActorId, g, userId, autoAddMemberInZone: true );
             ctx.Monitor.Trace( $"User added to group. (UserId: {userId}, GroupId: {g})" );
         }
 

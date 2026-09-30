@@ -131,7 +131,7 @@ public class UserBannedTests : UserBannedTestBase
         int userId = await Env.CreateWorkspaceMemberAsync( ctx );
 
         // Two groups: the workspace zone group itself (the mere membership) and the spare group.
-        await groupTable.AddUserAsync( ctx, 1, Env.WorkspaceGroupId, userId, autoAddUserInZone: true );
+        await groupTable.AddMemberAsync( ctx, 1, Env.WorkspaceGroupId, userId, autoAddMemberInZone: true );
         await BanAsync( ctx, userId, UserBannedPackage.AdminKeyReason );
         await BanAsync( ctx, userId, "UserManagement.Tests.OtherReason" );
 
