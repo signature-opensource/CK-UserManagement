@@ -12,13 +12,13 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="13.0.0" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="3.0.0-juliet.0.ci.2" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="3.0.0-juliet.0.ci.3" />
 
         <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
-        <PackageReference Include="CK.DB.Workspace" Version="17.0.0-juliet.0.ci.3" />
+        <PackageReference Include="CK.DB.Workspace" Version="17.0.0-juliet.0.ci.4" />
 
         <!-- Back-end localized messages. -->
-        <PackageReference Include="CK.DB.Globalization" Version="2.0.0-juliet.0.ci.2" />
+        <PackageReference Include="CK.DB.Globalization" Version="2.0.0-juliet.0.ci.5" />
         <PackageReference Include="CK.Globalization.StObj" Version="1.0.1-juliet.0.ci.1" />
     </ItemGroup>
 
