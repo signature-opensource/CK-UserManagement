@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CK.IO.Globalization" Version="1.0.1-mike.0.ci.2" />
-      <PackageReference Include="CK.IO.UserProfile.Workspace" Version="16.0.1-mike.0.ci.2" />
+      <PackageReference Include="CK.IO.Globalization" Version="2.0.0-mike.0.ci.3" />
+      <PackageReference Include="CK.IO.UserProfile.Workspace" Version="17.0.0-mike.0.ci.3" />
     </ItemGroup>
 
     <ItemGroup>
