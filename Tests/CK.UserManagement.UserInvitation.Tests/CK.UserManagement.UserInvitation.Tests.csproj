@@ -19,7 +19,7 @@
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="2.0.0-mike.0.ci.3" />
     <PackageReference Include="CK.DB.User.UserBanned" Version="3.0.0-mike.0.ci.3" />
     <PackageReference Include="CK.DB.Actor.ActorEMail" Version="30.0.0-mike.0.ci.3" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="1.0.1-mike.0.ci.3" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="1.0.1-mike.0.ci.4" />
     <PackageReference Include="CK.DB.Workspace" Version="17.0.0-mike.0.ci.3" />
     <PackageReference Include="CK.DB.Zone" Version="30.0.0-mike.0.ci.3" />
     <PackageReference Include="CK.DB.Globalization" Version="2.0.0-mike.0.ci.3" />

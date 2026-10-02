@@ -12,7 +12,7 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="14.0.0-mike.0.ci.4" />
 
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
-        <PackageReference Include="CK.DB.UserInvitation" Version="1.0.1-mike.0.ci.3" />
+        <PackageReference Include="CK.DB.UserInvitation" Version="1.0.1-mike.0.ci.4" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="2.0.0-mike.0.ci.3" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="30.0.0-mike.0.ci.3" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
