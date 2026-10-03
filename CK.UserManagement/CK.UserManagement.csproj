@@ -9,7 +9,7 @@
     <ItemGroup>
         <!-- Data access for the command handlers. -->
         <PackageReference Include="CK.SqlServer.Dapper" Version="17.0.0-juliet.0.ci.6" />
-        <PackageReference Include="CK.SqlServer.Transaction" Version="13.0.0" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="14.0.0-mike.0.ci.5" />
 
         <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
              no CK.DB.Actor.ActorEMail nor CK.DB.User.UserBanned here (added by the UserInvitation /
