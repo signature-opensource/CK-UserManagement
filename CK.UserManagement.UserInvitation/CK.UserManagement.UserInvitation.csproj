@@ -26,7 +26,7 @@
 
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
              Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
-        <PackageReference Include="CK.Mailer.MailKit" Version="14.0.0-juliet.0.ci.10" />
+        <PackageReference Include="CK.Mailer.MailKit" Version="14.0.0-juliet.0.ci.11" />
         <PackageReference Include="CK.Template.Fluid" Version="2.0.0-juliet.0.ci.6" />
         <PackageReference Include="CK.AppIdentity.Abstractions" Version="2.0.0-juliet.0.ci.18" />
     </ItemGroup>
