@@ -12,7 +12,7 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="14.0.1-0.cris-auth.0.ci.2" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="3.0.1-0.cris-auth.0.ci.2" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="3.0.1-0.cris-auth.0.ci.3" />
 
         <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
         <PackageReference Include="CK.DB.Workspace" Version="17.0.1-0.cris-auth.0.ci.2" />
