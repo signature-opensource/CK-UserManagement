@@ -14,16 +14,16 @@
         <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
              no CK.DB.Actor.ActorEMail nor CK.DB.User.UserBanned here (added by the UserInvitation /
              UserBanned packages). -->
-        <PackageReference Include="CK.DB.Workspace" Version="17.0.1" />
-        <PackageReference Include="CK.DB.Zone" Version="30.0.1" />
-        <PackageReference Include="CK.DB.User.NamedUser" Version="30.0.1" />
+        <PackageReference Include="CK.DB.Workspace" Version="17.0.2" />
+        <PackageReference Include="CK.DB.Zone" Version="30.0.2" />
+        <PackageReference Include="CK.DB.User.NamedUser" Version="30.0.2" />
         <!-- Temporary passwords: adds the IsTemporary bit on CK.tUserPassword so that every password
              posed by an administrator forces the user to choose a new one. Extends the table without
              specializing it, so it stays composable with CK.DB.User.UserPassword.EMailLogin (brings
              CK.DB.User.UserPassword transitively). -->
-        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="30.0.1" />
-        <PackageReference Include="CK.DB.User.PreferredCulture" Version="2.0.1" />
-        <PackageReference Include="CK.DB.Globalization" Version="2.0.1" />
+        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="30.0.2" />
+        <PackageReference Include="CK.DB.User.PreferredCulture" Version="2.0.2" />
+        <PackageReference Include="CK.DB.Globalization" Version="2.0.2" />
         <PackageReference Include="CK.Globalization.StObj" Version="2.0.1" />
     </ItemGroup>
 
