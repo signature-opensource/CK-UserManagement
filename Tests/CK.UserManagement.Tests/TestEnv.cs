@@ -78,8 +78,7 @@ public sealed class TestEnv
         configuration.EnsureSqlServerConfigurationAspect();
 
         configuration.FirstBinPath.Assemblies.AddRange( [
-            "CK.Cris.Auth",
-            "CK.DB.AspNet.Auth",
+            "CK.Cris.Authentication",
             "CK.DB.User.UserPassword",
             "CK.DB.User.UserPassword.Reset",
             "CK.DB.User.NamedUser",
