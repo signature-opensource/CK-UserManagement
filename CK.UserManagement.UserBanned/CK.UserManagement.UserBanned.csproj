@@ -8,18 +8,18 @@
 
     <ItemGroup>
         <!-- Data access for the command handler. -->
-        <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.cris-auth.0.ci.12" />
-        <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth" />
+        <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.cris-auth.0.ci.13" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth.0.ci.6" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.0.ci.18" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.0.ci.19" />
 
         <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.0.ci.16" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.0.ci.17" />
 
         <!-- Back-end localized messages. -->
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.0.ci.26" />
-        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.cris-auth.0.ci.11" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.0.ci.27" />
+        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.cris-auth.0.ci.12" />
     </ItemGroup>
 
     <ItemGroup>
