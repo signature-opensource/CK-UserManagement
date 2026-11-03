@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.cris-auth.0.ci.47" />
-        <PackageReference Include="CK.IO.Workspace" Version="18.0.0-0.cris-auth.0.ci.23" />
+        <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.cris-auth.0.ci.48" />
+        <PackageReference Include="CK.IO.Workspace" Version="18.0.0-0.cris-auth.0.ci.24" />
     </ItemGroup>
 
 </Project>
