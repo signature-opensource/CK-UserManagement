@@ -310,13 +310,14 @@ public class UserInvitationCommandHandler : IAutoService,
                         var currentEmail = await queries.GetPrimaryEmailAsync( ctx, cmd.UserId );
                         if( !string.Equals( currentEmail, email, StringComparison.OrdinalIgnoreCase ) )
                         {
-                            var boundTo = await emailTable.AddEMailAsync( ctx, actorId, cmd.UserId, email, isPrimary: true );
+                            // Validated in the same call: an address set by an administrator is attested, and an address
+                            // that is not validated cannot become the primary one of a user that has a validated one.
+                            var boundTo = await emailTable.AddEMailAsync( ctx, actorId, cmd.UserId, email, isPrimary: true, validate: true );
                             if( boundTo != cmd.UserId )
                             {
                                 ctx.Monitor.Warn( $"E-mail already used by another user. (Email: {email}, BoundTo: {boundTo})" );
                                 return _currentCulture.ErrorMessage( "This e-mail address is already used by another user.", "User.EmailAlreadyUsed" );
                             }
-                            await emailTable.ValidateEMailAsync( ctx, actorId, cmd.UserId, email );
 
                             // Drop the previous primary address so the user keeps a single e-mail.
                             if( !string.IsNullOrWhiteSpace( currentEmail ) )

@@ -53,6 +53,33 @@ public class WorkspaceUserEmailTests : UserInvitationTestBase
     }
 
     [Test]
+    public async Task editing_the_validated_primary_email_of_a_user_replaces_it_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        int userId = await Env.CreateWorkspaceMemberAsync( ctx );
+        var firstEmail = TestEnv.NewEmail();
+        await Env.EmailTable.AddEMailAsync( ctx, Env.AdminUserId, userId, firstEmail, isPrimary: true, validate: true );
+
+        // The user has a validated primary e-mail: the new one is validated with its addition (an address that is not
+        // validated cannot become the primary one of a user that has a validated one).
+        var newEmail = TestEnv.NewEmail();
+        var edit = Env.PocoDirectory.Create<EditWorkspaceUserCommand>( c =>
+        {
+            c.ActorId = Env.AdminUserId;
+            c.CurrentWorkspaceId = Env.WorkspaceId;
+            c.UserId = userId;
+            c.UserName = $"nick-{Guid.NewGuid():N}".Substring( 0, 20 );
+            c.Email = newEmail;
+            c.FirstName = "First";
+            c.LastName = "Last";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
+            c.Groups.Add( Env.WorkspaceGroupId );
+        } );
+        ( await Edit( ctx, edit ) ).Level.ShouldBe( UserMessageLevel.Info );
+        ( await Env.InvitationQueries.GetPrimaryEmailAsync( ctx, userId ) ).ShouldBe( newEmail );
+    }
+
+    [Test]
     public async Task editing_a_user_with_an_email_owned_by_another_user_is_rejected_Async()
     {
         using var ctx = new SqlTransactionCallContext();
