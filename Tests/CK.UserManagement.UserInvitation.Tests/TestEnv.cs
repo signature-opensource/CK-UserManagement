@@ -139,9 +139,9 @@ public sealed class TestEnv
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
                         .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, coreQueries, currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, coreQueries, currentCulture ) )
                         .Register( "InvitationScopeValidator.ValidateInvitationsAsync",
-                                   ( ctx, c, cmd ) => new InvitationScopeValidator( userTable, invitationQueries, currentCulture )
+                                   ( ctx, c, cmd ) => new InvitationScopeValidator( userTable, workspaceTable, invitationQueries, currentCulture )
                                                           .ValidateInvitationsAsync( ctx, c, (CK.IO.UserManagement.ICommandWorkspaceInvitations)cmd ) )
                         .Register( "BannedActorValidator.ValidateNotBannedAsync",
                                    ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),

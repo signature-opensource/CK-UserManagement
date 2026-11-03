@@ -130,4 +130,19 @@ public class WorkspaceUserTargetTests : UserManagementTestBase
         outcome.Refused.ShouldBeFalse();
         changed.ShouldBeTrue();
     }
+
+    [Test]
+    public async Task a_plain_member_learns_nothing_about_a_user_outside_the_workspace_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, _) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        var (other, _) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int plainMember = await Scenario.NewUserAsync( ctx, w );
+        int target = await Scenario.NewUserAsync( ctx, other );
+
+        var (outcome, changed) = await ForceResetAsync( ctx, plainMember, w, target );
+
+        changed.ShouldBeFalse();
+        outcome.ErrorResNames.ShouldBe( ["Admin.NotAuthorized"] );
+    }
 }

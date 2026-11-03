@@ -1,5 +1,6 @@
 using CK.Core;
 using CK.Cris;
+using CK.DB.Workspace;
 using CK.IO.UserManagement;
 using CK.SqlServer;
 
@@ -9,18 +10,35 @@ namespace CK.UserManagement;
 /// Checks the objects of the workspace-admin commands against the current workspace.
 /// <see cref="AdminCommandValidator"/> checks the actor. This validator checks what the command acts on.
 /// A command opts in to a check with a command part.
+/// <para>
+/// The checks run only for an actor that has SafeAdministrator (112) or more on the current workspace.
+/// For another actor, <see cref="AdminCommandValidator"/> refuses the command, and an answer from these
+/// checks would tell the actor facts about other workspaces.
+/// </para>
 /// </summary>
 public class WorkspaceScopeValidator : IAutoService
 {
     readonly UserTable _userTable;
+    readonly WorkspaceTable _workspaceTable;
     readonly UserManagementQueries _queries;
     readonly CurrentCultureInfo _culture;
 
-    public WorkspaceScopeValidator( UserTable userTable, UserManagementQueries queries, CurrentCultureInfo culture )
+    public WorkspaceScopeValidator( UserTable userTable, WorkspaceTable workspaceTable, UserManagementQueries queries, CurrentCultureInfo culture )
     {
         _userTable = userTable;
+        _workspaceTable = workspaceTable;
         _queries = queries;
         _culture = culture;
+    }
+
+    /// <summary>
+    /// Returns true when the actor and the workspace are valid and the actor has SafeAdministrator (112) or
+    /// more on the workspace. Otherwise <see cref="AdminCommandValidator"/> refuses the command.
+    /// </summary>
+    public static async Task<bool> IsWorkspaceAdministratorAsync( ISqlCallContext ctx, WorkspaceTable workspaceTable, int actorId, int workspaceId )
+    {
+        if( actorId <= 0 || workspaceId <= 0 ) return false;
+        return await workspaceTable.GetUserWorkspaceGrantLevelAsync( ctx, actorId, workspaceId ) >= (byte)GrantLevel.SafeAdministrator;
     }
 
     /// <summary>
@@ -32,8 +50,7 @@ public class WorkspaceScopeValidator : IAutoService
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
         var workspaceId = cmd.CurrentWorkspaceId.GetValueOrDefault();
-        // AdminCommandValidator reports an invalid actor or workspace.
-        if( actorId <= 0 || workspaceId <= 0 ) return;
+        if( !await IsWorkspaceAdministratorAsync( ctx, _workspaceTable, actorId, workspaceId ) ) return;
 
         var check = (UserAdministrationCheck)await _userTable.CheckUserAdministrationAsync( ctx, actorId, workspaceId, cmd.UserId );
         if( check != UserAdministrationCheck.Allowed )
@@ -52,8 +69,7 @@ public class WorkspaceScopeValidator : IAutoService
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
         var workspaceId = cmd.CurrentWorkspaceId.GetValueOrDefault();
-        // AdminCommandValidator reports an invalid actor or workspace.
-        if( actorId <= 0 || workspaceId <= 0 ) return;
+        if( !await IsWorkspaceAdministratorAsync( ctx, _workspaceTable, actorId, workspaceId ) ) return;
 
         var outside = await _queries.GetGroupsOutsideWorkspaceAsync( ctx, workspaceId, cmd.Groups );
         if( outside.Count > 0 )

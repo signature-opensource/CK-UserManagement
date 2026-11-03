@@ -169,4 +169,46 @@ public class InvitationScopeTests : UserInvitationTestBase
         outcome.Refused.ShouldBeFalse();
         Env.Mailer.Sent.Last( s => s.Destination == email ).ExtendedCultureId.ShouldBe( TestEnv.FrenchExtendedCultureId );
     }
+
+    [Test]
+    public async Task a_plain_member_learns_nothing_about_an_invitation_of_another_workspace_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (email, _, _, b, _) = await InvitationOfAAndAdminOfBAsync( ctx );
+        int plainMemberOfB = await Scenario.NewUserAsync( ctx, b );
+
+        var outcome = await DestroyAsync( ctx, plainMemberOfB, b, email );
+
+        ( await InvitationCountAsync( ctx, email ) ).ShouldBe( 1 );
+        outcome.ErrorResNames.ShouldBe( ["Admin.NotAuthorized"] );
+    }
+
+    [Test]
+    public async Task a_workspace_admin_cannot_change_the_email_of_a_user_outside_the_workspace_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        var (other, _) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int target = await Scenario.NewUserAsync( ctx, other );
+        var originalEmail = TestEnv.NewEmail();
+        await Env.EmailTable.AddEMailAsync( ctx, 1, target, originalEmail, isPrimary: true );
+        var userName = await Scenario.UserNameOfAsync( ctx, target );
+
+        var cmd = Env.PocoDirectory.Create<CK.IO.UserManagement.UserInvitation.IEditWorkspaceUserCommand>( c =>
+        {
+            c.ActorId = admin;
+            c.CurrentWorkspaceId = w;
+            c.UserId = target;
+            c.UserName = userName;
+            c.FirstName = "Taken";
+            c.LastName = "Over";
+            c.Email = TestEnv.NewEmail();
+        } );
+        var outcome = await Env.Pipeline.RunAsync( ctx, cmd,
+            () => Env.Handler.EditWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable, Env.GroupTable,
+                                                      Env.PreferredCulturePackage, Env.EmailTable, Env.Queries, Env.InvitationQueries ) );
+
+        ( await Env.InvitationQueries.GetPrimaryEmailAsync( ctx, target ) ).ShouldBe( originalEmail );
+        outcome.ErrorResNames.ShouldContain( "Admin.UserOutOfScope" );
+    }
 }

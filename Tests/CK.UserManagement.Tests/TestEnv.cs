@@ -143,7 +143,7 @@ public sealed class TestEnv
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
                         .RegisterAdminValidator( validator )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, queries, currentCulture ) ),
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, queries, currentCulture ) ),
             UserTable = userTable,
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,

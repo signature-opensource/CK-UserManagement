@@ -112,7 +112,7 @@ public sealed class TestEnv
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
                         .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, new UserManagementQueries( userTable ), currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, new UserManagementQueries( userTable ), currentCulture ) )
                         .Register( "BannedActorValidator.ValidateNotBannedAsync",
                                    ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),
             UserTable = userTable,
