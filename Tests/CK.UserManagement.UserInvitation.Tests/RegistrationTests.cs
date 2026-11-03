@@ -2,6 +2,7 @@ using System.Text;
 using CK.Core;
 using CK.IO.UserManagement;
 using CK.SqlServer;
+using Dapper;
 using NUnit.Framework;
 using Shouldly;
 
@@ -113,6 +114,49 @@ public class RegistrationTests : UserInvitationTestBase
         var ex = await Should.ThrowAsync<ArgumentException>(
             Env.Service.CompleteRegistrationAsync( ctx, "New", "User", email, token, "Password123!", TestEnv.FrenchExtendedCultureId, userName ) );
         ex.Message.ShouldBe( "User.UserNameAlreadyTaken" );
+    }
+
+    ICompleteRegistrationCommand NewCompleteRegistration( string email, string token )
+        => Env.PocoDirectory.Create<ICompleteRegistrationCommand>( c =>
+        {
+            c.Email = email;
+            c.FirstName = "New";
+            c.LastName = "User";
+            c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
+            c.Password = "Password123!";
+            c.Token = token;
+        } );
+
+    [Test]
+    public async Task registration_with_another_email_than_the_invited_one_is_refused_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (email, token) = await CreateInvitationAsync( ctx );
+        var other = TestEnv.NewEmail();
+
+        var result = await Env.Handler.CompleteRegistrationAsync( ctx, NewCompleteRegistration( other, token ), Env.UserTable, Env.Service );
+
+        result.Level.ShouldBe( UserMessageLevel.Error );
+        ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) ).ShouldNotBeNull();
+        ( await ctx[Env.UserTable].QuerySingleAsync<int>( "select count(*) from CK.tActorEMail where EMail = @E;", new { E = other } ) ).ShouldBe( 0 );
+    }
+
+    [Test]
+    public async Task registration_stores_the_invited_address_even_with_another_case_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (email, token) = await CreateInvitationAsync( ctx );
+
+        var result = await Env.Handler.CompleteRegistrationAsync( ctx, NewCompleteRegistration( email.ToUpperInvariant(), token ), Env.UserTable, Env.Service );
+
+        result.Level.ShouldBe( UserMessageLevel.Info );
+        int userId = await Env.UserTable.FindByNameAsync( ctx, email );
+        userId.ShouldBeGreaterThan( 0 );
+        var stored = await ctx[Env.UserTable].QuerySingleAsync<(string EMail, bool IsPrimary, DateTime ValTime)>(
+            "select EMail, IsPrimary, ValTime from CK.tActorEMail where ActorId = @A;", new { A = userId } );
+        stored.EMail.ShouldBe( email );
+        stored.IsPrimary.ShouldBeTrue();
+        stored.ValTime.ShouldBeGreaterThan( new DateTime( 2000, 1, 1 ) );
     }
 
     /// <summary>

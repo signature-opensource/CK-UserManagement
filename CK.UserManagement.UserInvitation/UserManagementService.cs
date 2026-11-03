@@ -73,13 +73,21 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Creates the invitation for an e-mail and sends the invitation e-mail, returning the
     /// <see cref="SimpleUserMessage"/> describing the outcome. Because <c>UserTargetAddress</c> is
-    /// unique platform-wide, an e-mail can only have a single pending invitation: when one already
+    /// unique platform-wide, an e-mail can only have a single pending invitation: when a valid one already
     /// exists the invitation is left untouched and an error message is returned (use
-    /// <see cref="ResendInvitationAsync"/> to re-activate it instead).
+    /// <see cref="ResendInvitationAsync"/> to re-activate it instead). An expired invitation does not block
+    /// the address: the service destroys it and creates the new one.
     /// </summary>
     public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, int extendedCultureId, IReadOnlyList<int> groups )
     {
         var existing = await _queries.GetInvitationByEmailAsync( ctx, email );
+        if( existing is not null && existing.ExpirationDateUtc < DateTime.UtcNow )
+        {
+            // The pending lists do not show an expired invitation, so an administrator cannot remove it.
+            await DestroyInvitationAsync( ctx, existing.CreatedById, existing.InvitationId );
+            ctx.Monitor.Info( $"Expired invitation destroyed before the new one. (Email: {email}, InvitationId: {existing.InvitationId})" );
+            existing = null;
+        }
         if( existing is not null )
         {
             ctx.Monitor.Warn( $"An invitation already exists for this e-mail. (Email: {email}, InvitationId: {existing.InvitationId})" );
@@ -193,8 +201,13 @@ public class UserManagementService : IAutoService
     /// sets the preferred workspace then destroys the invitation.
     /// <para>
     /// <paramref name="userName"/> is the user's nickname and is optional: when null or blank the
-    /// <paramref name="email"/> is used as the user name. The e-mail is always registered as the
-    /// primary <c>CK.tActorEMail</c> and remains the identity check point.
+    /// invited address is used as the user name. The invited address (<c>UserTargetAddress</c>) is always
+    /// registered as the primary <c>CK.tActorEMail</c> and remains the identity check point.
+    /// </para>
+    /// <para>
+    /// <paramref name="email"/> is the address of the request. When it is not blank and is not the invited
+    /// address (case-insensitive), the registration is refused with <c>User.InvitationEmailMismatch</c>:
+    /// only the invited address received the token.
     /// </para>
     /// </summary>
     public async Task CompleteRegistrationAsync( ISqlCallContext ctx,
@@ -208,7 +221,16 @@ public class UserManagementService : IAutoService
     {
         var invitation = await CheckInvitationAsync( ctx, token );
 
-        // The user name is optional: fall back to the e-mail when no nickname is provided.
+        // The token went to the invited address: the registration uses this address, never another one.
+        if( !string.IsNullOrWhiteSpace( email )
+            && !string.Equals( email.Trim(), invitation.UserTargetAddress, StringComparison.OrdinalIgnoreCase ) )
+        {
+            ctx.Monitor.Warn( $"The e-mail of the request is not the invited address. (InvitationId: {invitation.InvitationId}, Email: {email})" );
+            throw new ArgumentException( "User.InvitationEmailMismatch" );
+        }
+        email = invitation.UserTargetAddress;
+
+        // The user name is optional: fall back to the invited address when no nickname is provided.
         var nickName = string.IsNullOrWhiteSpace( userName ) ? email : userName.Trim();
 
         // When an explicit nickname is provided, reject it early with a clear message if it is already

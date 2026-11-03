@@ -1,6 +1,7 @@
 using CK.Core;
 using CK.IO.UserManagement;
 using CK.SqlServer;
+using Dapper;
 using NUnit.Framework;
 using Shouldly;
 
@@ -43,6 +44,28 @@ public class InvitationTests : UserInvitationTestBase
 
         var second = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
         second.Level.ShouldBe( UserMessageLevel.Error );
+    }
+
+    [Test]
+    public async Task an_expired_invitation_is_replaced_by_a_new_invitation_Async()
+    {
+        var email = TestEnv.NewEmail();
+        using var ctx = new SqlTransactionCallContext();
+        ( await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service ) )
+            .Level.ShouldBe( UserMessageLevel.Info );
+        var expired = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
+        await ctx[Env.UserTable].ExecuteAsync( "update CK.tUserInvitation set ExpirationDateUtc = @D where InvitationId = @I;",
+                                               new { D = DateTime.UtcNow.AddDays( -1 ), I = expired!.InvitationId } );
+        int sentBefore = Env.Mailer.Sent.Count( s => s.Destination == email );
+
+        var second = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+
+        second.Level.ShouldBe( UserMessageLevel.Info );
+        var replacement = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
+        replacement.ShouldNotBeNull();
+        replacement.InvitationId.ShouldNotBe( expired.InvitationId );
+        replacement.ExpirationDateUtc.ShouldBeGreaterThan( DateTime.UtcNow );
+        Env.Mailer.Sent.Count( s => s.Destination == email ).ShouldBe( sentBefore + 1 );
     }
 
     [Test]
