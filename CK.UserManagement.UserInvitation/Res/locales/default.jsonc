@@ -3,6 +3,9 @@
     // Keys are the resName arguments passed to the UserMessage helpers from the invitation command
     // handlers and UserManagementService.
 
+    // InvitationScopeValidator
+    "Admin.InvitationOutOfScope": "An invitation does not belong to this workspace.",
+
     // CommandHandler / Service success answers
     "CrisSuccess.InvitationCreated": "Invitation successfully created.",
     "CrisSuccess.InvitationsResend": "Invitations were successfully sent.",

@@ -19,6 +19,11 @@ namespace CK.IO.UserManagement;
 /// <see cref="ICommandWorkspaceAdmin"/> carries the culture.
 /// </para>
 /// </summary>
-public interface ISetUserBannedAdminCommand : ISetUserBannedCommand, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface ISetUserBannedAdminCommand : ISetUserBannedCommand, ICommandCurrentCulture, ICommandWorkspaceUserTarget
 {
+    /// <summary>
+    /// Gets or sets the user. The base command and <see cref="ICommandWorkspaceUserTarget"/> both define
+    /// this property: this declaration removes the ambiguity. The Poco engine merges the three into one.
+    /// </summary>
+    new int UserId { get; set; }
 }

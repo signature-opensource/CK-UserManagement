@@ -139,7 +139,7 @@ public class UserInvitationCommandHandler : IAutoService,
                 {
                     foreach( var inv in cmd.Invitations )
                     {
-                        await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.ExtendedCultureId );
+                        await service.ResendInvitationAsync( ctx, actorId, inv.Email );
                     }
                     transaction.Commit();
                 }

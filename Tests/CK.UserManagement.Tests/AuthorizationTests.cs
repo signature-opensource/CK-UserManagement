@@ -98,4 +98,21 @@ public class AuthorizationTests : UserManagementTestBase
 
         collector.ErrorCount.ShouldBeGreaterThan( 0 );
     }
+
+    [Test]
+    public async Task the_pipeline_refuses_a_plain_member_and_runs_the_handler_for_an_admin_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+
+        var byMember = ForceResetCommand( Env.MemberUserId, Env.WorkspaceId );
+        var refused = await Env.Pipeline.RunAsync( ctx, byMember, () => Env.Handler.ForceResetUserPasswordAsync( ctx, byMember, Env.UserPasswordResetTable ) );
+        refused.Refused.ShouldBeTrue();
+        refused.ErrorResNames.ShouldContain( "Admin.NotAuthorized" );
+        refused.HandlerResult.ShouldBeNull();
+
+        var byAdmin = ForceResetCommand( Env.AdminUserId, Env.WorkspaceId );
+        var accepted = await Env.Pipeline.RunAsync( ctx, byAdmin, () => Env.Handler.ForceResetUserPasswordAsync( ctx, byAdmin, Env.UserPasswordResetTable ) );
+        accepted.Refused.ShouldBeFalse();
+        accepted.HandlerResult.ShouldNotBeNull();
+    }
 }

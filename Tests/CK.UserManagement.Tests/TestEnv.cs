@@ -7,6 +7,7 @@ using CK.SqlServer;
 using CK.Testing;
 using Dapper;
 using static CK.Testing.MonitorTestHelper;
+using CK.UserManagement.Testing;
 using GroupTable = CK.DB.Zone.GroupTable;
 
 namespace CK.UserManagement.Tests;
@@ -38,6 +39,7 @@ public sealed class TestEnv
     public required UserManagementCommandHandler Handler { get; init; }
     public required AdminCommandValidator Validator { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
+    public required CrisValidationPipeline Pipeline { get; init; }
 
     public required UserTable UserTable { get; init; }
     public required GroupTable GroupTable { get; init; }
@@ -139,6 +141,9 @@ public sealed class TestEnv
             Handler = handler,
             Validator = validator,
             CurrentCulture = currentCulture,
+            Pipeline = new CrisValidationPipeline( currentCulture )
+                        .RegisterAdminValidator( validator )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, queries, currentCulture ) ),
             UserTable = userTable,
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,

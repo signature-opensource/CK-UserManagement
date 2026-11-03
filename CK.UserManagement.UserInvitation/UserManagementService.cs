@@ -104,9 +104,10 @@ public class UserManagementService : IAutoService
     }
 
     /// <summary>
-    /// Re-activates a pending invitation (extends its expiration) and resends the e-mail.
+    /// Re-activates a pending invitation (extends its expiration) and resends the e-mail in the culture
+    /// stored in the invitation.
     /// </summary>
-    public async Task ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, int extendedCultureId )
+    public async Task ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email )
     {
         var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( invitation is null )
@@ -129,7 +130,7 @@ public class UserManagementService : IAutoService
         } ) );
 
         ctx.Monitor.Info( $"Invitation re-activated. (Email: {email})" );
-        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId );
+        await SendInvitationMailAsync( ctx, invitation.InvitationId, email, invitation.CultureId );
     }
 
     /// <summary>

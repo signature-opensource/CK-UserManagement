@@ -20,16 +20,17 @@ public abstract class UserBannedPackage : SqlPackage
     public const string AdminKeyReason = "UserManagement.AdminBan";
 
     // Depends on UserBanned (owns the base sUserBannedSet/sUserBannedDestroy transformed here) and on
-    // Workspace (owns the CK.fUserWorkspaceGrantLevel scalar function the transforms call).
+    // the UserTable of CK.UserManagement (owns the CK.fUserAdministrationCheck scalar function that the
+    // transformers call).
     void StObjConstruct( CK.DB.User.UserBanned.Package userBannedPackage,
-                         DB.Workspace.WorkspaceTable workspaceTable )
+                         CK.UserManagement.UserTable userTable )
     { }
 
     /// <summary>
-    /// Creates or updates the banishment of a user for <paramref name="keyReason"/>, applying the
-    /// workspace grant-level check injected by <c>sUserBannedSet.tql</c>: when
-    /// <paramref name="workspaceId"/> is non-zero, the caller must be at least SafeAdministrator (112)
-    /// on that workspace; when 0 the default platform route applies.
+    /// Creates or updates the banishment of a user for <paramref name="keyReason"/>. When
+    /// <paramref name="workspaceId"/> is not 0, <c>sUserBannedSet.tql</c> applies <c>CK.fUserAdministrationCheck</c>:
+    /// the caller must be able to administer the user from that workspace. When it is 0, the default platform
+    /// route applies (System group).
     /// </summary>
     /// <param name="banStartDate">When null, utc now for a new banishment, unchanged for an existing one.</param>
     /// <param name="banEndDate">When null, the banishment is eternal (9999-12-31).</param>
@@ -38,10 +39,10 @@ public abstract class UserBannedPackage : SqlPackage
                                              DateTime? banStartDate, DateTime? banEndDate, int workspaceId );
 
     /// <summary>
-    /// Destroys the banishment of a user for <paramref name="keyReason"/>, applying the workspace
-    /// grant-level check injected by <c>sUserBannedDestroy.tql</c>: when <paramref name="workspaceId"/>
-    /// is non-zero, the caller must be at least SafeAdministrator (112) on that workspace; when 0 the
-    /// default platform route applies.
+    /// Destroys the banishment of a user for <paramref name="keyReason"/>. When <paramref name="workspaceId"/>
+    /// is not 0, <c>sUserBannedDestroy.tql</c> applies <c>CK.fUserAdministrationCheck</c>: the caller must be
+    /// able to administer the user from that workspace. When it is 0, the default platform route applies
+    /// (System group).
     /// </summary>
     [SqlProcedure( "transform:sUserBannedDestroy" )]
     public abstract Task DestroyUserBannedAsync( ISqlCallContext ctx, int actorId, string keyReason,

@@ -10,7 +10,7 @@ namespace CK.IO.UserManagement;
 /// but must choose a new password (the temporary state is exposed on its profile as
 /// <c>IsTemporaryPassword</c> and is cleared as soon as the user sets its own password).
 /// </summary>
-public interface IForceResetUserPasswordCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface IForceResetUserPasswordCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceUserTarget
 {
     /// <summary>The user whose password must be reset.</summary>
     public int UserId { get; set; }

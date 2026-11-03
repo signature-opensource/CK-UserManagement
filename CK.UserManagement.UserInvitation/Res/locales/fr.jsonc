@@ -1,6 +1,9 @@
 {
     // French translation set for the invitation / registration back-end messages.
 
+    // InvitationScopeValidator
+    "Admin.InvitationOutOfScope": "Une invitation n'appartient pas à cet espace de travail.",
+
     // CommandHandler / Service success answers
     "CrisSuccess.InvitationCreated": "Invitation créée avec succès.",
     "CrisSuccess.InvitationsResend": "Les invitations ont été envoyées avec succès.",

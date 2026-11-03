@@ -122,6 +122,28 @@ public class UserManagementQueries : IAutoService
     }
 
     /// <summary>
+    /// Returns the identifiers in <paramref name="groupIds"/> that are not the workspace and not a group of the
+    /// workspace. An unknown identifier is returned. An empty input returns an empty list with no SQL call.
+    /// </summary>
+    /// <param name="ctx">The call context.</param>
+    /// <param name="workspaceId">The workspace.</param>
+    /// <param name="groupIds">The group identifiers to check.</param>
+    /// <returns>The distinct identifiers outside the workspace.</returns>
+    public async Task<IReadOnlyList<int>> GetGroupsOutsideWorkspaceAsync( ISqlCallContext ctx, int workspaceId, IEnumerable<int> groupIds )
+    {
+        var ids = groupIds.Distinct().ToList();
+        if( ids.Count == 0 ) return [];
+        var inside = await ctx[_userTable].QueryAsync<int>(
+            """
+            select GroupId
+              from CK.vGroup
+              where GroupId in @Ids and GroupId > 1 and (GroupId = @WorkspaceId or ZoneId = @WorkspaceId);
+            """,
+            new { Ids = ids, WorkspaceId = workspaceId } );
+        return ids.Except( inside ).ToList();
+    }
+
+    /// <summary>
     /// Ids of the groups (within the workspace zone) the user currently belongs to.
     /// Used to compute the add/remove delta when editing a workspace user.
     /// </summary>

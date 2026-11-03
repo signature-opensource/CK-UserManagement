@@ -9,6 +9,10 @@
     "Admin.InvalidWorkSpace": "Invalid workspace.",
     "Admin.NotAuthorized": "Admin authority required.",
 
+    // WorkspaceScopeValidator
+    "Admin.UserOutOfScope": "You cannot administer this user from this workspace.",
+    "Admin.GroupOutOfScope": "A group does not belong to this workspace.",
+
     // UserMessageExtensions (generic answers)
     "CrisError.ExceptionCaught": "An error occured.",
     "CrisError.InvalidActorId": "Please logout and relog-in, we were unable to identify you.",
