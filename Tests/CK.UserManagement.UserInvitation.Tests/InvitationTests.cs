@@ -46,26 +46,75 @@ public class InvitationTests : UserInvitationTestBase
         second.Level.ShouldBe( UserMessageLevel.Error );
     }
 
+    /// <summary>Creates an invitation in the test workspace, then moves its expiration date to yesterday.</summary>
+    async Task<int> CreateExpiredInvitationAsync( ISqlTransactionCallContext ctx, string email )
+    {
+        ( await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service ) )
+            .Level.ShouldBe( UserMessageLevel.Info );
+        var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
+        await ctx[Env.UserTable].ExecuteAsync( "update CK.tUserInvitation set ExpirationDateUtc = @D where InvitationId = @I;",
+                                               new { D = DateTime.UtcNow.AddDays( -1 ), I = invitation!.InvitationId } );
+        return invitation.InvitationId;
+    }
+
+    async Task<(IPendingInvitation? Workspace, IPendingInvitation? Platform)> ListedAsync( ISqlCallContext ctx, string email )
+    {
+        var platform = await Env.Handler.GetPlatformPendingInvitationsAsync(
+            ctx, Env.PocoDirectory.Create<IGetPlatformPendingInvitationsQCommand>(), Env.InvitationQueries );
+        var workspace = await Env.Handler.GetWorkspacePendingInvitationsAsync(
+            ctx,
+            Env.PocoDirectory.Create<IGetWorkspacePendingInvitationsQCommand>( c => c.CurrentWorkspaceId = Env.WorkspaceId ),
+            Env.InvitationQueries );
+        return (workspace.SingleOrDefault( i => i.Email == email ), platform.SingleOrDefault( i => i.Email == email ));
+    }
+
     [Test]
-    public async Task an_expired_invitation_is_replaced_by_a_new_invitation_Async()
+    public async Task an_expired_invitation_is_listed_as_not_active_Async()
     {
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
-        ( await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service ) )
-            .Level.ShouldBe( UserMessageLevel.Info );
-        var expired = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
-        await ctx[Env.UserTable].ExecuteAsync( "update CK.tUserInvitation set ExpirationDateUtc = @D where InvitationId = @I;",
-                                               new { D = DateTime.UtcNow.AddDays( -1 ), I = expired!.InvitationId } );
-        int sentBefore = Env.Mailer.Sent.Count( s => s.Destination == email );
+        await CreateExpiredInvitationAsync( ctx, email );
+
+        var (workspace, platform) = await ListedAsync( ctx, email );
+
+        workspace.ShouldNotBeNull();
+        workspace.Active.ShouldBeFalse();
+        platform.ShouldNotBeNull();
+        platform.Active.ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task resending_an_expired_invitation_reactivates_it_Async()
+    {
+        var email = TestEnv.NewEmail();
+        using var ctx = new SqlTransactionCallContext();
+        await CreateExpiredInvitationAsync( ctx, email );
+        var resend = Env.PocoDirectory.Create<IResendInvitationsCommand>( c =>
+        {
+            c.ActorId = Env.AdminUserId;
+            c.CurrentWorkspaceId = Env.WorkspaceId;
+            c.Invitations.Add( Env.PocoDirectory.Create<IPendingInvitation>( p => p.Email = email ) );
+        } );
+
+        ( await Env.Handler.ResendInvitationsAsync( ctx, resend, Env.UserTable, Env.Service ) ).Level.ShouldBe( UserMessageLevel.Info );
+
+        var (workspace, _) = await ListedAsync( ctx, email );
+        workspace.ShouldNotBeNull();
+        workspace.Active.ShouldBeTrue();
+        workspace.ExpirationDateUtc.ShouldBeGreaterThan( DateTime.UtcNow );
+    }
+
+    [Test]
+    public async Task an_expired_invitation_is_kept_and_still_blocks_a_new_invitation_Async()
+    {
+        var email = TestEnv.NewEmail();
+        using var ctx = new SqlTransactionCallContext();
+        int expiredId = await CreateExpiredInvitationAsync( ctx, email );
 
         var second = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
 
-        second.Level.ShouldBe( UserMessageLevel.Info );
-        var replacement = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
-        replacement.ShouldNotBeNull();
-        replacement.InvitationId.ShouldNotBe( expired.InvitationId );
-        replacement.ExpirationDateUtc.ShouldBeGreaterThan( DateTime.UtcNow );
-        Env.Mailer.Sent.Count( s => s.Destination == email ).ShouldBe( sentBefore + 1 );
+        second.Level.ShouldBe( UserMessageLevel.Error );
+        ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) )!.InvitationId.ShouldBe( expiredId );
     }
 
     [Test]

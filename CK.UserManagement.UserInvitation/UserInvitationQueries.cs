@@ -100,10 +100,11 @@ public class UserInvitationQueries : IAutoService
     }
 
     /// <summary>
-    /// Pending (non-expired) invitations read directly from <c>CK.tUserInvitation</c>, regardless of
-    /// the administrator who created them. When <paramref name="workspaceId"/> is provided, only
-    /// invitations whose groups belong to that workspace zone are returned; otherwise every pending
-    /// invitation is returned (platform-wide).
+    /// Pending invitations read directly from <c>CK.tUserInvitation</c>, regardless of the administrator
+    /// who created them. Expired and deactivated invitations are returned too, with
+    /// <see cref="IPendingInvitation.Active"/> set to false: an administrator can resend (reactivate) or
+    /// destroy them. When <paramref name="workspaceId"/> is provided, only invitations whose groups belong
+    /// to that workspace zone are returned; otherwise every pending invitation is returned (platform-wide).
     /// </summary>
     public async Task<IReadOnlyList<IPendingInvitation>> GetPendingInvitationsAsync( ISqlCallContext ctx, int? workspaceId = null )
     {
@@ -117,9 +118,8 @@ public class UserInvitationQueries : IAutoService
                   ,uig.GroupId
               from CK.tUserInvitation ui
                   left outer join CK.tUserInvitationGroup uig on uig.InvitationId = ui.InvitationId
-              where ui.InvitationId > 0 and ui.ExpirationDateUtc > @Now;
-            """,
-            new { Now = DateTime.UtcNow } );
+              where ui.InvitationId > 0;
+            """ );
 
         var pending = rows
             .GroupBy( r => r.InvitationId )
@@ -145,6 +145,7 @@ public class UserInvitationQueries : IAutoService
         }
 
         var cultures = await GetCultureNamesAsync( ctx, pending.Select( i => i.CultureId ).Distinct().ToList() );
+        var now = DateTime.UtcNow;
 
         return pending.Select( i =>
         {
@@ -152,7 +153,8 @@ public class UserInvitationQueries : IAutoService
             return _pocoDir.Create<IPendingInvitation>( p =>
             {
                 p.Email = i.UserTargetAddress;
-                p.Active = i.IsActive;
+                // Same rule as the registration: the link works only when the invitation is active and not expired.
+                p.Active = i.IsActive && i.ExpirationDateUtc > now;
                 p.ExtendedCultureId = i.CultureId;
                 p.NativeName = culture?.NativeName ?? "Français";
                 p.ExpirationDateUtc = i.ExpirationDateUtc;

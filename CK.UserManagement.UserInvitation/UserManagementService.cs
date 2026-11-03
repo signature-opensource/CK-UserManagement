@@ -73,21 +73,14 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Creates the invitation for an e-mail and sends the invitation e-mail, returning the
     /// <see cref="SimpleUserMessage"/> describing the outcome. Because <c>UserTargetAddress</c> is
-    /// unique platform-wide, an e-mail can only have a single pending invitation: when a valid one already
-    /// exists the invitation is left untouched and an error message is returned (use
-    /// <see cref="ResendInvitationAsync"/> to re-activate it instead). An expired invitation does not block
-    /// the address: the service destroys it and creates the new one.
+    /// unique platform-wide, an e-mail can only have a single pending invitation: when one already exists,
+    /// expired or deactivated included, the invitation is left untouched and an error message is returned
+    /// (use <see cref="ResendInvitationAsync"/> to re-activate it instead). The pending lists show expired
+    /// and deactivated invitations, so an administrator can resend or destroy them.
     /// </summary>
     public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, int extendedCultureId, IReadOnlyList<int> groups )
     {
         var existing = await _queries.GetInvitationByEmailAsync( ctx, email );
-        if( existing is not null && existing.ExpirationDateUtc < DateTime.UtcNow )
-        {
-            // The pending lists do not show an expired invitation, so an administrator cannot remove it.
-            await DestroyInvitationAsync( ctx, existing.CreatedById, existing.InvitationId );
-            ctx.Monitor.Info( $"Expired invitation destroyed before the new one. (Email: {email}, InvitationId: {existing.InvitationId})" );
-            existing = null;
-        }
         if( existing is not null )
         {
             ctx.Monitor.Warn( $"An invitation already exists for this e-mail. (Email: {email}, InvitationId: {existing.InvitationId})" );
