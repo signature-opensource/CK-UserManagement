@@ -84,7 +84,15 @@ public class UserManagementQueries : IAutoService
         return byId.Values.ToList();
     }
 
-    public async Task<IReadOnlyList<IGroupInfos>> GetWorkspaceGroupsAsync( ISqlCallContext ctx, int workspaceId )
+    /// <summary>
+    /// Returns the groups of the workspace that the user and invitation forms show: every group of the workspace
+    /// zone except the System group. An application that must hide some groups can specialize
+    /// <see cref="UserManagementQueries"/> and override this method.
+    /// </summary>
+    /// <param name="ctx">The call context.</param>
+    /// <param name="workspaceId">The workspace.</param>
+    /// <returns>The groups of the workspace.</returns>
+    public virtual async Task<IReadOnlyList<IGroupInfos>> GetWorkspaceGroupsAsync( ISqlCallContext ctx, int workspaceId )
     {
         var groups = await ctx[_userTable].QueryAsync<IGroupInfos>(
             """
@@ -95,7 +103,7 @@ public class UserManagementQueries : IAutoService
                   ,ZoneName = isnull( z.ZoneName, '' )
               from CK.vGroup g
                   left outer join CK.vZone z on z.ZoneId = g.ZoneId
-              where g.ZoneId = @WorkspaceId and g.GroupId > 1 and g.GroupName not like '%Operators';
+              where g.ZoneId = @WorkspaceId and g.GroupId > 1;
             """,
             new { WorkspaceId = workspaceId } );
 
