@@ -12,7 +12,7 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth.0.ci.6" />
 
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
-        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.30" />
+        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.31" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.0.ci.30" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.0.ci.30" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
