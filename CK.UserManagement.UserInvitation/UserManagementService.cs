@@ -191,21 +191,22 @@ public class UserManagementService : IAutoService
     /// Completes a registration: creates the user, sets names/password, joins the invitation groups,
     /// sets the preferred workspace then destroys the invitation.
     /// <para>
-    /// <paramref name="userName"/> is the user's nickname and is optional: when null or blank the
-    /// <paramref name="email"/> is used as the user name. The e-mail is always registered as the
-    /// primary <c>CK.tActorEMail</c> and remains the identity check point.
+    /// The user's e-mail is the address the invitation was sent to (the invitation's <c>UserTargetAddress</c>): the
+    /// token proves that the user received it, so it is registered as the validated primary <c>CK.tActorEMail</c> and
+    /// remains the identity check point. <paramref name="userName"/> is the user's nickname and is optional: when null
+    /// or blank the e-mail is used as the user name.
     /// </para>
     /// </summary>
     public async Task CompleteRegistrationAsync( ISqlCallContext ctx,
                                                  string firstName,
                                                  string lastName,
-                                                 string email,
                                                  string token,
                                                  string password,
                                                  int extendedCultureId,
                                                  string? userName = null )
     {
         var invitation = await CheckInvitationAsync( ctx, token );
+        var email = invitation.UserTargetAddress;
 
         // The user name is optional: fall back to the e-mail when no nickname is provided.
         var nickName = string.IsNullOrWhiteSpace( userName ) ? email : userName.Trim();

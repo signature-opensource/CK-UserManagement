@@ -53,7 +53,6 @@ public class RegistrationTests : UserInvitationTestBase
         // Completing the registration creates the user and destroys the invitation.
         var complete = Env.PocoDirectory.Create<ICompleteRegistrationCommand>( c =>
         {
-            c.Email = email;
             c.FirstName = "New";
             c.LastName = "User";
             c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
@@ -111,8 +110,23 @@ public class RegistrationTests : UserInvitationTestBase
         // service directly lets us pin the exact translation key.
         var (email, token) = await CreateInvitationAsync( ctx );
         var ex = await Should.ThrowAsync<ArgumentException>(
-            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", email, token, "Password123!", TestEnv.FrenchExtendedCultureId, userName ) );
+            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", token, "Password123!", TestEnv.FrenchExtendedCultureId, userName ) );
         ex.Message.ShouldBe( "User.UserNameAlreadyTaken" );
+    }
+
+    [Test]
+    public async Task the_registered_email_is_the_address_the_invitation_was_sent_to_Async()
+    {
+        // The command has no e-mail: whoever holds the link registers the invited address, and no other one
+        // (it is registered as validated: the token proves its reception).
+        using var ctx = new SqlTransactionCallContext();
+        var (email, result) = await RegisterAsync( ctx, userName: $"nick-{Guid.NewGuid():N}".Substring( 0, 20 ) );
+        result.Level.ShouldBe( UserMessageLevel.Info );
+
+        var users = await Env.InvitationQueries.GetWorkspaceUsersWithEmailAsync( ctx, Env.WorkspaceId );
+        users.Cast<CK.IO.UserManagement.UserInvitation.IWorkspaceUser>()
+             .Where( u => u.Email == email )
+             .ShouldHaveSingleItem();
     }
 
     /// <summary>
@@ -148,7 +162,6 @@ public class RegistrationTests : UserInvitationTestBase
 
         var complete = Env.PocoDirectory.Create<ICompleteRegistrationCommand>( c =>
         {
-            c.Email = email;
             c.FirstName = "New";
             c.LastName = "User";
             c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;

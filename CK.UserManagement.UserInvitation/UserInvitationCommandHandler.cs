@@ -244,13 +244,13 @@ public class UserInvitationCommandHandler : IAutoService,
                                                                     UserTable userTable,
                                                                     UserManagementService service )
     {
-        using( ctx.Monitor.OpenInfo( $"Handling {nameof( ICompleteRegistrationCommand )} command. (Email: {cmd.Email})" ) )
+        using( ctx.Monitor.OpenInfo( $"Handling {nameof( ICompleteRegistrationCommand )} command." ) )
         {
             try
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Email, cmd.Token, cmd.Password, cmd.ExtendedCultureId, cmd.UserName );
+                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Token, cmd.Password, cmd.ExtendedCultureId, cmd.UserName );
                     transaction.Commit();
                 }
                 return _currentCulture.InfoMessage( "Registration successful. You can now log-in with your credentials.", "User.RegistrationCompleted" );
