@@ -17,8 +17,8 @@
         <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.0.ci.29" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
              validated CK.tActorEMail as login identifier (brings CK.DB.User.UserPassword transitively). -->
-        <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.cris-auth.0.ci.35" />
-        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.cris-auth.0.ci.29" />
+        <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.cris-auth.0.ci.36" />
+        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.cris-auth.0.ci.30" />
         <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.0.ci.39" />
         <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.0.ci.23" />
         <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.0.ci.34" />
