@@ -19,7 +19,7 @@ public interface IMailBranding : IPoco
     /// URL of the logo image displayed in the header.
     /// May be absolute (<c>https://cdn.example/logo.png</c>) or relative to
     /// the frontend origin (<c>/logos/brand-white.png</c>) — the render path
-    /// resolves relative URLs against the current <c>frontUrl</c>.
+    /// resolves relative URLs against the URL of the client application of the mail (<c>clientUrl</c>).
     /// </summary>
     string LogoUrl { get; set; }
 

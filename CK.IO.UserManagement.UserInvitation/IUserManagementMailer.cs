@@ -20,12 +20,19 @@ public interface IUserManagementMailer : IAutoService
 {
     /// <summary>
     /// Sends a workspace invitation e-mail. The default templates are <c>UserInvitation.Subject</c>
-    /// and <c>UserInvitation.Body</c>, bound to a model exposing <c>FrontUrl</c> and <c>Token</c>;
-    /// the registration link is <c>{FrontUrl}/auth/register/{Token}</c>.
+    /// and <c>UserInvitation.Body</c>, bound to a model exposing <c>ClientUrl</c> (the URL of the default client
+    /// application of the issuing party), <c>ClientUrls</c> (the URL of each of its client applications, by name) and
+    /// <c>Token</c>; the registration link is <c>{ClientUrl}/auth/register/{Token}</c>.
+    /// <para>
+    /// The URLs are the ones the issuing party states about itself (its description, see CK.AppIdentity): when it has no
+    /// client application URL, no mail is sent (an error is logged) and false is returned.
+    /// </para>
     /// </summary>
     /// <param name="monitor">The activity monitor.</param>
     /// <param name="destination">The recipient e-mail address.</param>
     /// <param name="token">The invitation token to embed in the registration link.</param>
     /// <param name="extendedCultureId">The extended culture identifier used to pick the template (falls back to French).</param>
-    Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId );
+    /// <param name="issuingPartyId">The PartyActorId of the party through which the invitation is issued (0: the local party).</param>
+    /// <returns>True if the mail has been sent, false when no client application URL is known for the party.</returns>
+    Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, int issuingPartyId );
 }

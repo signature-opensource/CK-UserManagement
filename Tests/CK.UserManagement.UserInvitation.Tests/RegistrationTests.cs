@@ -16,7 +16,7 @@ public class RegistrationTests : UserInvitationTestBase
         using var ctx = new SqlTransactionCallContext();
         var cmd = Env.PocoDirectory.Create<IValidateInvitationTokenCommand>( c => c.Token = "not-a-valid-token" );
 
-        var result = await Env.Handler.ValidateInvitationTokenAsync( ctx, cmd, Env.Service );
+        var result = await Env.Handler.ValidateInvitationTokenAsync( ctx, cmd, Env.Service, AuthenticationInfo.None );
 
         result.UserMessage!.Value.Level.ShouldBe( UserMessageLevel.Error );
         result.User.ShouldBeNull();
@@ -36,7 +36,7 @@ public class RegistrationTests : UserInvitationTestBase
             c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
-        await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
         invitation.ShouldNotBeNull();
@@ -46,7 +46,7 @@ public class RegistrationTests : UserInvitationTestBase
 
         // The token validates and resolves the pending user.
         var validate = Env.PocoDirectory.Create<IValidateInvitationTokenCommand>( c => c.Token = token );
-        var validateResult = await Env.Handler.ValidateInvitationTokenAsync( ctx, validate, Env.Service );
+        var validateResult = await Env.Handler.ValidateInvitationTokenAsync( ctx, validate, Env.Service, AuthenticationInfo.None );
         validateResult.User.ShouldNotBeNull();
         validateResult.User!.Email.ShouldBe( email );
 
@@ -59,7 +59,7 @@ public class RegistrationTests : UserInvitationTestBase
             c.Password = "Password123!";
             c.Token = token;
         } );
-        var completeResult = await Env.Handler.CompleteRegistrationAsync( ctx, complete, Env.UserTable, Env.Service );
+        var completeResult = await Env.Handler.CompleteRegistrationAsync( ctx, complete, Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         completeResult.Level.ShouldBe( UserMessageLevel.Info );
         ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) ).ShouldBeNull();
@@ -110,7 +110,7 @@ public class RegistrationTests : UserInvitationTestBase
         // service directly lets us pin the exact translation key.
         var (email, token) = await CreateInvitationAsync( ctx );
         var ex = await Should.ThrowAsync<ArgumentException>(
-            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", token, "Password123!", TestEnv.FrenchExtendedCultureId, userName ) );
+            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", token, "Password123!", TestEnv.FrenchExtendedCultureId, 0, userName ) );
         ex.Message.ShouldBe( "User.UserNameAlreadyTaken" );
     }
 
@@ -129,6 +129,53 @@ public class RegistrationTests : UserInvitationTestBase
              .ShouldHaveSingleItem();
     }
 
+    [Test]
+    public async Task an_invitation_is_redeemed_only_through_its_issuing_party_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var email = TestEnv.NewEmail();
+        // Issued through the party #1 (an actor: the System one here).
+        ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyId: 1 ) )
+            .Level.ShouldBe( UserMessageLevel.Info );
+        Env.Mailer.Sent.ShouldContain( s => s.Destination == email && s.IssuingPartyId == 1, "The link targets the issuing party." );
+        var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
+        var token = Encoding.UTF8.GetString( ( await Env.InvitationQueries.GetInvitationSecretAsync( ctx, invitation!.InvitationId ) )! );
+
+        // Through another party: refused, with the same answer as an invalid invitation.
+        ( await Should.ThrowAsync<InvalidOperationException>( Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 3712 ) ) )
+            .Message.ShouldBe( "User.InvitationError" );
+        // Through its party: accepted.
+        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 1 ) ).Email.ShouldBe( email );
+    }
+
+    [Test]
+    public async Task an_unbound_invitation_is_redeemed_through_any_party_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        // Created before the issuing party was recorded (0: unbound).
+        var (email, token) = await CreateInvitationAsync( ctx );
+        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 3712 ) ).Email.ShouldBe( email );
+    }
+
+    [Test]
+    public async Task without_a_client_application_URL_for_its_party_the_invitation_mail_is_not_sent_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var email = TestEnv.NewEmail();
+        Env.Mailer.HasClientUrl = false;
+        try
+        {
+            ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyId: 0 ) )
+                .Level.ShouldBe( UserMessageLevel.Error, "The invitation is created, its mail is not sent: the administrator is told." );
+        }
+        finally
+        {
+            Env.Mailer.HasClientUrl = true;
+        }
+        Env.Mailer.Sent.ShouldNotContain( s => s.Destination == email );
+        ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) ).ShouldNotBeNull( "It can be resent once the party states its URL." );
+    }
+
     /// <summary>
     /// Creates an invitation (in the test workspace group) for a fresh e-mail and returns the e-mail
     /// together with its registration token.
@@ -145,7 +192,7 @@ public class RegistrationTests : UserInvitationTestBase
             c.ExtendedCultureId = TestEnv.FrenchExtendedCultureId;
             c.Groups.Add( Env.WorkspaceGroupId );
         } );
-        await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, create, Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
         var secret = await Env.InvitationQueries.GetInvitationSecretAsync( ctx, invitation!.InvitationId );
@@ -169,7 +216,7 @@ public class RegistrationTests : UserInvitationTestBase
             c.Token = token;
             c.UserName = userName;
         } );
-        var result = await Env.Handler.CompleteRegistrationAsync( ctx, complete, Env.UserTable, Env.Service );
+        var result = await Env.Handler.CompleteRegistrationAsync( ctx, complete, Env.UserTable, Env.Service, AuthenticationInfo.None );
         return (email, result);
     }
 }

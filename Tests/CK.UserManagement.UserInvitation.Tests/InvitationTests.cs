@@ -25,7 +25,7 @@ public class InvitationTests : UserInvitationTestBase
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
 
-        var result = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        var result = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         result.Level.ShouldBe( UserMessageLevel.Info );
         Env.Mailer.Sent.ShouldContain( s => s.Destination == email );
@@ -38,10 +38,10 @@ public class InvitationTests : UserInvitationTestBase
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
 
-        ( await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service ) )
+        ( await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None ) )
             .Level.ShouldBe( UserMessageLevel.Info );
 
-        var second = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        var second = await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
         second.Level.ShouldBe( UserMessageLevel.Error );
     }
 
@@ -50,7 +50,7 @@ public class InvitationTests : UserInvitationTestBase
     {
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
-        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         var platform = await Env.Handler.GetPlatformPendingInvitationsAsync(
             ctx, Env.PocoDirectory.Create<IGetPlatformPendingInvitationsQCommand>(), Env.InvitationQueries );
@@ -68,7 +68,7 @@ public class InvitationTests : UserInvitationTestBase
     {
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
-        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
         int before = Env.Mailer.Sent.Count( s => s.Destination == email );
 
         var resend = Env.PocoDirectory.Create<IResendInvitationsCommand>( c =>
@@ -82,7 +82,7 @@ public class InvitationTests : UserInvitationTestBase
             } ) );
         } );
 
-        var result = await Env.Handler.ResendInvitationsAsync( ctx, resend, Env.UserTable, Env.Service );
+        var result = await Env.Handler.ResendInvitationsAsync( ctx, resend, Env.UserTable, Env.Service, AuthenticationInfo.None );
 
         result.Level.ShouldBe( UserMessageLevel.Info );
         Env.Mailer.Sent.Count( s => s.Destination == email ).ShouldBeGreaterThan( before );
@@ -93,7 +93,7 @@ public class InvitationTests : UserInvitationTestBase
     {
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
-        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
         ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) )!.IsActive.ShouldBeTrue();
 
         var deactivate = Env.PocoDirectory.Create<IDeactivateInvitationsCommand>( c =>
@@ -117,7 +117,7 @@ public class InvitationTests : UserInvitationTestBase
     {
         var email = TestEnv.NewEmail();
         using var ctx = new SqlTransactionCallContext();
-        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service );
+        await Env.Handler.CreateInvitationAsync( ctx, NewCreateInvitation( email ), Env.UserTable, Env.Service, AuthenticationInfo.None );
         ( await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email ) ).ShouldNotBeNull();
 
         var destroy = Env.PocoDirectory.Create<IDestroyInvitationsCommand>( c =>

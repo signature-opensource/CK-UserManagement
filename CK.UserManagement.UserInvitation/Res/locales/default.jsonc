@@ -11,6 +11,7 @@
 
     // Invitation / registration flow
     "User.InvitationAlreadyExists": "An invitation already exists for this e-mail address.",
+    "User.InvitationMailNotSent": "The invitation is created, but its e-mail could not be sent.",
     "User.InvitationValidated": "Your invitation has been validated. Please complete your registration.",
     "User.InvitationError": "Your invitation is no longer valid. Please contact your administrator.",
     "User.RegistrationCompleted": "Registration successful. You can now log-in with your credentials.",

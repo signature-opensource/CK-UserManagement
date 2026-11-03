@@ -18,44 +18,54 @@ public class UserManagementMailer : IUserManagementMailer
 {
     readonly IFluidTemplateService _fluid;
     readonly PocoDirectory _pocoDir;
-    readonly IFrontUrlResolver _frontUrlResolver;
+    readonly CurrentLocalParty _localParty;
 
     readonly IDefaultEmailSender _emailSender;
     readonly IMailBrandingProvider _brandingProvider;
-    readonly string _frontUrl;
 
     public UserManagementMailer( IFluidTemplateService fluid,
                                  PocoDirectory pocoDir,
-                                 IFrontUrlResolver frontUrlResolver,
+                                 CurrentLocalParty localParty,
                                  IDefaultEmailSender emailSender,
                                  IMailBrandingProvider brandingProvider
                                )
     {
         _fluid = fluid;
         _pocoDir = pocoDir;
-        _frontUrlResolver = frontUrlResolver;
+        _localParty = localParty;
         _emailSender = emailSender;
         _brandingProvider = brandingProvider;
-
-        _frontUrl = _frontUrlResolver.ResolveFrontUrl();
     }
 
-    public async Task SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId )
+    public async Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, int issuingPartyId )
     {
+        // The links target the client applications of the issuing party: what it states about itself, never the request.
+        var party = _localParty.LocalParty.FindCallerParty( issuingPartyId );
+        var clientUrl = party?.Description.GetClientApplicationUrl();
+        if( party == null || clientUrl == null )
+        {
+            monitor.Error( $"No invitation mail sent: the issuing party ({party?.FullName.Path ?? $"#{issuingPartyId}"}) has no public URL or no default client application. (Email: {destination})" );
+            return false;
+        }
         var culture = ExtendedCultureInfo.All.FindExtendedCultureInfo( extendedCultureId )?.PrimaryCulture
                       ?? NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" );
         var model = _pocoDir.Create<IUserInvitationModel>( m =>
         {
-            m.FrontUrl = _frontUrl;
+            m.ClientUrl = clientUrl;
+            foreach( var a in party.Description.ClientApplications )
+            {
+                m.ClientUrls[a.Name] = party.Description.GetClientApplicationUrl( a.Name )!;
+            }
             m.Token = token;
         } );
 
         var subject = await _fluid.RenderAsync( "UserInvitation.Subject", culture, model );
-        var (html, inlineLogo) = await RenderWithLayoutAsync( "UserInvitation.Body", culture, model, _frontUrl );
+        var (html, inlineLogo) = await RenderWithLayoutAsync( "UserInvitation.Body", culture, model, clientUrl );
 
         await SendAsync( monitor, destination, subject, html, inlineLogo );
 
-        monitor.Info( $"User invitation e-mail sent. (Email: {destination}, Culture: {culture.Name})" );
+        monitor.Info( $"User invitation e-mail sent. (Email: {destination}, Culture: {culture.Name}, Party: {party.FullName})" );
+        return true;
     }
 
 
@@ -72,7 +82,7 @@ public class UserManagementMailer : IUserManagementMailer
     /// remote-image blocking) and the layout's <c>logoUrl</c> becomes
     /// <c>cid:&lt;ContentId&gt;</c>. Otherwise it falls back to
     /// <see cref="IMailBranding.LogoUrl"/> (absolute kept as-is, relative
-    /// prepended with <paramref name="frontUrl"/>).
+    /// prepended with <paramref name="clientUrl"/>).
     /// </para>
     /// </summary>
     /// <returns>A tuple with the rendered HTML and an optional inline logo
@@ -81,7 +91,7 @@ public class UserManagementMailer : IUserManagementMailer
     async Task<(string html, Attachment? inlineLogo)> RenderWithLayoutAsync( string bodyTemplateName,
                                                                              NormalizedCultureInfo culture,
                                                                              object model,
-                                                                             string frontUrl )
+                                                                             string clientUrl )
     {
         var branding = _brandingProvider.GetBranding();
         var ambient = new Dictionary<string, object> { ["branding"] = branding };
@@ -105,25 +115,25 @@ public class UserManagementMailer : IUserManagementMailer
         }
         else
         {
-            logoUrl = ResolveLogoUrl( branding.LogoUrl, frontUrl );
+            logoUrl = ResolveLogoUrl( branding.LogoUrl, clientUrl );
         }
 
-        var layoutModel = new { bodyHtml, frontUrl, logoUrl, branding };
+        var layoutModel = new { bodyHtml, clientUrl, logoUrl, branding };
         var html = await _fluid.RenderAsync( "_DefaultMailLayout", culture, layoutModel );
         return (html, inlineLogo);
     }
 
     /// <summary>
-    /// Resolves <see cref="IMailBranding.LogoUrl"/> against the current
-    /// <paramref name="frontUrl"/>. Absolute URLs are returned verbatim; a
-    /// relative path (<c>/logos/...</c>) gets <paramref name="frontUrl"/>
+    /// Resolves <see cref="IMailBranding.LogoUrl"/> against the
+    /// <paramref name="clientUrl"/>. Absolute URLs are returned verbatim; a
+    /// relative path (<c>/logos/...</c>) gets <paramref name="clientUrl"/>
     /// prepended; an empty value remains empty (layout hides the image).
     /// </summary>
-    static string ResolveLogoUrl( string logoUrl, string frontUrl )
+    static string ResolveLogoUrl( string logoUrl, string clientUrl )
     {
         if( string.IsNullOrEmpty( logoUrl ) ) return string.Empty;
         if( logoUrl.Contains( "://", StringComparison.Ordinal ) ) return logoUrl;
-        return string.IsNullOrEmpty( frontUrl ) ? logoUrl : frontUrl + logoUrl;
+        return string.IsNullOrEmpty( clientUrl ) ? logoUrl : clientUrl + logoUrl;
     }
 
     async Task SendAsync( IActivityMonitor monitor,

@@ -102,7 +102,8 @@ public class UserInvitationCommandHandler : IAutoService,
     public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx,
                                                                 ICreateInvitationCommand cmd,
                                                                 UserTable userTable,
-                                                                UserManagementService service )
+                                                                UserManagementService service,
+                                                                AuthenticationInfo authentication )
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
         using( ctx.Monitor.OpenInfo( $"Handling {nameof( ICreateInvitationCommand )} command. (ActorId: {actorId}, WorkspaceId: {cmd.CurrentWorkspaceId.GetValueOrDefault()})" ) )
@@ -111,7 +112,7 @@ public class UserInvitationCommandHandler : IAutoService,
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.ExtendedCultureId, cmd.Groups );
+                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.ExtendedCultureId, cmd.Groups, authentication.CallerPartyId );
                     transaction.Commit();
                     return message;
                 }
@@ -128,22 +129,26 @@ public class UserInvitationCommandHandler : IAutoService,
     public async Task<SimpleUserMessage> ResendInvitationsAsync( ISqlTransactionCallContext ctx,
                                                                  IResendInvitationsCommand cmd,
                                                                  UserTable userTable,
-                                                                 UserManagementService service )
+                                                                 UserManagementService service,
+                                                                 AuthenticationInfo authentication )
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
         using( ctx.Monitor.OpenInfo( $"Handling {nameof( IResendInvitationsCommand )} command. (ActorId: {actorId}, Count: {cmd.Invitations.Count})" ) )
         {
             try
             {
+                bool allSent = true;
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
                     foreach( var inv in cmd.Invitations )
                     {
-                        await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.ExtendedCultureId );
+                        allSent &= await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.ExtendedCultureId, authentication.CallerPartyId );
                     }
                     transaction.Commit();
                 }
-                return _currentCulture.InfoMessage( "Invitations were successfully sent.", "CrisSuccess.InvitationsResend" );
+                return allSent
+                        ? _currentCulture.InfoMessage( "Invitations were successfully sent.", "CrisSuccess.InvitationsResend" )
+                        : _currentCulture.ErrorMessage( "The invitations are re-activated, but their e-mails could not be sent.", "User.InvitationMailNotSent" );
             }
             catch( Exception e )
             {
@@ -214,13 +219,14 @@ public class UserInvitationCommandHandler : IAutoService,
     [CommandHandler]
     public async Task<IValidateInvitationTokenResult> ValidateInvitationTokenAsync( ISqlCallContext ctx,
                                                                                     IValidateInvitationTokenCommand cmd,
-                                                                                    UserManagementService service )
+                                                                                    UserManagementService service,
+                                                                                    AuthenticationInfo authentication )
     {
         using( ctx.Monitor.OpenInfo( $"Handling {nameof( IValidateInvitationTokenCommand )} command." ) )
         {
             try
             {
-                var pendingUser = await service.ValidateInvitationAsync( ctx, cmd.Token );
+                var pendingUser = await service.ValidateInvitationAsync( ctx, cmd.Token, authentication.CallerPartyId );
                 return cmd.CreateResult( r =>
                 {
                     r.User = pendingUser;
@@ -242,7 +248,8 @@ public class UserInvitationCommandHandler : IAutoService,
     public async Task<SimpleUserMessage> CompleteRegistrationAsync( ISqlTransactionCallContext ctx,
                                                                     ICompleteRegistrationCommand cmd,
                                                                     UserTable userTable,
-                                                                    UserManagementService service )
+                                                                    UserManagementService service,
+                                                                    AuthenticationInfo authentication )
     {
         using( ctx.Monitor.OpenInfo( $"Handling {nameof( ICompleteRegistrationCommand )} command." ) )
         {
@@ -250,7 +257,7 @@ public class UserInvitationCommandHandler : IAutoService,
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Token, cmd.Password, cmd.ExtendedCultureId, cmd.UserName );
+                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Token, cmd.Password, cmd.ExtendedCultureId, authentication.CallerPartyId, cmd.UserName );
                     transaction.Commit();
                 }
                 return _currentCulture.InfoMessage( "Registration successful. You can now log-in with your credentials.", "User.RegistrationCompleted" );
