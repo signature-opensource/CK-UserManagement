@@ -11,6 +11,9 @@
     // WorkspaceScopeValidator
     "Admin.UserOutOfScope": "Vous ne pouvez pas administrer cet utilisateur depuis cet espace de travail.",
     "Admin.GroupOutOfScope": "Un groupe n'appartient pas à cet espace de travail.",
+    "Admin.GroupAboveActorLevel": "Un groupe donne plus de droits que les vôtres sur cet espace de travail.",
+    "Admin.SelfAdministration": "Votre propre compte se gère depuis votre profil.",
+    "Admin.ProtectedAccount": "Seul un administrateur de la plateforme peut changer le mot de passe ou l'e-mail d'un administrateur.",
 
     // UserMessageExtensions (generic answers)
     "CrisError.ExceptionCaught": "Une erreur est survenue.",

@@ -87,7 +87,8 @@ public class UserManagementQueries : IAutoService
     /// <summary>
     /// Returns the groups of the workspace that the user and invitation forms show: every group of the workspace
     /// zone except the System group. An application that must hide some groups can specialize
-    /// <see cref="UserManagementQueries"/> and override this method.
+    /// <see cref="UserManagementQueries"/> and override this method: <see cref="WorkspaceScopeValidator"/> refuses the
+    /// groups that this method doesn't return, so a hidden group cannot be given through the API either.
     /// </summary>
     /// <param name="ctx">The call context.</param>
     /// <param name="workspaceId">The workspace.</param>
@@ -130,25 +131,28 @@ public class UserManagementQueries : IAutoService
     }
 
     /// <summary>
-    /// Returns the identifiers in <paramref name="groupIds"/> that are not the workspace and not a group of the
-    /// workspace. An unknown identifier is returned. An empty input returns an empty list with no SQL call.
+    /// Returns the grant level that each group of <paramref name="groupIds"/> has on the ACL of the workspace (the
+    /// greatest one, the denials are ignored). A group without grant is not in the result. An empty input returns an
+    /// empty result with no SQL call.
     /// </summary>
     /// <param name="ctx">The call context.</param>
     /// <param name="workspaceId">The workspace.</param>
-    /// <param name="groupIds">The group identifiers to check.</param>
-    /// <returns>The distinct identifiers outside the workspace.</returns>
-    public async Task<IReadOnlyList<int>> GetGroupsOutsideWorkspaceAsync( ISqlCallContext ctx, int workspaceId, IEnumerable<int> groupIds )
+    /// <param name="groupIds">The group identifiers.</param>
+    /// <returns>The grant level by group identifier.</returns>
+    public async Task<IReadOnlyDictionary<int, byte>> GetWorkspaceGroupGrantLevelsAsync( ISqlCallContext ctx, int workspaceId, IEnumerable<int> groupIds )
     {
         var ids = groupIds.Distinct().ToList();
-        if( ids.Count == 0 ) return [];
-        var inside = await ctx[_userTable].QueryAsync<int>(
+        if( ids.Count == 0 ) return new Dictionary<int, byte>();
+        var levels = await ctx[_userTable].QueryAsync<(int GroupId, byte GrantLevel)>(
             """
-            select GroupId
-              from CK.vGroup
-              where GroupId in @Ids and GroupId > 1 and (GroupId = @WorkspaceId or ZoneId = @WorkspaceId);
+            select GroupId = c.ActorId, GrantLevel = max( c.GrantLevel )
+              from CK.tAclConfig c
+                  inner join CK.tWorkspace w on w.AclId = c.AclId
+              where w.WorkspaceId = @WorkspaceId and c.ActorId in @Ids and c.GrantLevel <= 127
+              group by c.ActorId;
             """,
             new { Ids = ids, WorkspaceId = workspaceId } );
-        return ids.Except( inside ).ToList();
+        return levels.ToDictionary( l => l.GroupId, l => l.GrantLevel );
     }
 
     /// <summary>

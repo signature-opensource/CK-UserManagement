@@ -14,7 +14,7 @@
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
         <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.0.ci.30" />
 
-        <!-- Workspace owns CK.fUserWorkspaceGrantLevel used by the injected security check. -->
+        <!-- Workspace owns CK.tWorkspace, read by CK.fUserAdministrationCheck (the injected security check). -->
         <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.0.ci.27" />
 
         <!-- Back-end localized messages. -->

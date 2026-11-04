@@ -96,6 +96,7 @@ public sealed class TestEnv
         var emailTable = map.StObjs.Obtain<ActorEMailTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
+        var actorLevel = new ActorWorkspaceLevel( workspaceTable );
         var invitationPackage = map.StObjs.Obtain<CK.DB.UserInvitation.Package>()!;
         var preferredCulturePackage = map.StObjs.Obtain<CK.DB.User.PreferredCulture.Package>()!;
         var aclTable = map.StObjs.Obtain<AclTable>()!;
@@ -137,12 +138,15 @@ public sealed class TestEnv
             Handler = handler,
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
-                        .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, coreQueries, currentCulture ) )
-                        .Register( "InvitationScopeValidator.ValidateInvitationsAsync",
-                                   ( ctx, c, cmd ) => new InvitationScopeValidator( userTable, workspaceTable, invitationQueries, currentCulture )
+                        .RegisterAdminValidator( new AdminCommandValidator( userTable, actorLevel, currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, actorLevel, coreQueries, currentCulture ) )
+                        .Register<InvitationScopeValidator>( nameof( InvitationScopeValidator.ValidateInvitationsAsync ),
+                                   ( ctx, c, cmd ) => new InvitationScopeValidator( userTable, actorLevel, invitationQueries, currentCulture )
                                                           .ValidateInvitationsAsync( ctx, c, (CK.IO.UserManagement.ICommandWorkspaceInvitations)cmd ) )
-                        .Register( "BannedActorValidator.ValidateNotBannedAsync",
+                        .Register<UserEMailValidator>( nameof( UserEMailValidator.ValidateEMailChangeAsync ),
+                                   ( ctx, c, cmd ) => new UserEMailValidator( userTable, actorLevel, invitationQueries, currentCulture )
+                                                          .ValidateEMailChangeAsync( ctx, c, (CK.IO.UserManagement.UserInvitation.IEditWorkspaceUserCommand)cmd ) )
+                        .Register<CK.DB.User.UserBanned.BannedActorValidator>( nameof( CK.DB.User.UserBanned.BannedActorValidator.ValidateNotBannedAsync ),
                                    ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),
             Mailer = mailer,
             UserTable = userTable,

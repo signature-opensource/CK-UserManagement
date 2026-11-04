@@ -145,4 +145,30 @@ public class WorkspaceUserTargetTests : UserManagementTestBase
         changed.ShouldBeFalse();
         outcome.ErrorResNames.ShouldBe( ["Admin.NotAuthorized"] );
     }
+
+    [Test]
+    public async Task only_a_platform_admin_resets_the_password_of_a_workspace_administrator_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int peer = await Scenario.NewUserAsync( ctx, w );
+        await Scenario.GrantWorkspaceAdminAsync( ctx, w, peer );
+
+        var (outcome, changed) = await ForceResetAsync( ctx, admin, w, peer );
+
+        changed.ShouldBeFalse();
+        outcome.ErrorResNames.ShouldBe( ["Admin.ProtectedAccount"] );
+    }
+
+    [Test]
+    public async Task an_admin_manages_its_own_account_from_its_profile_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+
+        var (outcome, changed) = await ForceResetAsync( ctx, admin, w, admin );
+
+        changed.ShouldBeFalse();
+        outcome.ErrorResNames.ShouldBe( ["Admin.SelfAdministration"] );
+    }
 }

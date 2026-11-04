@@ -18,5 +18,17 @@ public enum UserAdministrationCheck : byte
     ProtectedUser = 3,
 
     /// <summary>The user is a member of a workspace where the actor is below SafeAdministrator (112).</summary>
-    UnadministeredWorkspace = 4
+    UnadministeredWorkspace = 4,
+
+    /// <summary>The user is the actor: an actor manages its own account with the profile commands.</summary>
+    SelfAdministration = 5,
+
+    /// <summary>The user has a higher level than the actor on one of its workspaces.</summary>
+    HigherLevelUser = 6,
+
+    /// <summary>
+    /// The action gives the account to the actor (its password, its primary e-mail) and the user has SafeAdministrator
+    /// (112) or more on one of its workspaces: only a platform administrator can do it.
+    /// </summary>
+    ProtectedAccount = 7
 }

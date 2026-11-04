@@ -22,16 +22,16 @@ namespace CK.UserManagement;
 public class AdminCommandValidator : IAutoService
 {
     private readonly UserTable _userTable;
-    private readonly WorkspaceTable _workspaceTable;
+    private readonly ActorWorkspaceLevel _actorLevel;
     private readonly CurrentCultureInfo _culture;
 
     public AdminCommandValidator(
         UserTable userTable,
-        WorkspaceTable workspaceTable,
+        ActorWorkspaceLevel actorLevel,
         CurrentCultureInfo culture )
     {
         _userTable = userTable;
-        _workspaceTable = workspaceTable;
+        _actorLevel = actorLevel;
         _culture = culture;
     }
 
@@ -54,7 +54,8 @@ public class AdminCommandValidator : IAutoService
             return;
         }
 
-        var grantLevel = await _workspaceTable.GetUserWorkspaceGrantLevelAsync( ctx, actorId, workspaceId );
+        // The level is shared with the scope validators of the command.
+        var grantLevel = await _actorLevel.GetAsync( ctx, cmd );
 
         if( grantLevel >= (byte)GrantLevel.SafeAdministrator )
         {

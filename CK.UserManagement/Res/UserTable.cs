@@ -25,15 +25,18 @@ public abstract class UserTable : DB.Actor.UserTable
 
     /// <summary>
     /// Checks if an actor can administer a user from a workspace. The actor can do it when the actor is a
-    /// platform administrator. Otherwise, the user must be a member of the workspace, must not be a platform
-    /// administrator or a System group member, and the actor must have SafeAdministrator (112) or more on
-    /// every workspace of the user.
+    /// platform administrator. Otherwise, the user must not be the actor, must be a member of the workspace, must
+    /// not be a platform administrator or a System group member, and on every workspace of the user the actor must
+    /// have SafeAdministrator (112) or more and at least the level of the user. An action that gives the account to
+    /// the actor (<paramref name="accountTakeover"/>: its password, its primary e-mail) is refused for a user that has
+    /// SafeAdministrator (112) or more on one of its workspaces: only a platform administrator can do it.
     /// </summary>
     /// <param name="ctx">The call context.</param>
     /// <param name="actorId">The acting actor identifier.</param>
     /// <param name="workspaceId">The workspace from which the actor acts.</param>
     /// <param name="userId">The user to administer.</param>
+    /// <param name="accountTakeover">Whether the action gives the account to the actor (its password, its primary e-mail).</param>
     /// <returns>A <see cref="UserAdministrationCheck"/> value: 0 (<see cref="UserAdministrationCheck.Allowed"/>) or the reason of the refusal.</returns>
     [SqlScalarFunction( "fUserAdministrationCheck" )]
-    public abstract Task<byte> CheckUserAdministrationAsync( ISqlCallContext ctx, int actorId, int workspaceId, int userId );
+    public abstract Task<byte> CheckUserAdministrationAsync( ISqlCallContext ctx, int actorId, int workspaceId, int userId, bool accountTakeover );
 }

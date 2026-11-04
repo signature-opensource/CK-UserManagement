@@ -76,6 +76,7 @@ public sealed class TestEnv
         var groupTable = map.StObjs.Obtain<GroupTable>()!;
         var workspacePackage = map.StObjs.Obtain<CK.DB.Workspace.Package>()!;
         var workspaceTable = map.StObjs.Obtain<CK.DB.Workspace.WorkspaceTable>()!;
+        var actorLevel = new ActorWorkspaceLevel( workspaceTable );
         var aclTable = map.StObjs.Obtain<AclTable>()!;
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
@@ -110,9 +111,9 @@ public sealed class TestEnv
             UserBannedQueries = userBannedQueries,
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
-                        .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, new UserManagementQueries( userTable ), currentCulture ) )
-                        .Register( "BannedActorValidator.ValidateNotBannedAsync",
+                        .RegisterAdminValidator( new AdminCommandValidator( userTable, actorLevel, currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, actorLevel, new UserManagementQueries( userTable ), currentCulture ) )
+                        .Register<CK.DB.User.UserBanned.BannedActorValidator>( nameof( CK.DB.User.UserBanned.BannedActorValidator.ValidateNotBannedAsync ),
                                    ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),
             UserTable = userTable,
             UserBannedPackage = userBannedPackage,

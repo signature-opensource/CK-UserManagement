@@ -109,7 +109,8 @@ public sealed class TestEnv
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
         var queries = new UserManagementQueries( userTable );
         var handler = new UserManagementCommandHandler( currentCulture );
-        var validator = new AdminCommandValidator( userTable, workspaceTable, currentCulture );
+        var actorLevel = new ActorWorkspaceLevel( workspaceTable );
+        var validator = new AdminCommandValidator( userTable, actorLevel, currentCulture );
 
         int workspaceId, adminId, memberId, groupId;
         var suffix = Guid.NewGuid().ToString( "N" ).Substring( 0, 8 );
@@ -142,7 +143,7 @@ public sealed class TestEnv
             CurrentCulture = currentCulture,
             Pipeline = new CrisValidationPipeline( currentCulture )
                         .RegisterAdminValidator( validator )
-                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, queries, currentCulture ) ),
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, actorLevel, queries, currentCulture ) ),
             UserTable = userTable,
             GroupTable = groupTable,
             NamedUserTable = namedUserTable,

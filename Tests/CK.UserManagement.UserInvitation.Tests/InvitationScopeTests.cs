@@ -211,4 +211,54 @@ public class InvitationScopeTests : UserInvitationTestBase
         ( await Env.InvitationQueries.GetPrimaryEmailAsync( ctx, target ) ).ShouldBe( originalEmail );
         outcome.ErrorResNames.ShouldContain( "Admin.UserOutOfScope" );
     }
+
+    async Task<CrisOutcome> EditEmailAsync( ISqlTransactionCallContext ctx, int admin, int w, int target, string email )
+    {
+        var userName = await Scenario.UserNameOfAsync( ctx, target );
+        var cmd = Env.PocoDirectory.Create<CK.IO.UserManagement.UserInvitation.IEditWorkspaceUserCommand>( c =>
+        {
+            c.ActorId = admin;
+            c.CurrentWorkspaceId = w;
+            c.UserId = target;
+            c.UserName = userName;
+            c.FirstName = "Peer";
+            c.LastName = "Admin";
+            c.Email = email;
+        } );
+        return await Env.Pipeline.RunAsync( ctx, cmd,
+            () => Env.Handler.EditWorkspaceUserAsync( ctx, cmd, Env.UserTable, Env.NamedUserTable, Env.GroupTable,
+                                                      Env.PreferredCulturePackage, Env.EmailTable, Env.Queries, Env.InvitationQueries ) );
+    }
+
+    [Test]
+    public async Task only_a_platform_admin_changes_the_email_of_a_workspace_administrator_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int peer = await Scenario.NewUserAsync( ctx, w );
+        await Scenario.GrantWorkspaceAdminAsync( ctx, w, peer );
+        var originalEmail = TestEnv.NewEmail();
+        await Env.EmailTable.AddEMailAsync( ctx, 1, peer, originalEmail, isPrimary: true );
+
+        var outcome = await EditEmailAsync( ctx, admin, w, peer, TestEnv.NewEmail() );
+
+        ( await Env.InvitationQueries.GetPrimaryEmailAsync( ctx, peer ) ).ShouldBe( originalEmail );
+        outcome.ErrorResNames.ShouldBe( ["Admin.ProtectedAccount"] );
+    }
+
+    [Test]
+    public async Task an_administrator_edits_a_peer_when_its_email_does_not_change_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int peer = await Scenario.NewUserAsync( ctx, w );
+        await Scenario.GrantWorkspaceAdminAsync( ctx, w, peer );
+        var originalEmail = TestEnv.NewEmail();
+        await Env.EmailTable.AddEMailAsync( ctx, 1, peer, originalEmail, isPrimary: true );
+
+        var outcome = await EditEmailAsync( ctx, admin, w, peer, originalEmail.ToUpperInvariant() );
+
+        outcome.Refused.ShouldBeFalse();
+        ( await Env.InvitationQueries.GetPrimaryEmailAsync( ctx, peer ) ).ShouldBe( originalEmail );
+    }
 }

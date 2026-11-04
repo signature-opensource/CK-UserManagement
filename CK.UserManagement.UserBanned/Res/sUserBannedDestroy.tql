@@ -15,7 +15,7 @@ begin
     inject "
     if @WorkspaceId <> 0
     begin
-        if CK.fUserAdministrationCheck( @ActorId, @WorkspaceId, @UserId ) = 0
+        if CK.fUserAdministrationCheck( @ActorId, @WorkspaceId, @UserId, 0 ) = 0
             set @CanContinue = 1;
         else
             set @CanContinue = 0;

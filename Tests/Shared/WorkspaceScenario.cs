@@ -67,6 +67,17 @@ public sealed class WorkspaceScenario
         await _aclTable.AclGrantSetAsync( ctx, 1, aclId, userId, "ScopeTestWorkspaceAdmin", 127 );
     }
 
+    /// <summary>Gives a level on the workspace ACL to the user (it replaces the level of <see cref="GrantWorkspaceAdminAsync"/>).</summary>
+    public async Task GrantWorkspaceLevelAsync( ISqlCallContext ctx, int workspaceId, int userId, byte level )
+    {
+        int aclId = await ctx[_userTable].QuerySingleAsync<int>( "select AclId from CK.tWorkspace where WorkspaceId = @W;", new { W = workspaceId } );
+        await _aclTable.AclGrantSetAsync( ctx, 1, aclId, userId, "ScopeTestWorkspaceAdmin", level );
+    }
+
+    /// <summary>Gets the "Administrators" group of the workspace (level 127 on the workspace ACL).</summary>
+    public Task<int> AdministratorsGroupOfAsync( ISqlCallContext ctx, int workspaceId )
+        => ctx[_userTable].QuerySingleAsync<int>( "select AdminGroupId from CK.tWorkspace where WorkspaceId = @W;", new { W = workspaceId } );
+
     /// <summary>Adds the user to the platform administrators group.</summary>
     public Task MakePlatformAdminAsync( ISqlCallContext ctx, int userId )
         => _groupTable.AddMemberAsync( ctx, 1, PlatformAdminGroupId, userId, autoAddMemberInZone: true );

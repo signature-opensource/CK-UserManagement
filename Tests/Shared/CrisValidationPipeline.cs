@@ -18,8 +18,13 @@ public sealed record CrisOutcome( bool Refused, IReadOnlyList<string> ErrorResNa
 /// <para>
 /// The pipeline reads the validators of the command from the generated CRIS model. It fails the test
 /// when the model has a validator that is not registered, so that a new validator cannot be silently
-/// skipped. It runs all the registered validators in model order. When no validator collected an
-/// error, it runs the handler.
+/// skipped. Like CRIS, it runs the incoming validators first: when one of them collected an error, the
+/// command is refused before the handling validators. Then it runs all the handling validators (in model
+/// order): when no validator collected an error, it runs the handler.
+/// </para>
+/// <para>
+/// A validator is registered with its type and the <c>nameof</c> of its method: renaming the method breaks
+/// the compilation of the registration instead of silently skipping the validator.
 /// </para>
 /// <para>
 /// Two incoming validators are ignored. <c>CrisCultureService</c> checks only the culture name.
@@ -38,14 +43,16 @@ public sealed class CrisValidationPipeline
     }
 
     /// <summary>
-    /// Registers a validator.
+    /// Registers a validator method of <typeparamref name="TValidator"/>.
     /// </summary>
-    /// <param name="validator">The name of the validator: "&lt;ClassName&gt;.&lt;MethodName&gt;".</param>
+    /// <typeparam name="TValidator">The type that defines the validator method.</typeparam>
+    /// <param name="methodName">The <c>nameof</c> of the validator method.</param>
     /// <param name="run">Runs the validator on the command.</param>
     /// <returns>This pipeline.</returns>
-    public CrisValidationPipeline Register( string validator, Func<ISqlCallContext, UserMessageCollector, ICrisPoco, Task> run )
+    public CrisValidationPipeline Register<TValidator>( string methodName, Func<ISqlCallContext, UserMessageCollector, ICrisPoco, Task> run )
     {
-        _validators.Add( validator, run );
+        typeof( TValidator ).GetMethod( methodName ).ShouldNotBeNull( $"{typeof( TValidator ).Name} has no method {methodName}." );
+        _validators.Add( $"{typeof( TValidator ).Name}.{methodName}", run );
         return this;
     }
 
@@ -55,9 +62,9 @@ public sealed class CrisValidationPipeline
     /// <param name="v">The validator.</param>
     /// <returns>This pipeline.</returns>
     public CrisValidationPipeline RegisterAdminValidator( AdminCommandValidator v )
-        => Register( "AdminCommandValidator.ValidateAdminCommandAsync",
+        => Register<AdminCommandValidator>( nameof( AdminCommandValidator.ValidateAdminCommandAsync ),
                      ( ctx, c, cmd ) => v.ValidateAdminCommandAsync( ctx, c, (CK.IO.Admin.ICommandWorkspaceAdmin)cmd ) )
-          .Register( "AdminCommandValidator.ValidatePlateformAdminCommandAsync",
+          .Register<AdminCommandValidator>( nameof( AdminCommandValidator.ValidatePlateformAdminCommandAsync ),
                      ( ctx, c, cmd ) => v.ValidatePlateformAdminCommandAsync( ctx, c, (CK.IO.Admin.ICommandPlatformAdmin)cmd ) );
 
     /// <summary>
@@ -66,9 +73,9 @@ public sealed class CrisValidationPipeline
     /// <param name="v">The validator.</param>
     /// <returns>This pipeline.</returns>
     public CrisValidationPipeline RegisterWorkspaceScopeValidator( WorkspaceScopeValidator v )
-        => Register( "WorkspaceScopeValidator.ValidateUserTargetAsync",
+        => Register<WorkspaceScopeValidator>( nameof( WorkspaceScopeValidator.ValidateUserTargetAsync ),
                      ( ctx, c, cmd ) => v.ValidateUserTargetAsync( ctx, c, (CK.IO.UserManagement.ICommandWorkspaceUserTarget)cmd ) )
-          .Register( "WorkspaceScopeValidator.ValidateWorkspaceGroupsAsync",
+          .Register<WorkspaceScopeValidator>( nameof( WorkspaceScopeValidator.ValidateWorkspaceGroupsAsync ),
                      ( ctx, c, cmd ) => v.ValidateWorkspaceGroupsAsync( ctx, c, (CK.IO.UserManagement.ICommandWorkspaceGroups)cmd ) );
 
     /// <summary>
@@ -82,19 +89,29 @@ public sealed class CrisValidationPipeline
     {
         var model = cmd.CrisPocoModel;
         model.IsHandled.ShouldBeTrue( $"{model.PocoName} must have a handler in this engine." );
-        var validators = model.Handlers
-                              .Where( h => h.Kind is CrisHandlerKind.IncomingValidator or CrisHandlerKind.CommandHandlingValidator )
+        List<string> GetValidators( CrisHandlerKind kind ) => model.Handlers
+                              .Where( h => h.Kind == kind )
                               .Select( h => $"{h.Type.ClassType.Name}.{h.MethodName}" )
                               .Where( v => !v.StartsWith( "CrisCultureService." )
                                            && v != "CrisAuthenticationService.ValidateAuthenticatedPart" )
                               .ToList();
-        var unknown = validators.Where( v => !_validators.ContainsKey( v ) ).ToList();
+        var incoming = GetValidators( CrisHandlerKind.IncomingValidator );
+        var handling = GetValidators( CrisHandlerKind.CommandHandlingValidator );
+        var unknown = incoming.Concat( handling ).Where( v => !_validators.ContainsKey( v ) ).ToList();
         unknown.ShouldBeEmpty( $"The test pipeline does not simulate these validators of {model.PocoName}." );
 
         var collector = new UserMessageCollector( _culture );
-        foreach( var v in validators )
+        foreach( var v in incoming )
         {
             await _validators[v]( ctx, collector, cmd );
+        }
+        // An incoming validation error refuses the command: the handling validators don't run.
+        if( collector.ErrorCount == 0 )
+        {
+            foreach( var v in handling )
+            {
+                await _validators[v]( ctx, collector, cmd );
+            }
         }
         if( collector.ErrorCount > 0 )
         {

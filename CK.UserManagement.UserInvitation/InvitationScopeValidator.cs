@@ -19,14 +19,14 @@ namespace CK.UserManagement.UserInvitation;
 public class InvitationScopeValidator : IAutoService
 {
     readonly UserTable _userTable;
-    readonly WorkspaceTable _workspaceTable;
+    readonly ActorWorkspaceLevel _actorLevel;
     readonly UserInvitationQueries _queries;
     readonly CurrentCultureInfo _culture;
 
-    public InvitationScopeValidator( UserTable userTable, WorkspaceTable workspaceTable, UserInvitationQueries queries, CurrentCultureInfo culture )
+    public InvitationScopeValidator( UserTable userTable, ActorWorkspaceLevel actorLevel, UserInvitationQueries queries, CurrentCultureInfo culture )
     {
         _userTable = userTable;
-        _workspaceTable = workspaceTable;
+        _actorLevel = actorLevel;
         _queries = queries;
         _culture = culture;
     }
@@ -40,7 +40,7 @@ public class InvitationScopeValidator : IAutoService
     {
         var actorId = cmd.ActorId.GetValueOrDefault();
         var workspaceId = cmd.CurrentWorkspaceId.GetValueOrDefault();
-        if( !await WorkspaceScopeValidator.IsWorkspaceAdministratorAsync( ctx, _workspaceTable, actorId, workspaceId ) ) return;
+        if( !await _actorLevel.IsWorkspaceAdministratorAsync( ctx, cmd ) ) return;
         if( await _userTable.IsUserPlatformAdminAsync( ctx, actorId ) ) return;
 
         var outside = await _queries.GetEmailsOutsideWorkspaceAsync( ctx, workspaceId, cmd.Invitations.Select( i => i.Email ) );

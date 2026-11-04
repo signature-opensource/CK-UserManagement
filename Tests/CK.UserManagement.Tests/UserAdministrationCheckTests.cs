@@ -15,8 +15,8 @@ public class UserAdministrationCheckTests : UserManagementTestBase
 {
     WorkspaceScenario Scenario => new( Env.Map );
 
-    async Task<UserAdministrationCheck> CheckAsync( ISqlCallContext ctx, int actorId, int workspaceId, int userId )
-        => (UserAdministrationCheck)await Env.UserTable.CheckUserAdministrationAsync( ctx, actorId, workspaceId, userId );
+    async Task<UserAdministrationCheck> CheckAsync( ISqlCallContext ctx, int actorId, int workspaceId, int userId, bool accountTakeover = false )
+        => (UserAdministrationCheck)await Env.UserTable.CheckUserAdministrationAsync( ctx, actorId, workspaceId, userId, accountTakeover );
 
     [Test]
     public async Task admin_of_W_can_administer_a_member_of_W_only_Async()
@@ -128,5 +128,44 @@ public class UserAdministrationCheckTests : UserManagementTestBase
         int target = await Scenario.NewUserAsync( ctx, w );
 
         ( await CheckAsync( ctx, plainMember, w, target ) ).ShouldBe( UserAdministrationCheck.UnadministeredWorkspace );
+    }
+
+    [Test]
+    public async Task an_actor_does_not_administer_itself_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+
+        ( await CheckAsync( ctx, admin, w, admin ) ).ShouldBe( UserAdministrationCheck.SelfAdministration );
+    }
+
+    [Test]
+    public async Task a_safe_administrator_cannot_administer_a_higher_administrator_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int safeAdmin = await Scenario.NewUserAsync( ctx, w );
+        await Scenario.GrantWorkspaceLevelAsync( ctx, w, safeAdmin, 112 );
+
+        ( await CheckAsync( ctx, safeAdmin, w, admin ) ).ShouldBe( UserAdministrationCheck.HigherLevelUser );
+        ( await CheckAsync( ctx, admin, w, safeAdmin ) ).ShouldBe( UserAdministrationCheck.Allowed, "The other way round." );
+    }
+
+    [Test]
+    public async Task only_a_platform_administrator_takes_over_the_account_of_an_administrator_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var (w, admin) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
+        int peer = await Scenario.NewUserAsync( ctx, w );
+        await Scenario.GrantWorkspaceAdminAsync( ctx, w, peer );
+        int member = await Scenario.NewUserAsync( ctx, w );
+
+        ( await CheckAsync( ctx, admin, w, peer ) ).ShouldBe( UserAdministrationCheck.Allowed, "Peers administer each other." );
+        ( await CheckAsync( ctx, admin, w, peer, accountTakeover: true ) ).ShouldBe( UserAdministrationCheck.ProtectedAccount );
+        ( await CheckAsync( ctx, admin, w, member, accountTakeover: true ) ).ShouldBe( UserAdministrationCheck.Allowed, "The account of a member." );
+
+        int platformAdmin = await Scenario.NewUserAsync( ctx );
+        await Scenario.MakePlatformAdminAsync( ctx, platformAdmin );
+        ( await CheckAsync( ctx, platformAdmin, w, peer, accountTakeover: true ) ).ShouldBe( UserAdministrationCheck.Allowed );
     }
 }
