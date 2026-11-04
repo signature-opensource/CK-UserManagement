@@ -73,9 +73,10 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Creates the invitation for an e-mail and sends the invitation e-mail, returning the
     /// <see cref="SimpleUserMessage"/> describing the outcome. Because <c>UserTargetAddress</c> is
-    /// unique platform-wide, an e-mail can only have a single pending invitation: when one already
-    /// exists the invitation is left untouched and an error message is returned (use
-    /// <see cref="ResendInvitationAsync"/> to re-activate it instead).
+    /// unique platform-wide, an e-mail can only have a single pending invitation: when one already exists,
+    /// expired or deactivated included, the invitation is left untouched and an error message is returned (use
+    /// <see cref="ResendInvitationAsync"/> to re-activate it instead). The pending lists show expired and deactivated
+    /// invitations, so an administrator can resend or destroy them.
     /// <para>
     /// The invitation is bound to <paramref name="issuingPartyId"/> (the caller party of the request): its link targets the
     /// client application of this party, and it is redeemed only through it. When the party has no client application
@@ -113,10 +114,10 @@ public class UserManagementService : IAutoService
 
     /// <summary>
     /// Re-activates a pending invitation (extends its expiration), binds it to <paramref name="issuingPartyId"/> (the
-    /// caller party of the request) and resends the e-mail.
+    /// caller party of the request) and resends the e-mail in the culture stored in the invitation.
     /// </summary>
     /// <returns>False when the mail could not be sent (no client application URL for the party), true otherwise.</returns>
-    public async Task<bool> ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, int extendedCultureId, int issuingPartyId )
+    public async Task<bool> ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, int issuingPartyId )
     {
         var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( invitation is null )
@@ -140,7 +141,7 @@ public class UserManagementService : IAutoService
         } ) );
 
         ctx.Monitor.Info( $"Invitation re-activated. (Email: {email})" );
-        return await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId, issuingPartyId );
+        return await SendInvitationMailAsync( ctx, invitation.InvitationId, email, invitation.CultureId, issuingPartyId );
     }
 
     /// <summary>
@@ -220,7 +221,7 @@ public class UserManagementService : IAutoService
         var invitation = await CheckInvitationAsync( ctx, token, callerPartyId );
         var email = invitation.UserTargetAddress;
 
-        // The user name is optional: fall back to the e-mail when no nickname is provided.
+        // The user name is optional: fall back to the invited address when no nickname is provided.
         var nickName = string.IsNullOrWhiteSpace( userName ) ? email : userName.Trim();
 
         // When an explicit nickname is provided, reject it early with a clear message if it is already

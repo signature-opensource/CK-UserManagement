@@ -8,6 +8,10 @@
     "Admin.InvalidWorkSpace": "Espace de travail invalide.",
     "Admin.NotAuthorized": "Autorité d'administrateur requise.",
 
+    // WorkspaceScopeValidator
+    "Admin.UserOutOfScope": "Vous ne pouvez pas administrer cet utilisateur depuis cet espace de travail.",
+    "Admin.GroupOutOfScope": "Un groupe n'appartient pas à cet espace de travail.",
+
     // UserMessageExtensions (generic answers)
     "CrisError.ExceptionCaught": "Une erreur est survenue.",
     "CrisError.InvalidActorId": "Veuillez vous déconnecter puis vous reconnecter, nous n'avons pas pu vous identifier.",

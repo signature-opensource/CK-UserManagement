@@ -42,4 +42,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CK.UserManagement.UserInvitation\CK.UserManagement.UserInvitation.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../Shared/*.cs" Link="Shared/%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

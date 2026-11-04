@@ -10,7 +10,7 @@ namespace CK.IO.UserManagement;
 /// is e-mail-agnostic; sign-in credentials are provisioned as a basic <see cref="Password"/> so the user
 /// can log in right away with its <see cref="UserName"/>.
 /// </summary>
-public interface ICreateWorkspaceUserCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface ICreateWorkspaceUserCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceGroups
 {
     public string UserName { get; set; }
     public string FirstName { get; set; }

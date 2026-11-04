@@ -9,7 +9,7 @@ namespace CK.IO.UserManagement;
 /// <see cref="IResendInvitationsCommand"/>: it carries the current workspace (guarded by
 /// <c>AdminCommandValidator</c>) and operates by invitation e-mail.
 /// </summary>
-public interface IDestroyInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface IDestroyInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceInvitations
 {
     public List<IPendingInvitation> Invitations { get; set; }
 }

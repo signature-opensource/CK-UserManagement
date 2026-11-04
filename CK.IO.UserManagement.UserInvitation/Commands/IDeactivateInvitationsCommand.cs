@@ -10,7 +10,7 @@ namespace CK.IO.UserManagement;
 /// (it stays listed and can be resent). Mirrors <see cref="IResendInvitationsCommand"/>: it carries the
 /// current workspace (guarded by <c>AdminCommandValidator</c>) and operates by invitation e-mail.
 /// </summary>
-public interface IDeactivateInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface IDeactivateInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceInvitations
 {
     public List<IPendingInvitation> Invitations { get; set; }
 }

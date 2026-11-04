@@ -4,7 +4,7 @@ using CK.IO.Admin;
 
 namespace CK.IO.UserManagement;
 
-public interface IResendInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceAdmin
+public interface IResendInvitationsCommand : ICommand<SimpleUserMessage>, ICommandCurrentCulture, ICommandWorkspaceInvitations
 {
     public List<IPendingInvitation> Invitations { get; set; }
 }

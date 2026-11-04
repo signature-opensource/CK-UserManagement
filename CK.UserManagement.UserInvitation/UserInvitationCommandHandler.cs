@@ -142,7 +142,7 @@ public class UserInvitationCommandHandler : IAutoService,
                 {
                     foreach( var inv in cmd.Invitations )
                     {
-                        allSent &= await service.ResendInvitationAsync( ctx, actorId, inv.Email, inv.ExtendedCultureId, authentication.CallerPartyId );
+                        allSent &= await service.ResendInvitationAsync( ctx, actorId, inv.Email, authentication.CallerPartyId );
                     }
                     transaction.Commit();
                 }

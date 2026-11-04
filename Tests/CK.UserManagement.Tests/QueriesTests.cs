@@ -75,4 +75,29 @@ public class QueriesTests : UserManagementTestBase
 
         data.WorkspaceGroups.ShouldContain( g => g.GroupId == Env.WorkspaceGroupId );
     }
+
+    [Test]
+    public async Task the_group_list_of_the_forms_includes_a_group_named_Night_Operators_Async()
+    {
+        using var ctx = new SqlTransactionCallContext();
+        var scenario = new CK.UserManagement.Testing.WorkspaceScenario( Env.Map );
+        var (w, admin) = await scenario.NewWorkspaceWithAdminAsync( ctx );
+        var naming = Env.Map.StObjs.Obtain<CK.DB.Group.SimpleNaming.Package>()!;
+        int operators = await scenario.NewGroupAsync( ctx, w );
+        ( await naming.GroupRenameAsync( ctx, 1, operators, "Night Operators" ) ).ShouldBe( "Night Operators" );
+        int control = await scenario.NewGroupAsync( ctx, w );
+        await naming.GroupRenameAsync( ctx, 1, control, "Night Shift" );
+
+        var query = Env.PocoDirectory.Create<IGetWorkspaceUserEditDataQCommand>( c =>
+        {
+            c.ActorId = admin;
+            c.CurrentWorkspaceId = w;
+            c.UserId = admin;
+        } );
+        var data = await Env.Handler.GetWorkspaceUserEditDataAsync( ctx, query, Env.Queries );
+
+        var ids = data.WorkspaceGroups.Select( g => g.GroupId ).ToList();
+        ids.ShouldContain( control );
+        ids.ShouldContain( operators );
+    }
 }

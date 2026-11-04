@@ -42,4 +42,7 @@
          exposes IWorkspaceUser.Bans) used to assert ban/unban. -->
     <ProjectReference Include="..\..\CK.UserManagement\CK.UserManagement.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../Shared/*.cs" Link="Shared/%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

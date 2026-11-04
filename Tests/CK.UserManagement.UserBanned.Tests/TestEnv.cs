@@ -5,6 +5,7 @@ using CK.Testing;
 using CK.UserManagement;
 using Dapper;
 using static CK.Testing.MonitorTestHelper;
+using CK.UserManagement.Testing;
 using GroupTable = CK.DB.Zone.GroupTable;
 
 namespace CK.UserManagement.UserBanned.Tests;
@@ -27,6 +28,7 @@ public sealed class TestEnv
     public required BannedWorkspaceUsersHandler ListHandler { get; init; }
     public required UserBannedQueries UserBannedQueries { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
+    public required CrisValidationPipeline Pipeline { get; init; }
 
     public required UserTable UserTable { get; init; }
     public required UserBannedPackage UserBannedPackage { get; init; }
@@ -107,6 +109,11 @@ public sealed class TestEnv
             ListHandler = listHandler,
             UserBannedQueries = userBannedQueries,
             CurrentCulture = currentCulture,
+            Pipeline = new CrisValidationPipeline( currentCulture )
+                        .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, new UserManagementQueries( userTable ), currentCulture ) )
+                        .Register( "BannedActorValidator.ValidateNotBannedAsync",
+                                   ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),
             UserTable = userTable,
             UserBannedPackage = userBannedPackage,
             WorkspacePackage = workspacePackage,

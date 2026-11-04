@@ -9,6 +9,7 @@ using CK.Testing;
 using CK.UserManagement.UserInvitation.Mail;
 using Dapper;
 using static CK.Testing.MonitorTestHelper;
+using CK.UserManagement.Testing;
 using GroupTable = CK.DB.Zone.GroupTable;
 
 namespace CK.UserManagement.UserInvitation.Tests;
@@ -33,6 +34,7 @@ public sealed class TestEnv
     public required UserManagementQueries Queries { get; init; }
     public required UserInvitationCommandHandler Handler { get; init; }
     public required CurrentCultureInfo CurrentCulture { get; init; }
+    public required CrisValidationPipeline Pipeline { get; init; }
     public required FakeUserManagementMailer Mailer { get; init; }
 
     public required UserTable UserTable { get; init; }
@@ -134,6 +136,14 @@ public sealed class TestEnv
             Queries = coreQueries,
             Handler = handler,
             CurrentCulture = currentCulture,
+            Pipeline = new CrisValidationPipeline( currentCulture )
+                        .RegisterAdminValidator( new AdminCommandValidator( userTable, workspaceTable, currentCulture ) )
+                        .RegisterWorkspaceScopeValidator( new WorkspaceScopeValidator( userTable, workspaceTable, coreQueries, currentCulture ) )
+                        .Register( "InvitationScopeValidator.ValidateInvitationsAsync",
+                                   ( ctx, c, cmd ) => new InvitationScopeValidator( userTable, workspaceTable, invitationQueries, currentCulture )
+                                                          .ValidateInvitationsAsync( ctx, c, (CK.IO.UserManagement.ICommandWorkspaceInvitations)cmd ) )
+                        .Register( "BannedActorValidator.ValidateNotBannedAsync",
+                                   ( ctx, c, cmd ) => new CK.DB.User.UserBanned.BannedActorValidator( userTable ).ValidateNotBannedAsync( ctx, c, (CK.Auth.ICommandAuthNormal)cmd ) ),
             Mailer = mailer,
             UserTable = userTable,
             NamedUserTable = namedUserTable,

@@ -2,6 +2,7 @@ using System.Text;
 using CK.Core;
 using CK.IO.UserManagement;
 using CK.SqlServer;
+using Dapper;
 using NUnit.Framework;
 using Shouldly;
 
@@ -127,6 +128,11 @@ public class RegistrationTests : UserInvitationTestBase
         users.Cast<CK.IO.UserManagement.UserInvitation.IWorkspaceUser>()
              .Where( u => u.Email == email )
              .ShouldHaveSingleItem();
+        // The invited address is the primary one, and it is validated.
+        var stored = await ctx[Env.UserTable].QuerySingleAsync<(bool IsPrimary, DateTime ValTime)>(
+            "select IsPrimary, ValTime from CK.tActorEMail where EMail = @E;", new { E = email } );
+        stored.IsPrimary.ShouldBeTrue();
+        stored.ValTime.ShouldBeGreaterThan( new DateTime( 2000, 1, 1 ) );
     }
 
     [Test]

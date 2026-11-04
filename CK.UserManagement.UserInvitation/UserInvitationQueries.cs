@@ -100,10 +100,11 @@ public class UserInvitationQueries : IAutoService
     }
 
     /// <summary>
-    /// Pending (non-expired) invitations read directly from <c>CK.tUserInvitation</c>, regardless of
-    /// the administrator who created them. When <paramref name="workspaceId"/> is provided, only
-    /// invitations whose groups belong to that workspace zone are returned; otherwise every pending
-    /// invitation is returned (platform-wide).
+    /// Pending invitations read directly from <c>CK.tUserInvitation</c>, regardless of the administrator
+    /// who created them. Expired and deactivated invitations are returned too, with
+    /// <see cref="IPendingInvitation.Active"/> set to false: an administrator can resend (reactivate) or
+    /// destroy them. When <paramref name="workspaceId"/> is provided, only invitations whose groups belong
+    /// to that workspace zone are returned; otherwise every pending invitation is returned (platform-wide).
     /// </summary>
     public async Task<IReadOnlyList<IPendingInvitation>> GetPendingInvitationsAsync( ISqlCallContext ctx, int? workspaceId = null )
     {
@@ -117,9 +118,8 @@ public class UserInvitationQueries : IAutoService
                   ,uig.GroupId
               from CK.tUserInvitation ui
                   left outer join CK.tUserInvitationGroup uig on uig.InvitationId = ui.InvitationId
-              where ui.InvitationId > 0 and ui.ExpirationDateUtc > @Now;
-            """,
-            new { Now = DateTime.UtcNow } );
+              where ui.InvitationId > 0;
+            """ );
 
         var pending = rows
             .GroupBy( r => r.InvitationId )
@@ -141,10 +141,11 @@ public class UserInvitationQueries : IAutoService
         {
             var groupIds = pending.SelectMany( i => i.GroupIdentifiers ).Distinct().ToList();
             var groupWorkspaces = await GetGroupWorkspacesAsync( ctx, groupIds );
-            pending = pending.Where( i => i.GroupIdentifiers.Any( g => groupWorkspaces.TryGetValue( g, out var w ) && w == workspaceId.Value ) ).ToList();
+            pending = pending.Where( i => BelongsToWorkspace( i.GroupIdentifiers, groupWorkspaces, workspaceId.Value ) ).ToList();
         }
 
         var cultures = await GetCultureNamesAsync( ctx, pending.Select( i => i.CultureId ).Distinct().ToList() );
+        var now = DateTime.UtcNow;
 
         return pending.Select( i =>
         {
@@ -152,13 +153,55 @@ public class UserInvitationQueries : IAutoService
             return _pocoDir.Create<IPendingInvitation>( p =>
             {
                 p.Email = i.UserTargetAddress;
-                p.Active = i.IsActive;
+                // Same rule as the registration: the link works only when the invitation is active and not expired.
+                p.Active = i.IsActive && i.ExpirationDateUtc > now;
                 p.ExtendedCultureId = i.CultureId;
                 p.NativeName = culture?.NativeName ?? "Français";
                 p.ExpirationDateUtc = i.ExpirationDateUtc;
             } );
         } ).ToList();
     }
+
+    /// <summary>
+    /// Returns the e-mails of <paramref name="emails"/> that have an invitation that does not belong to the
+    /// workspace. An e-mail with no invitation is not returned. The rule is the one of the workspace pending
+    /// list: an invitation belongs to a workspace when one of its groups is in that workspace.
+    /// </summary>
+    /// <param name="ctx">The call context.</param>
+    /// <param name="workspaceId">The workspace.</param>
+    /// <param name="emails">The invited addresses to check.</param>
+    /// <returns>The invited addresses, as stored, of the invitations outside the workspace.</returns>
+    public async Task<IReadOnlyList<string>> GetEmailsOutsideWorkspaceAsync( ISqlCallContext ctx, int workspaceId, IEnumerable<string> emails )
+    {
+        var list = emails.Where( e => !string.IsNullOrWhiteSpace( e ) ).Distinct( StringComparer.OrdinalIgnoreCase ).ToList();
+        if( list.Count == 0 ) return [];
+        var rows = await ctx[_userTable].QueryAsync<FlatInvitation>(
+            """
+            select ui.InvitationId
+                  ,ui.UserTargetAddress
+                  ,ui.IsActive
+                  ,ui.ExpirationDateUtc
+                  ,ui.CultureId
+                  ,uig.GroupId
+              from CK.tUserInvitation ui
+                  left outer join CK.tUserInvitationGroup uig on uig.InvitationId = ui.InvitationId
+              where ui.InvitationId > 0 and ui.UserTargetAddress in @Emails;
+            """,
+            new { Emails = list } );
+        var invitations = rows.GroupBy( r => r.UserTargetAddress )
+                              .Select( g => (Email: g.Key, Groups: g.Where( r => r.GroupId.HasValue ).Select( r => r.GroupId!.Value ).ToList()) )
+                              .ToList();
+        var groupWorkspaces = await GetGroupWorkspacesAsync( ctx, invitations.SelectMany( i => i.Groups ).Distinct() );
+        return invitations.Where( i => !BelongsToWorkspace( i.Groups, groupWorkspaces, workspaceId ) )
+                          .Select( i => i.Email )
+                          .ToList();
+    }
+
+    /// <summary>
+    /// The rule that decides if an invitation belongs to a workspace: one of its groups is in that workspace.
+    /// </summary>
+    static bool BelongsToWorkspace( IEnumerable<int> groupIds, IReadOnlyDictionary<int, int> groupWorkspaces, int workspaceId )
+        => groupIds.Any( g => groupWorkspaces.TryGetValue( g, out var w ) && w == workspaceId );
 
     /// <summary>
     /// Reads a single invitation by its target e-mail (unique platform-wide), regardless of the
