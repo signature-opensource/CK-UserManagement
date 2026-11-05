@@ -18,7 +18,7 @@
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.0.ci.33" />
     <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.0.ci.30" />
     <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.cris-auth.0.ci.34" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.39" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.40" />
     <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.0.ci.27" />
     <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.0.ci.43" />
     <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.0.ci.38" />
