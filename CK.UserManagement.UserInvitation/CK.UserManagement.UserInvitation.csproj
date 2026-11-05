@@ -12,7 +12,7 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth.0.ci.6" />
 
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
-        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.38" />
+        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.0.ci.39" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.0.ci.33" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.0.ci.33" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
@@ -26,7 +26,7 @@
 
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
              Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
-        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.cris-auth.0.ci.24" />
+        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.cris-auth.0.ci.25" />
         <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.cris-auth.0.ci.19" />
         <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.cris-auth.0.ci.28" />
     </ItemGroup>
