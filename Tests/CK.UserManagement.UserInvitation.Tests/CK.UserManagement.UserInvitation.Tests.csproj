@@ -9,6 +9,7 @@
   <ItemGroup>
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
+    <PackageReference Include="CK.AppIdentity.Engine" Version="3.0.0-0.cris-auth.1.ci.37" />
     <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.cris-auth.1.ci.95" />
 
     <!-- Standard CK.DB building blocks the invitation service/queries depend on. -->
