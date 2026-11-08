@@ -14,16 +14,16 @@
         <!-- Standard CK.DB building blocks used by the handlers. The core is e-mail/archive-agnostic:
              no CK.DB.Actor.ActorEMail nor CK.DB.User.UserBanned here (added by the UserInvitation /
              UserBanned packages). -->
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.34" />
-        <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.1.ci.51" />
-        <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.40" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.35" />
+        <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.1.ci.52" />
+        <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.41" />
         <!-- Temporary passwords: adds the IsTemporary bit on CK.tUserPassword so that every password
              posed by an administrator forces the user to choose a new one. Extends the table without
              specializing it, so it stays composable with CK.DB.User.UserPassword.EMailLogin (brings
              CK.DB.User.UserPassword transitively). -->
-        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="31.0.0-0.cris-auth.1.ci.48" />
-        <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.40" />
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.46" />
+        <PackageReference Include="CK.DB.User.UserPassword.Reset" Version="31.0.0-0.cris-auth.1.ci.49" />
+        <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.41" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.47" />
         <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.cris-auth.1.ci.28" />
     </ItemGroup>
 
