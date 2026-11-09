@@ -111,7 +111,7 @@ public class RegistrationTests : UserInvitationTestBase
         // service directly lets us pin the exact translation key.
         var (email, token) = await CreateInvitationAsync( ctx );
         var ex = await Should.ThrowAsync<ArgumentException>(
-            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", token, "Password123!", TestEnv.FrenchExtendedCultureId, 0, userName ) );
+            Env.Service.CompleteRegistrationAsync( ctx, "New", "User", token, "Password123!", TestEnv.FrenchExtendedCultureId, null, userName ) );
         ex.Message.ShouldBe( "User.UserNameAlreadyTaken" );
     }
 
