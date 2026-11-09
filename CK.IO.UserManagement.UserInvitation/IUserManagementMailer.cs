@@ -32,7 +32,7 @@ public interface IUserManagementMailer : IAutoService
     /// <param name="destination">The recipient e-mail address.</param>
     /// <param name="token">The invitation token to embed in the registration link.</param>
     /// <param name="extendedCultureId">The extended culture identifier used to pick the template (falls back to French).</param>
-    /// <param name="issuingPartyId">The PartyActorId of the party through which the invitation is issued (0: the local party).</param>
+    /// <param name="issuingPartyFullName">The full name of the party through which the invitation is issued (null: unknown).</param>
     /// <returns>True if the mail has been sent, false when no client application URL is known for the party.</returns>
-    Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, int issuingPartyId );
+    Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, string? issuingPartyFullName );
 }

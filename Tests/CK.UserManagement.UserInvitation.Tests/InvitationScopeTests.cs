@@ -58,7 +58,7 @@ public class InvitationScopeTests : UserInvitationTestBase
         var (b, adminB) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
         int groupOfA = await Scenario.NewGroupAsync( ctx, a );
         var email = TestEnv.NewEmail();
-        var created = await Env.Service.CreateInvitationAsync( ctx, adminA, a, email, TestEnv.FrenchExtendedCultureId, [groupOfA], issuingPartyId: 0 );
+        var created = await Env.Service.CreateInvitationAsync( ctx, adminA, a, email, TestEnv.FrenchExtendedCultureId, [groupOfA], issuingPartyFullName: null );
         created.Level.ShouldBe( UserMessageLevel.Info );
         return (email, a, adminA, b, adminB);
     }
@@ -150,7 +150,7 @@ public class InvitationScopeTests : UserInvitationTestBase
         using var ctx = new SqlTransactionCallContext();
         var (a, adminA) = await Scenario.NewWorkspaceWithAdminAsync( ctx );
         var email = TestEnv.NewEmail();
-        await Env.Service.CreateInvitationAsync( ctx, adminA, a, email, TestEnv.FrenchExtendedCultureId, [], issuingPartyId: 0 );
+        await Env.Service.CreateInvitationAsync( ctx, adminA, a, email, TestEnv.FrenchExtendedCultureId, [], issuingPartyFullName: null );
 
         var outcome = await DestroyAsync( ctx, adminA, a, email );
 

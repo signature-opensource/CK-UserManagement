@@ -14,7 +14,7 @@ namespace CK.UserManagement.UserInvitation.Tests;
 [ReplaceAutoService( typeof( UserManagementMailer ) )]
 public sealed class FakeUserManagementMailer : IUserManagementMailer
 {
-    public List<(string Destination, string Token, int ExtendedCultureId, int IssuingPartyId)> Sent { get; } = new();
+    public List<(string Destination, string Token, int ExtendedCultureId, string? IssuingPartyFullName)> Sent { get; } = new();
 
     /// <summary>
     /// Gets or sets whether the issuing party has a client application URL: false simulates a party that states none
@@ -22,11 +22,11 @@ public sealed class FakeUserManagementMailer : IUserManagementMailer
     /// </summary>
     public bool HasClientUrl { get; set; } = true;
 
-    public Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, int issuingPartyId )
+    public Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, string? issuingPartyFullName )
     {
         if( !HasClientUrl ) return Task.FromResult( false );
-        Sent.Add( (destination, token, extendedCultureId, issuingPartyId) );
-        monitor.Info( $"[FakeMailer] Invitation captured. (Email: {destination}, XLCID: {extendedCultureId}, IssuingPartyId: {issuingPartyId})" );
+        Sent.Add( (destination, token, extendedCultureId, issuingPartyFullName) );
+        monitor.Info( $"[FakeMailer] Invitation captured. (Email: {destination}, XLCID: {extendedCultureId}, IssuingParty: {issuingPartyFullName})" );
         return Task.FromResult( true );
     }
 }

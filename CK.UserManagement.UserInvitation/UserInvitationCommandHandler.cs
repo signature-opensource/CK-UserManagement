@@ -112,7 +112,7 @@ public class UserInvitationCommandHandler : IAutoService,
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.ExtendedCultureId, cmd.Groups, authentication.CallerPartyId );
+                    var message = await service.CreateInvitationAsync( ctx, actorId, cmd.CurrentWorkspaceId.GetValueOrDefault(), cmd.Email, cmd.ExtendedCultureId, cmd.Groups, authentication.CallerPartyFullName );
                     transaction.Commit();
                     return message;
                 }
@@ -142,7 +142,7 @@ public class UserInvitationCommandHandler : IAutoService,
                 {
                     foreach( var inv in cmd.Invitations )
                     {
-                        allSent &= await service.ResendInvitationAsync( ctx, actorId, inv.Email, authentication.CallerPartyId );
+                        allSent &= await service.ResendInvitationAsync( ctx, actorId, inv.Email, authentication.CallerPartyFullName );
                     }
                     transaction.Commit();
                 }
@@ -226,7 +226,7 @@ public class UserInvitationCommandHandler : IAutoService,
         {
             try
             {
-                var pendingUser = await service.ValidateInvitationAsync( ctx, cmd.Token, authentication.CallerPartyId );
+                var pendingUser = await service.ValidateInvitationAsync( ctx, cmd.Token, authentication.CallerPartyFullName );
                 return cmd.CreateResult( r =>
                 {
                     r.User = pendingUser;
@@ -257,7 +257,7 @@ public class UserInvitationCommandHandler : IAutoService,
             {
                 using( var transaction = ctx[userTable].BeginTransaction() )
                 {
-                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Token, cmd.Password, cmd.ExtendedCultureId, authentication.CallerPartyId, cmd.UserName );
+                    await service.CompleteRegistrationAsync( ctx, cmd.FirstName, cmd.LastName, cmd.Token, cmd.Password, cmd.ExtendedCultureId, authentication.CallerPartyFullName, cmd.UserName );
                     transaction.Commit();
                 }
                 return _currentCulture.InfoMessage( "Registration successful. You can now log-in with your credentials.", "User.RegistrationCompleted" );

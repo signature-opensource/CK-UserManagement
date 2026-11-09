@@ -37,14 +37,14 @@ public class UserManagementMailer : IUserManagementMailer
         _brandingProvider = brandingProvider;
     }
 
-    public async Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, int issuingPartyId )
+    public async Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, string? issuingPartyFullName )
     {
         // The links target the client applications of the issuing party: what it states about itself, never the request.
-        var party = _localParty.LocalParty.FindCallerParty( issuingPartyId );
+        var party = _localParty.LocalParty.FindCallerParty( issuingPartyFullName );
         var clientUrl = party?.Description.GetClientApplicationUrl();
         if( party == null || clientUrl == null )
         {
-            monitor.Error( $"No invitation mail sent: the issuing party ({party?.FullName.Path ?? $"#{issuingPartyId}"}) has no public URL or no default client application. (Email: {destination})" );
+            monitor.Error( $"No invitation mail sent: the issuing party ('{issuingPartyFullName}') has no public URL or no default client application. (Email: {destination})" );
             return false;
         }
         var culture = ExtendedCultureInfo.All.FindExtendedCultureInfo( extendedCultureId )?.PrimaryCulture

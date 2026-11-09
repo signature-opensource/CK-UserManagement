@@ -1,6 +1,7 @@
 using System.Text;
 using CK.Core;
 using CK.DB.Actor.ActorEMail;
+using CK.DB.AppIdentity;
 using CK.DB.Auth;
 using CK.DB.User.NamedUser;
 using CK.DB.User.UserPassword;
@@ -42,6 +43,7 @@ public class UserManagementService : IAutoService
     readonly CK.DB.Workspace.Package _workspacePackage;
     readonly UserInvitationQueries _queries;
     readonly IUserManagementMailer _mailer;
+    readonly PartyActorTable _partyActors;
 
     public UserManagementService( PocoDirectory pocoDir,
                                   CurrentCultureInfo currentCulture,
@@ -54,7 +56,8 @@ public class UserManagementService : IAutoService
                                   UserTable userTable,
                                   CK.DB.Workspace.Package workspacePackage,
                                   UserInvitationQueries queries,
-                                  IUserManagementMailer mailer )
+                                  IUserManagementMailer mailer,
+                                  PartyActorTable partyActors )
     {
         _pocoDir = pocoDir;
         _currentCulture = currentCulture;
@@ -68,6 +71,14 @@ public class UserManagementService : IAutoService
         _workspacePackage = workspacePackage;
         _queries = queries;
         _mailer = mailer;
+        _partyActors = partyActors;
+    }
+
+    // The issuing party of an invitation is recorded as an actor (CK.tUserInvitation.IssuingPartyId references CK.tActor):
+    // the full name of the party is mapped to its PartyActor here, where the actors database is. Null is 0 (unbound).
+    async Task<int> GetPartyActorIdAsync( ISqlCallContext ctx, string? partyFullName )
+    {
+        return partyFullName == null ? 0 : await _partyActors.EnsureAsync( ctx, SystemActorId, partyFullName );
     }
 
     /// <summary>
@@ -78,13 +89,13 @@ public class UserManagementService : IAutoService
     /// <see cref="ResendInvitationAsync"/> to re-activate it instead). The pending lists show expired and deactivated
     /// invitations, so an administrator can resend or destroy them.
     /// <para>
-    /// The invitation is bound to <paramref name="issuingPartyId"/> (the caller party of the request): its link targets the
+    /// The invitation is bound to <paramref name="issuingPartyFullName"/> (the caller party of the request, null: unbound): its link targets the
     /// client application of this party, and it is redeemed only through it. When the party has no client application
     /// URL, the invitation is created but its mail is not sent: an error message says so (resend it once the party states
     /// its URL).
     /// </para>
     /// </summary>
-    public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, int extendedCultureId, IReadOnlyList<int> groups, int issuingPartyId )
+    public async Task<SimpleUserMessage> CreateInvitationAsync( ISqlTransactionCallContext ctx, int actorId, int workspaceId, string email, int extendedCultureId, IReadOnlyList<int> groups, string? issuingPartyFullName )
     {
         var existing = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( existing is not null )
@@ -102,10 +113,10 @@ public class UserManagementService : IAutoService
             c.CultureId = extendedCultureId;
             foreach( var g in groups.Where( g => g > 0 ) ) c.GroupIdentifiers.Add( g );
         } );
-        var invitation = await _invitationPackage.CreateUserInvitationAsync( ctx, create, issuingPartyId );
+        var invitation = await _invitationPackage.CreateUserInvitationAsync( ctx, create, await GetPartyActorIdAsync( ctx, issuingPartyFullName ) );
 
-        ctx.Monitor.Info( $"Invitation created. (Email: {email}, WorkspaceId: {workspaceId}, InvitationId: {invitation.InvitationId}, IssuingPartyId: {issuingPartyId})" );
-        if( !await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId, issuingPartyId ) )
+        ctx.Monitor.Info( $"Invitation created. (Email: {email}, WorkspaceId: {workspaceId}, InvitationId: {invitation.InvitationId}, IssuingParty: {issuingPartyFullName})" );
+        if( !await SendInvitationMailAsync( ctx, invitation.InvitationId, email, extendedCultureId, issuingPartyFullName ) )
         {
             return _currentCulture.ErrorMessage( "The invitation is created, but its e-mail could not be sent.", "User.InvitationMailNotSent" );
         }
@@ -113,11 +124,11 @@ public class UserManagementService : IAutoService
     }
 
     /// <summary>
-    /// Re-activates a pending invitation (extends its expiration), binds it to <paramref name="issuingPartyId"/> (the
+    /// Re-activates a pending invitation (extends its expiration), binds it to <paramref name="issuingPartyFullName"/> (the
     /// caller party of the request) and resends the e-mail in the culture stored in the invitation.
     /// </summary>
     /// <returns>False when the mail could not be sent (no client application URL for the party), true otherwise.</returns>
-    public async Task<bool> ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, int issuingPartyId )
+    public async Task<bool> ResendInvitationAsync( ISqlCallContext ctx, int actorId, string email, string? issuingPartyFullName )
     {
         var invitation = await _queries.GetInvitationByEmailAsync( ctx, email );
         if( invitation is null )
@@ -125,7 +136,7 @@ public class UserManagementService : IAutoService
             ctx.Monitor.Warn( $"No pending invitation to resend. (Email: {email})" );
             return true;
         }
-        await _invitationPackage.SetUserInvitationIssuingPartyAsync( ctx, actorId, invitation.InvitationId, issuingPartyId );
+        await _invitationPackage.SetUserInvitationIssuingPartyAsync( ctx, actorId, invitation.InvitationId, await GetPartyActorIdAsync( ctx, issuingPartyFullName ) );
 
         await _invitationPackage.SetUserInvitationIsActiveAsync( ctx, _pocoDir.Create<ISetUserInvitationIsActiveCommand>( c =>
         {
@@ -141,7 +152,7 @@ public class UserManagementService : IAutoService
         } ) );
 
         ctx.Monitor.Info( $"Invitation re-activated. (Email: {email})" );
-        return await SendInvitationMailAsync( ctx, invitation.InvitationId, email, invitation.CultureId, issuingPartyId );
+        return await SendInvitationMailAsync( ctx, invitation.InvitationId, email, invitation.CultureId, issuingPartyFullName );
     }
 
     /// <summary>
@@ -189,9 +200,9 @@ public class UserManagementService : IAutoService
     /// <summary>
     /// Validates an invitation secret and returns the pending user (e-mail + default culture).
     /// </summary>
-    public async Task<IPendingUser> ValidateInvitationAsync( ISqlCallContext ctx, string token, int callerPartyId )
+    public async Task<IPendingUser> ValidateInvitationAsync( ISqlCallContext ctx, string token, string? callerPartyFullName )
     {
-        var invitation = await CheckInvitationAsync( ctx, token, callerPartyId );
+        var invitation = await CheckInvitationAsync( ctx, token, callerPartyFullName );
         return _pocoDir.Create<IPendingUser>( u =>
         {
             u.Email = invitation.UserTargetAddress;
@@ -215,10 +226,10 @@ public class UserManagementService : IAutoService
                                                  string token,
                                                  string password,
                                                  int extendedCultureId,
-                                                 int callerPartyId,
+                                                 string? callerPartyFullName,
                                                  string? userName = null )
     {
-        var invitation = await CheckInvitationAsync( ctx, token, callerPartyId );
+        var invitation = await CheckInvitationAsync( ctx, token, callerPartyFullName );
         var email = invitation.UserTargetAddress;
 
         // The user name is optional: fall back to the invited address when no nickname is provided.
@@ -267,10 +278,10 @@ public class UserManagementService : IAutoService
 
     /// <summary>
     /// Resolves and validates an invitation from its secret: the invitation must exist, be active, not be expired and,
-    /// when it is bound to its issuing party, be redeemed through it (<paramref name="callerPartyId"/>). An unbound one
+    /// when it is bound to its issuing party, be redeemed through it (<paramref name="callerPartyFullName"/>). An unbound one
     /// (created before the issuing party was recorded) is redeemed through any party.
     /// </summary>
-    async Task<IUserInvitation> CheckInvitationAsync( ISqlCallContext ctx, string token, int callerPartyId )
+    async Task<IUserInvitation> CheckInvitationAsync( ISqlCallContext ctx, string token, string? callerPartyFullName )
     {
         if( string.IsNullOrWhiteSpace( token ) ) throw new InvalidOperationException( "User.InvitationError" );
 
@@ -280,9 +291,9 @@ public class UserManagementService : IAutoService
             ctx.Monitor.Error( "Could not validate the invitation token." );
             throw new InvalidOperationException( "User.InvitationError" );
         }
-        if( invitation.IssuingPartyId != 0 && invitation.IssuingPartyId != callerPartyId )
+        if( invitation.IssuingPartyId != 0 && invitation.IssuingPartyId != await GetPartyActorIdAsync( ctx, callerPartyFullName ) )
         {
-            ctx.Monitor.Error( $"The invitation is redeemed through another party than the one that issued it. (InvitationId: {invitation.InvitationId}, IssuingPartyId: {invitation.IssuingPartyId}, CallerPartyId: {callerPartyId})" );
+            ctx.Monitor.Error( $"The invitation is redeemed through another party than the one that issued it. (InvitationId: {invitation.InvitationId}, IssuingPartyId: {invitation.IssuingPartyId}, CallerParty: {callerPartyFullName})" );
             throw new InvalidOperationException( "User.InvitationError" );
         }
         return invitation;
@@ -301,7 +312,7 @@ public class UserManagementService : IAutoService
     /// Reads the invitation secret and dispatches the invitation e-mail with the registration link of the issuing party.
     /// </summary>
     /// <returns>False when the mail could not be sent.</returns>
-    async Task<bool> SendInvitationMailAsync( ISqlCallContext ctx, int invitationId, string email, int extendedCultureId, int issuingPartyId )
+    async Task<bool> SendInvitationMailAsync( ISqlCallContext ctx, int invitationId, string email, int extendedCultureId, string? issuingPartyFullName )
     {
         var secret = await _queries.GetInvitationSecretAsync( ctx, invitationId );
         if( secret is null )
@@ -309,6 +320,6 @@ public class UserManagementService : IAutoService
             ctx.Monitor.Error( $"Could not read the invitation secret. (InvitationId: {invitationId})" );
             return false;
         }
-        return await _mailer.SendUserInvitationAsync( ctx.Monitor, email, Encoding.UTF8.GetString( secret ), extendedCultureId, issuingPartyId );
+        return await _mailer.SendUserInvitationAsync( ctx.Monitor, email, Encoding.UTF8.GetString( secret ), extendedCultureId, issuingPartyFullName );
     }
 }

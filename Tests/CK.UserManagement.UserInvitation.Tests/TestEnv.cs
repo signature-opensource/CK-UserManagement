@@ -74,6 +74,7 @@ public sealed class TestEnv
             "CK.DB.User.UserBanned",
             "CK.DB.Actor.ActorEMail",
             "CK.DB.UserInvitation",
+            "CK.DB.AppIdentity",
             "CK.DB.Workspace",
             "CK.DB.Zone",
             "CK.DB.Globalization",
@@ -100,6 +101,7 @@ public sealed class TestEnv
         var invitationPackage = map.StObjs.Obtain<CK.DB.UserInvitation.Package>()!;
         var preferredCulturePackage = map.StObjs.Obtain<CK.DB.User.PreferredCulture.Package>()!;
         var aclTable = map.StObjs.Obtain<AclTable>()!;
+        var partyActorTable = map.StObjs.Obtain<CK.DB.AppIdentity.PartyActorTable>()!;
 
         var currentCulture = new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.EnsureNormalizedCultureInfo( "fr" ) );
         var mailer = new FakeUserManagementMailer();
@@ -107,7 +109,7 @@ public sealed class TestEnv
         var invitationQueries = new UserInvitationQueries( pocoDir, userTable );
         var service = new UserManagementService( pocoDir, currentCulture, invitationPackage, preferredCulturePackage,
                                                  emailTable, namedUserTable, pwdTable, groupTable, userTable,
-                                                 workspacePackage, invitationQueries, mailer );
+                                                 workspacePackage, invitationQueries, mailer, partyActorTable );
         var handler = new UserInvitationCommandHandler( currentCulture );
 
         int workspaceId, adminId, memberId, groupId;

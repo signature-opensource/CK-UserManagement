@@ -140,27 +140,27 @@ public class RegistrationTests : UserInvitationTestBase
     {
         using var ctx = new SqlTransactionCallContext();
         var email = TestEnv.NewEmail();
-        // Issued through the party #1 (an actor: the System one here).
-        ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyId: 1 ) )
+        // Issued through the party "Test/$Front": the invitation records its PartyActor (the local mapping of its full name).
+        ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyFullName: "Test/$Front" ) )
             .Level.ShouldBe( UserMessageLevel.Info );
-        Env.Mailer.Sent.ShouldContain( s => s.Destination == email && s.IssuingPartyId == 1, "The link targets the issuing party." );
+        Env.Mailer.Sent.ShouldContain( s => s.Destination == email && s.IssuingPartyFullName == "Test/$Front", "The link targets the issuing party." );
         var invitation = await Env.InvitationQueries.GetInvitationByEmailAsync( ctx, email );
         var token = Encoding.UTF8.GetString( ( await Env.InvitationQueries.GetInvitationSecretAsync( ctx, invitation!.InvitationId ) )! );
 
         // Through another party: refused, with the same answer as an invalid invitation.
-        ( await Should.ThrowAsync<InvalidOperationException>( Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 3712 ) ) )
+        ( await Should.ThrowAsync<InvalidOperationException>( Env.Service.ValidateInvitationAsync( ctx, token, callerPartyFullName: "Test/$Other" ) ) )
             .Message.ShouldBe( "User.InvitationError" );
         // Through its party: accepted.
-        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 1 ) ).Email.ShouldBe( email );
+        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyFullName: "Test/$Front" ) ).Email.ShouldBe( email );
     }
 
     [Test]
     public async Task an_unbound_invitation_is_redeemed_through_any_party_Async()
     {
         using var ctx = new SqlTransactionCallContext();
-        // Created before the issuing party was recorded (0: unbound).
+        // Created without issuing party (0: unbound).
         var (email, token) = await CreateInvitationAsync( ctx );
-        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyId: 3712 ) ).Email.ShouldBe( email );
+        ( await Env.Service.ValidateInvitationAsync( ctx, token, callerPartyFullName: "Test/$Other" ) ).Email.ShouldBe( email );
     }
 
     [Test]
@@ -171,7 +171,7 @@ public class RegistrationTests : UserInvitationTestBase
         Env.Mailer.HasClientUrl = false;
         try
         {
-            ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyId: 0 ) )
+            ( await Env.Service.CreateInvitationAsync( ctx, Env.AdminUserId, Env.WorkspaceId, email, TestEnv.FrenchExtendedCultureId, [Env.WorkspaceGroupId], issuingPartyFullName: null ) )
                 .Level.ShouldBe( UserMessageLevel.Error, "The invitation is created, its mail is not sent: the administrator is told." );
         }
         finally

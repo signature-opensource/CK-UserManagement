@@ -13,6 +13,8 @@
 
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
         <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.1.ci.53" />
+        <!-- The issuing party of an invitation: the full name of the caller party mapped to its PartyActor. -->
+        <PackageReference Include="CK.DB.AppIdentity" Version="3.0.0-0.cris-auth.1.ci.138" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.42" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.42" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
