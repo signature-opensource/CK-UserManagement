@@ -9,20 +9,20 @@
   <ItemGroup>
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
-    <PackageReference Include="CK.AppIdentity.Engine" Version="3.0.0-0.cris-auth.1.ci.42" />
-    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.cris-auth.1.ci.101" />
+    <PackageReference Include="CK.AppIdentity.Engine" Version="3.0.0-0.cris-auth.1.ci.43" />
+    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.cris-auth.1.ci.103" />
 
     <!-- Standard CK.DB building blocks the invitation service/queries depend on. -->
     <!-- Email-based login (specializes UserPasswordTable); brings CK.DB.User.UserPassword transitively. -->
-    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.cris-auth.1.ci.50" />
-    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.42" />
-    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.42" />
-    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.1.ci.39" />
-    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.cris-auth.1.ci.43" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.1.ci.53" />
-    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.36" />
-    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.1.ci.53" />
-    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.48" />
+    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.cris-auth.1.ci.51" />
+    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.43" />
+    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.43" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.1.ci.40" />
+    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.cris-auth.1.ci.44" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.1.ci.55" />
+    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.37" />
+    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.cris-auth.1.ci.54" />
+    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.49" />
     <PackageReference Include="CK.Globalization.Engine" Version="3.0.0-0.cris-auth.1.ci.28" />
 
     <!-- Data access + transactions. -->
@@ -30,13 +30,13 @@
     <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth.1.ci.9" />
 
     <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
-    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.cris-auth.1.ci.101" />
+    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.cris-auth.1.ci.103" />
     <PackageReference Include="CK.Template.Fluid.Engine" Version="3.0.0-0.cris-auth.1.ci.25" />
 
     <!-- Test harness. -->
-    <PackageReference Include="CK.DB.Tests.NUnit" Version="36.0.0-0.cris-auth.1.ci.51" />
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="36.0.0-0.cris-auth.1.ci.52" />
     <PackageReference Include="CK.Testing.Nunit" Version="18.0.0-0.cris-auth.0.ci.6" />
-    <PackageReference Include="CK.Testing.SqlServerEngine" Version="36.0.0-0.cris-auth.1.ci.51" />
+    <PackageReference Include="CK.Testing.SqlServerEngine" Version="36.0.0-0.cris-auth.1.ci.52" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
   </ItemGroup>
