@@ -12,13 +12,13 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.cris-auth.1.ci.9" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.1.ci.40" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.cris-auth.1.ci.41" />
 
         <!-- Workspace owns CK.tWorkspace, read by CK.fUserAdministrationCheck (the injected security check). -->
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.37" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.cris-auth.1.ci.38" />
 
         <!-- Back-end localized messages. -->
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.49" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.cris-auth.1.ci.54" />
         <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.cris-auth.1.ci.28" />
     </ItemGroup>
 
