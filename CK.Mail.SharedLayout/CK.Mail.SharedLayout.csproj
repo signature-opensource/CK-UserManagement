@@ -10,7 +10,7 @@
          No explicit EmbeddedResource entry needed. -->
 
     <ItemGroup>
-        <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.cris-auth.1.ci.46" />
+        <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.cris-auth.1.ci.47" />
         <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.cris-auth.1.ci.25" />
     </ItemGroup>
 

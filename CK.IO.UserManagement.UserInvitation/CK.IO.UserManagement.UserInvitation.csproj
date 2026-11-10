@@ -11,8 +11,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CK.IO.Globalization" Version="3.0.0-0.cris-auth.1.ci.54" />
-        <PackageReference Include="CK.IO.UserProfile.Workspace" Version="18.0.0-0.cris-auth.1.ci.38" />
+        <PackageReference Include="CK.IO.Globalization" Version="3.0.0-0.cris-auth.1.ci.55" />
+        <PackageReference Include="CK.IO.UserProfile.Workspace" Version="18.0.0-0.cris-auth.1.ci.39" />
     </ItemGroup>
 
     <ItemGroup>
