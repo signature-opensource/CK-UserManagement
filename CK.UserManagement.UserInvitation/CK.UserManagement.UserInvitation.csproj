@@ -14,7 +14,7 @@
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
         <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.cris-auth.1.ci.56" />
         <!-- The issuing party of an invitation: the full name of the caller party mapped to its PartyActor. -->
-        <PackageReference Include="CK.DB.AppIdentity" Version="3.0.0-0.cris-auth.1.ci.167" />
+        <PackageReference Include="CK.DB.AppIdentity" Version="3.0.0-0.cris-auth.1.ci.168" />
         <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.cris-auth.1.ci.44" />
         <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.cris-auth.1.ci.44" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
@@ -28,7 +28,7 @@
 
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
              Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
-        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.cris-auth.1.ci.42" />
+        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.cris-auth.1.ci.43" />
         <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.cris-auth.1.ci.25" />
         <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.cris-auth.1.ci.46" />
     </ItemGroup>
