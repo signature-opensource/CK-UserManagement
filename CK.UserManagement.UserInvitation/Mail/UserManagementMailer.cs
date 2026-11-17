@@ -1,4 +1,5 @@
 using CK.AppIdentity;
+using CK.AppIdentity.AuthCenter;
 using CK.Core;
 using CK.IO.UserManagement;
 using CK.Mail.SharedLayout;
@@ -10,7 +11,8 @@ namespace CK.UserManagement.UserInvitation.Mail;
 /// <summary>
 /// Default <see cref="IUserManagementMailer"/>: renders the <c>UserInvitation</c> Fluid templates
 /// (subject + HTML body) for the requested culture and dispatches through the
-/// default sender of the local party ("MailSender" feature, CK.Mailer): its address is the <c>From</c> of the mail.
+/// sender of the AuthCenter party: the "Sender" of its "UserInvitation" option (<see cref="UserInvitationOption.Sender"/>),
+/// else its default sender ("MailSender" feature, CK.Mailer): its address is the <c>From</c> of the mail.
 /// </summary>
 public class UserManagementMailer : IUserManagementMailer
 {
@@ -19,17 +21,20 @@ public class UserManagementMailer : IUserManagementMailer
     readonly CurrentLocalParty _localParty;
 
     readonly IMailBrandingProvider _brandingProvider;
+    readonly LocalAuthCenterFeatureDriver _authCenter;
 
     public UserManagementMailer( IFluidTemplateService fluid,
                                  PocoDirectory pocoDir,
                                  CurrentLocalParty localParty,
-                                 IMailBrandingProvider brandingProvider
+                                 IMailBrandingProvider brandingProvider,
+                                 LocalAuthCenterFeatureDriver authCenter
                                )
     {
         _fluid = fluid;
         _pocoDir = pocoDir;
         _localParty = localParty;
         _brandingProvider = brandingProvider;
+        _authCenter = authCenter;
     }
 
     public async Task<bool> SendUserInvitationAsync( IActivityMonitor monitor, string destination, string token, int extendedCultureId, string? issuingPartyFullName )
@@ -145,7 +150,8 @@ public class UserManagementMailer : IUserManagementMailer
         }
         try
         {
-            await _localParty.LocalParty.GetMailSender().SendAsync( monitor, message );
+            var local = _localParty.LocalParty;
+            await local.GetMailSender( _authCenter.GetOption<UserInvitationOption>( local )?.Sender ).SendAsync( monitor, message );
         }
         finally
         {

@@ -29,6 +29,8 @@
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
              Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
         <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.uc.0.ci.78" />
+        <!-- The "UserInvitation" option of the AuthCenter (its sender). -->
+        <PackageReference Include="CK.AppIdentity.AuthCenter.Local" Version="4.0.0-0.uc.0.ci.5" />
         <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.uc.0.ci.40" />
         <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.uc.0.ci.104" />
     </ItemGroup>
