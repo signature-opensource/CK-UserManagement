@@ -10,9 +10,7 @@ namespace CK.UserManagement.UserInvitation.Mail;
 /// <summary>
 /// Default <see cref="IUserManagementMailer"/>: renders the <c>UserInvitation</c> Fluid templates
 /// (subject + HTML body) for the requested culture and dispatches through the
-/// CK-AppIdentity-configured <see cref="IDefaultEmailSender"/> (SMTP / pickup directory / no-send
-/// are all driven by <c>CK-AppIdentity:Local:EmailSender</c>). The sender address comes from that
-/// same configuration.
+/// default sender of the local party ("MailSender" feature, CK.Mailer): its address is the <c>From</c> of the mail.
 /// </summary>
 public class UserManagementMailer : IUserManagementMailer
 {
@@ -20,20 +18,17 @@ public class UserManagementMailer : IUserManagementMailer
     readonly PocoDirectory _pocoDir;
     readonly CurrentLocalParty _localParty;
 
-    readonly IDefaultEmailSender _emailSender;
     readonly IMailBrandingProvider _brandingProvider;
 
     public UserManagementMailer( IFluidTemplateService fluid,
                                  PocoDirectory pocoDir,
                                  CurrentLocalParty localParty,
-                                 IDefaultEmailSender emailSender,
                                  IMailBrandingProvider brandingProvider
                                )
     {
         _fluid = fluid;
         _pocoDir = pocoDir;
         _localParty = localParty;
-        _emailSender = emailSender;
         _brandingProvider = brandingProvider;
     }
 
@@ -150,7 +145,7 @@ public class UserManagementMailer : IUserManagementMailer
         }
         try
         {
-            await _emailSender.SendAsync( monitor, message );
+            await _localParty.LocalParty.GetMailSender().SendAsync( monitor, message );
         }
         finally
         {
