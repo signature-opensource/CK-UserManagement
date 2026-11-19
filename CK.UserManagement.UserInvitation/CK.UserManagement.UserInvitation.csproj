@@ -12,25 +12,25 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.0.ci.19" />
 
         <!-- Invitation persistence + the standard CK.DB building blocks used by the service. -->
-        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.93" />
+        <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.94" />
         <!-- The issuing party of an invitation: the full name of the caller party mapped to its PartyActor. -->
-        <PackageReference Include="CK.DB.AppIdentity" Version="4.0.0-0.uc.0.ci.25" />
-        <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.0.ci.81" />
-        <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.0.ci.81" />
+        <PackageReference Include="CK.DB.AppIdentity" Version="4.0.0-0.uc.0.ci.27" />
+        <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.0.ci.82" />
+        <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.0.ci.82" />
         <!-- Email-based login: specializes UserPasswordTable so the "Basic" provider accepts a
              validated CK.tActorEMail as login identifier (brings CK.DB.User.UserPassword transitively). -->
-        <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.uc.0.ci.88" />
-        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.0.ci.81" />
-        <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.0.ci.96" />
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.0.ci.75" />
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.0.ci.91" />
+        <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.uc.0.ci.89" />
+        <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.0.ci.82" />
+        <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.0.ci.97" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.0.ci.76" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.0.ci.92" />
         <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.uc.0.ci.56" />
 
         <!-- Invitation e-mail: Fluid templates rendered + sent via the CK-AppIdentity-configured mailer.
              Res/Templates/*.liquid are auto-embedded by CK.EmbeddedResources (buildTransitive). -->
-        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.uc.0.ci.93" />
+        <PackageReference Include="CK.Mailer.MailKit" Version="15.0.0-0.uc.0.ci.94" />
         <!-- The "UserInvitation" option of the AuthCenter (its sender). -->
-        <PackageReference Include="CK.AppIdentity.AuthCenter.Local" Version="4.0.0-0.uc.0.ci.25" />
+        <PackageReference Include="CK.AppIdentity.AuthCenter.Local" Version="4.0.0-0.uc.0.ci.27" />
         <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.uc.0.ci.52" />
         <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.uc.0.ci.127" />
     </ItemGroup>
