@@ -10,8 +10,8 @@
          No explicit EmbeddedResource entry needed. -->
 
     <ItemGroup>
-        <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.uc.0.ci.124" />
-        <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.uc.0.ci.50" />
+        <PackageReference Include="CK.AppIdentity.Abstractions" Version="3.0.0-0.uc.0.ci.126" />
+        <PackageReference Include="CK.Template.Fluid" Version="3.0.0-0.uc.0.ci.51" />
     </ItemGroup>
 
 </Project>
