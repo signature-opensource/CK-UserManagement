@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.uc.0.ci.97" />
-        <PackageReference Include="CK.IO.Workspace" Version="18.0.0-0.uc.0.ci.82" />
+        <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.uc.0.ci.98" />
+        <PackageReference Include="CK.IO.Workspace" Version="18.0.0-0.uc.0.ci.83" />
     </ItemGroup>
 
 </Project>
