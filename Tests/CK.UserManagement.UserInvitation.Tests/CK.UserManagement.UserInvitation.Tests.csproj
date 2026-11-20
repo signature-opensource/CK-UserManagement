@@ -32,7 +32,7 @@
     <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
     <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.0.ci.182" />
     <!-- The AuthCenter (the "UserInvitation" option): the engines of an AuthCenter application. -->
-    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.53" />
+    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.54" />
     <PackageReference Include="CK.Template.Fluid.Engine" Version="3.0.0-0.uc.0.ci.65" />
 
     <!-- Test harness. -->
