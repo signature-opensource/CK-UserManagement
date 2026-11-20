@@ -9,36 +9,36 @@
   <ItemGroup>
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
-    <PackageReference Include="CK.AppIdentity.Engine" Version="3.0.0-0.uc.0.ci.140" />
-    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.uc.0.ci.175" />
+    <PackageReference Include="CK.AppIdentity.Engine" Version="3.0.0-0.uc.0.ci.143" />
+    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.uc.0.ci.176" />
 
     <!-- Standard CK.DB building blocks the invitation service/queries depend on. -->
     <!-- Email-based login (specializes UserPasswordTable); brings CK.DB.User.UserPassword transitively. -->
-    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.uc.0.ci.97" />
-    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.0.ci.90" />
-    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.0.ci.90" />
-    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.0.ci.86" />
-    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.0.ci.90" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.102" />
-    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.0.ci.84" />
-    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.0.ci.106" />
-    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.0.ci.100" />
-    <PackageReference Include="CK.Globalization.Engine" Version="3.0.0-0.uc.0.ci.63" />
+    <PackageReference Include="CK.DB.User.UserPassword.EMailLogin" Version="31.0.0-0.uc.0.ci.98" />
+    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.0.ci.91" />
+    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.0.ci.91" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.0.ci.87" />
+    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.0.ci.91" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.103" />
+    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.0.ci.85" />
+    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.0.ci.107" />
+    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.0.ci.101" />
+    <PackageReference Include="CK.Globalization.Engine" Version="3.0.0-0.uc.0.ci.64" />
 
     <!-- Data access + transactions. -->
-    <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.0.ci.62" />
+    <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.0.ci.63" />
     <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.0.ci.21" />
 
     <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
-    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.0.ci.175" />
+    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.0.ci.176" />
     <!-- The AuthCenter (the "UserInvitation" option): the engines of an AuthCenter application. -->
-    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.40" />
-    <PackageReference Include="CK.Template.Fluid.Engine" Version="3.0.0-0.uc.0.ci.59" />
+    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.41" />
+    <PackageReference Include="CK.Template.Fluid.Engine" Version="3.0.0-0.uc.0.ci.60" />
 
     <!-- Test harness. -->
-    <PackageReference Include="CK.DB.Tests.NUnit" Version="37.0.0-0.uc.0.ci.32" />
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="37.0.0-0.uc.0.ci.33" />
     <PackageReference Include="CK.Testing.Nunit" Version="18.0.0-0.uc" />
-    <PackageReference Include="CK.Testing.Engine.SqlServer" Version="37.0.0-0.uc.0.ci.32" />
+    <PackageReference Include="CK.Testing.Engine.SqlServer" Version="37.0.0-0.uc.0.ci.33" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
   </ItemGroup>
