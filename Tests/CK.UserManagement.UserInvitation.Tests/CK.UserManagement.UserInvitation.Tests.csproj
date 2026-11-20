@@ -19,7 +19,7 @@
     <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.0.ci.92" />
     <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.0.ci.88" />
     <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.0.ci.92" />
-    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.104" />
+    <PackageReference Include="CK.DB.UserInvitation" Version="3.0.0-0.uc.0.ci.105" />
     <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.0.ci.86" />
     <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.0.ci.108" />
     <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.0.ci.102" />
@@ -32,7 +32,7 @@
     <!-- Engine-side assemblies required at setup time (Cris command model + Fluid mail templates). -->
     <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.0.ci.177" />
     <!-- The AuthCenter (the "UserInvitation" option): the engines of an AuthCenter application. -->
-    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.42" />
+    <PackageReference Include="CK.Testing.Engine.AppIdentity.AuthCenter" Version="4.0.0-0.uc.0.ci.43" />
     <PackageReference Include="CK.Template.Fluid.Engine" Version="3.0.0-0.uc.0.ci.61" />
 
     <!-- Test harness. -->
