@@ -11,8 +11,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CK.IO.Globalization" Version="3.0.0-0.uc.0.ci.103" />
-        <PackageReference Include="CK.IO.UserProfile.Workspace" Version="18.0.0-0.uc.0.ci.87" />
+        <PackageReference Include="CK.IO.Globalization" Version="3.0.0-0.uc.0.ci.104" />
+        <PackageReference Include="CK.IO.UserProfile.Workspace" Version="18.0.0-0.uc.0.ci.88" />
     </ItemGroup>
 
     <ItemGroup>
