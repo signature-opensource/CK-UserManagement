@@ -9,30 +9,30 @@
   <ItemGroup>
     <!-- Cris + auth markers required to build the command model (commands implement
          ICommandWorkspaceAdmin -> ICommandAuthNormal). -->
-    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.uc.1" />
+    <PackageReference Include="CK.Cris.Authentication" Version="3.0.0-0.uc.1.ci.190" />
 
     <!-- Standard CK.DB building blocks needed to build the workspace/user setup + read model. -->
-    <PackageReference Include="CK.DB.User.UserPassword" Version="31.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.1" />
-    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.1" />
-    <PackageReference Include="CK.Globalization.Engine" Version="3.0.0-0.uc.1" />
+    <PackageReference Include="CK.DB.User.UserPassword" Version="31.0.0-0.uc.1.ci.112" />
+    <PackageReference Include="CK.DB.User.NamedUser" Version="31.0.0-0.uc.1.ci.105" />
+    <PackageReference Include="CK.DB.User.PreferredCulture" Version="3.0.0-0.uc.1.ci.105" />
+    <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.1.ci.101" />
+    <PackageReference Include="CK.DB.Actor.ActorEMail" Version="31.0.0-0.uc.1.ci.105" />
+    <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.1.ci.99" />
+    <PackageReference Include="CK.DB.Zone" Version="31.0.0-0.uc.1.ci.121" />
+    <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.1.ci.115" />
+    <PackageReference Include="CK.Globalization.Engine" Version="3.0.0-0.uc.1.ci.77" />
 
     <!-- Data access + transactions. -->
-    <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.1" />
-    <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.1" />
+    <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.1.ci.75" />
+    <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.1.ci.28" />
 
     <!-- Engine-side assemblies required at setup time (Cris command model). -->
-    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.1" />
+    <PackageReference Include="CK.Cris.Engine" Version="3.0.0-0.uc.1.ci.190" />
 
     <!-- Test harness. -->
-    <PackageReference Include="CK.DB.Tests.NUnit" Version="37.0.0-0.uc.1" />
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="37.0.0-0.uc.1.ci.47" />
     <PackageReference Include="CK.Testing.Nunit" Version="18.0.0-0.uc" />
-    <PackageReference Include="CK.Testing.Engine.SqlServer" Version="37.0.0-0.uc.1" />
+    <PackageReference Include="CK.Testing.Engine.SqlServer" Version="37.0.0-0.uc.1.ci.47" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
   </ItemGroup>
