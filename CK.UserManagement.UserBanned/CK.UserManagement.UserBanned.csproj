@@ -8,18 +8,18 @@
 
     <ItemGroup>
         <!-- Data access for the command handler. -->
-        <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.2.ci.80" />
-        <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.2" />
+        <PackageReference Include="CK.SqlServer.Dapper" Version="18.0.0-0.uc.2.ci.83" />
+        <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.2.ci.32" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.2.ci.105" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.2.ci.107" />
 
         <!-- Workspace owns CK.tWorkspace, read by CK.fUserAdministrationCheck (the injected security check). -->
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.2.ci.103" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.2.ci.106" />
 
         <!-- Back-end localized messages. -->
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.2.ci.120" />
-        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.uc.2.ci.83" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.2.ci.123" />
+        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.uc.2.ci.87" />
     </ItemGroup>
 
     <ItemGroup>
