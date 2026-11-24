@@ -1,6 +1,7 @@
 using CK.AppIdentity;
 using CK.AppIdentity.AuthCenter;
 using CK.Core;
+using CK.Mailer;
 using Microsoft.Extensions.Configuration;
 
 namespace CK.UserManagement.UserInvitation;
@@ -16,8 +17,12 @@ namespace CK.UserManagement.UserInvitation;
 /// }
 /// </code>
 /// An invalid configuration throws.
+/// <para>
+/// It requires the "MailSender" feature of the party (the invitation mails): the party can't turn it off.
+/// </para>
 /// </summary>
 [PartyFeatureOption( "UserInvitation", TypeActivation.Required )]
+[Requires<MailSenderFeatureDriver>]
 public sealed class UserInvitationOption : IPartyComponentOption<LocalAuthCenterFeatureDriver>
 {
     static readonly string[] _keys = ["Sender"];
