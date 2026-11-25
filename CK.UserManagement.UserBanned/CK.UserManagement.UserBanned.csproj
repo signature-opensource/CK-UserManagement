@@ -12,14 +12,14 @@
         <PackageReference Include="CK.SqlServer.Transaction" Version="15.0.0-0.uc.3" />
 
         <!-- User banishment (sUserBannedSet/sUserBannedDestroy, transformed here). -->
-        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.3.ci.111" />
+        <PackageReference Include="CK.DB.User.UserBanned" Version="4.0.0-0.uc.3.ci.112" />
 
         <!-- Workspace owns CK.tWorkspace, read by CK.fUserAdministrationCheck (the injected security check). -->
-        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.3.ci.111" />
+        <PackageReference Include="CK.DB.Workspace" Version="18.0.0-0.uc.3.ci.112" />
 
         <!-- Back-end localized messages. -->
-        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.3.ci.132" />
-        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.uc.3.ci.93" />
+        <PackageReference Include="CK.DB.Globalization" Version="3.0.0-0.uc.3.ci.133" />
+        <PackageReference Include="CK.Globalization.StObj" Version="3.0.0-0.uc.3.ci.94" />
     </ItemGroup>
 
     <ItemGroup>
