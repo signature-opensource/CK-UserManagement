@@ -2,7 +2,6 @@ using CK.AppIdentity;
 using CK.AppIdentity.AuthCenter;
 using CK.Core;
 using CK.Mailer;
-using Microsoft.Extensions.Configuration;
 
 namespace CK.UserManagement.UserInvitation;
 
@@ -16,32 +15,23 @@ namespace CK.UserManagement.UserInvitation;
 ///   }
 /// }
 /// </code>
-/// An invalid configuration throws.
+/// Its configuration is <see cref="UserInvitationOptionConfiguration"/>: an invalid one is an error.
 /// <para>
 /// It requires the "MailSender" feature of the party (the invitation mails): the party can't turn it off.
 /// </para>
 /// </summary>
 [PartyFeatureOption( "UserInvitation", TypeActivation.Required )]
+[Configuration<UserInvitationOptionConfiguration>]
 [Requires<MailSenderFeatureDriver>]
 public sealed class UserInvitationOption : IPartyComponentOption<LocalAuthCenterFeatureDriver>
 {
-    static readonly string[] _keys = ["Sender"];
-
     /// <summary>
     /// Initializes a new <see cref="UserInvitationOption"/> from its configuration.
     /// </summary>
-    /// <param name="configuration">The "UserInvitation" section of the AuthCenter. Null for the defaults.</param>
-    public UserInvitationOption( IConfiguration? configuration )
+    /// <param name="configuration">The configuration of the option.</param>
+    public UserInvitationOption( UserInvitationOptionConfiguration configuration )
     {
-        if( configuration != null )
-        {
-            foreach( var c in configuration.GetChildren() )
-            {
-                if( !_keys.Contains( c.Key ) ) Throw.CKException( $"Unknown \"{c.Key}\": the keys are {_keys.Concatenate()}." );
-            }
-            var sender = configuration["Sender"];
-            Sender = string.IsNullOrEmpty( sender ) ? null : sender;
-        }
+        Sender = string.IsNullOrEmpty( configuration.Sender ) ? null : configuration.Sender;
     }
 
     /// <summary>
@@ -49,4 +39,16 @@ public sealed class UserInvitationOption : IPartyComponentOption<LocalAuthCenter
     /// CK.Mailer). Null: its default sender. An unknown sender fails the sending of a mail.
     /// </summary>
     public string? Sender { get; }
+}
+
+/// <summary>
+/// The configuration of the <see cref="UserInvitationOption"/>.
+/// </summary>
+[ConfigurationModel]
+public sealed class UserInvitationOptionConfiguration
+{
+    /// <summary>
+    /// Gets the name of the sender of the invitation mails ("MailSender" of the party), its default sender when null.
+    /// </summary>
+    public string? Sender { get; init; }
 }

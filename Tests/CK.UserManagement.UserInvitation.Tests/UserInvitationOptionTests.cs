@@ -1,33 +1,40 @@
 using CK.Core;
-using Microsoft.Extensions.Configuration;
+using CK.Setup;
 using NUnit.Framework;
 using Shouldly;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace CK.UserManagement.UserInvitation.Tests;
 
+/// <summary>
+/// The "UserInvitation" option of the AuthCenter: its configuration model.
+/// </summary>
 [TestFixture]
 public class UserInvitationOptionTests
 {
-    static IConfiguration Section( params (string Key, string Value)[] values )
+    static UserInvitationOptionConfiguration? Read( string json, out string[] errors )
     {
-        var data = new Dictionary<string, string?>();
-        foreach( var (k, v) in values ) data["UserInvitation:" + k] = v;
-        return new ConfigurationBuilder().AddInMemoryCollection( data ).Build().GetSection( "UserInvitation" );
+        var collector = new UserMessageCollector( new CurrentCultureInfo( new TranslationService(), NormalizedCultureInfo.CodeDefault ) );
+        ConfigurationModelReader.TryRead<UserInvitationOptionConfiguration>( ImmutableConfigurationSection.CreateFromJson( "Test", "UserInvitation", json ),
+                                                                             "UserInvitation",
+                                                                             collector,
+                                                                             out var model );
+        errors = collector.UserMessages.Where( m => m.Level == UserMessageLevel.Error ).Select( m => m.Text ).ToArray();
+        return model;
     }
 
     [Test]
     public void the_Sender_is_optional()
     {
-        new UserInvitationOption( null ).Sender.ShouldBeNull();
-        new UserInvitationOption( Section( ("Sender", "Support") ) ).Sender.ShouldBe( "Support" );
-        new UserInvitationOption( Section( ("Sender", "") ) ).Sender.ShouldBeNull();
+        new UserInvitationOption( new UserInvitationOptionConfiguration() ).Sender.ShouldBeNull();
+        new UserInvitationOption( Read( """{ "Sender": "Support" }""", out _ ).ShouldNotBeNull() ).Sender.ShouldBe( "Support" );
+        new UserInvitationOption( Read( """{ "Sender": "" }""", out _ ).ShouldNotBeNull() ).Sender.ShouldBeNull();
     }
 
     [Test]
-    public void an_unknown_key_throws()
+    public void an_unknown_key_is_an_error()
     {
-        Util.Invokable( () => new UserInvitationOption( Section( ("Sendr", "Support") ) ) )
-            .ShouldThrow<CKException>().Message.ShouldBe( "Unknown \"Sendr\": the keys are Sender." );
+        Read( """{ "Sendr": "Support" }""", out var errors ).ShouldBeNull();
+        errors.ShouldHaveSingleItem().ShouldStartWith( "Unknown key 'Test:UserInvitation:Sendr'" );
     }
 }
